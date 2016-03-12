@@ -443,7 +443,7 @@ void CDlgBrowseByClass::DoDataExchange(CDataExchange* pDX)
     pDoc->m_selEntitySelection.Clear();
     // mark all selected entities in list as selected in document's entity selection
     INDEX iSelectedItem = -1;
-    FOREVER
+    for (;;) 
     {
       iSelectedItem = m_listEntities.GetNextItem( iSelectedItem, LVNI_ALL|LVNI_SELECTED);
       if( iSelectedItem == -1)
@@ -854,7 +854,7 @@ void CDlgBrowseByClass::OnRemove()
 {
   m_listEntities.SetRedraw(FALSE);
   INDEX iSelectedItem = -1;
-  FOREVER
+  for (;;)
   {
     iSelectedItem = m_listEntities.GetNextItem( -1, LVNI_ALL|LVNI_SELECTED);
     if( iSelectedItem == -1)
@@ -984,7 +984,7 @@ void CDlgBrowseByClass::OnDeleteBrowseByClass()
 
   m_listEntities.SetRedraw(FALSE);
   INDEX iSelectedItem = -1;
-  FOREVER
+  for (;;)
   {
     iSelectedItem = m_listEntities.GetNextItem( -1, LVNI_ALL|LVNI_SELECTED);
     if( iSelectedItem == -1)

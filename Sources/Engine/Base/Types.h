@@ -90,7 +90,6 @@ typedef long int INDEX;     // for indexed values and quantities
 
 #define NONE 0
 #define NOTHING ((void) 0)
-#define FOREVER for(;;)
 
 #define DECLARE_NOCOPYING(classname)        \
   classname(const classname &c);            \

@@ -299,7 +299,8 @@ static CTFileName MakeScreenShotName(void)
   // start at counter of zero
   INDEX iShot = 0;
   // repeat forever
-  FOREVER {
+  for (;;)
+  {
     // create number for the file
     CTString strNumber;
     strNumber.PrintF("_shot%04d", iShot);

@@ -83,16 +83,16 @@ static CTString ReadOneString_t(CTStream &strm)
   CTString str;
 
   // read characters
-  FOREVER{
-    int i = ReadOneChar_t(strm);
-    if (i==0) {
-      return str;
-    } else {
-      char c[2];
-      c[1] = 0;
-      c[0] = i;
-      str+=c;
-    }
+  for (;;)
+  {
+     char c[2];
+     int i = ReadOneChar_t(strm);
+     if (i==0)
+        return str;
+
+     c[1] = 0;
+     c[0] = i;
+     str+=c;
   }
 }
 

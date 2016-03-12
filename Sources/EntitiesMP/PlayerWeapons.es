@@ -3485,7 +3485,7 @@ functions:
   {
     WeaponType wtOrg = (WeaponType)m_iWantedWeapon;
     WeaponType wt = wtOrg;
-    FOREVER {
+    for (;;) {
       (INDEX&)wt += iDir;
       if (wt<WEAPON_KNIFE) {
         wt = WEAPON_IRONCANNON;
@@ -3508,7 +3508,7 @@ functions:
   {
     INDEX wtOrg = FindRemapedPos(m_iWantedWeapon);
     INDEX wti = wtOrg;
-    FOREVER {
+    for (;;) {
       (INDEX&)wti += iDir;
       if (wti<1) {
         wti = WEAPON_IRONCANNON;

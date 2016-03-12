@@ -457,14 +457,16 @@ extern CTString ReformatExtensionsString( CTString strUnformatted)
 {
   CTString strTmp, strDst = "\n";
   char *pcSrc = (char*)(const char*)strUnformatted;
-  FOREVER {
-    char *pcSpace = strchr( pcSrc, ' ');
-    if( pcSpace==NULL) break;
-    *pcSpace = 0;
-    strTmp.PrintF( "    %s\n", pcSrc);
-    strDst += strTmp;
-    *pcSpace = ' ';
-    pcSrc = pcSpace +1;
+  for (;;)
+  {
+     char *pcSpace = strchr( pcSrc, ' ');
+     if( pcSpace==NULL)
+        break;
+     *pcSpace = 0;
+     strTmp.PrintF( "    %s\n", pcSrc);
+     strDst += strTmp;
+     *pcSpace = ' ';
+     pcSrc = pcSpace +1;
   }
   if(strDst=="\n") {
     strDst = "none\n";

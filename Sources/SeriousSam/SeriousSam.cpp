@@ -48,7 +48,7 @@ static INDEX sam_iMaxFPSActive   = 500;
 static INDEX sam_iMaxFPSInactive = 10;
 static INDEX sam_bPauseOnMinimize = TRUE; // auto-pause when window has been minimized
 extern INDEX sam_bWideScreen = FALSE;
-extern FLOAT sam_fPlayerOffset = 0.0f;
+extern float sam_fPlayerOffset = 0.0f;
 
 // display mode settings
 extern INDEX sam_bFullScreenActive = FALSE;
@@ -58,7 +58,7 @@ extern INDEX sam_iDisplayDepth  = 0;  // 0==default, 1==16bit, 2==32bit
 extern INDEX sam_iDisplayAdapter = 0; 
 extern INDEX sam_iGfxAPI = 0;         // 0==OpenGL
 extern INDEX sam_bFirstStarted = FALSE;
-extern FLOAT sam_tmDisplayModeReport = 5.0f;
+extern float sam_tmDisplayModeReport = 5.0f;
 extern INDEX sam_bShowAllLevels = FALSE;
 extern INDEX sam_bMentalActivated = FALSE;
 
@@ -638,7 +638,7 @@ void PrintDisplayModeInfo(void)
   dm.dm_pixSizeI = slDPWidth;
   dm.dm_pixSizeJ = slDPHeight;
   // determine proper text scale for statistics display
-  FLOAT fTextScale = (FLOAT)slDPWidth/640.0f;
+  float fTextScale = (float)slDPWidth/640.0f;
 
   // get resolution
   CTString strRes;
@@ -771,8 +771,8 @@ void TeleportPlayer(int iPosition)
 
 
 CTextureObject _toStarField;
-static FLOAT _fLastVolume = 1.0f;
-void RenderStarfield(CDrawPort *pdp, FLOAT fStrength)
+static float _fLastVolume = 1.0f;
+void RenderStarfield(CDrawPort *pdp, float fStrength)
 {
   CTextureData *ptd = (CTextureData *)_toStarField.GetData();
   // skip if no texture
@@ -780,8 +780,8 @@ void RenderStarfield(CDrawPort *pdp, FLOAT fStrength)
 
   PIX pixSizeI = pdp->GetWidth();
   PIX pixSizeJ = pdp->GetHeight();
-  FLOAT fStretch = pixSizeI/640.0f;
-  fStretch*=FLOAT(ptd->GetPixWidth())/ptd->GetWidth();
+  float fStretch = pixSizeI/640.0f;
+  fStretch*= (float)(ptd->GetPixWidth())/ptd->GetWidth();
 
   PIXaabbox2D boxScreen(PIX2D(0,0), PIX2D(pixSizeI, pixSizeJ));
   MEXaabbox2D boxTexture(MEX2D(0, 0), MEX2D(pixSizeI/fStretch, pixSizeJ/fStretch));
@@ -789,7 +789,7 @@ void RenderStarfield(CDrawPort *pdp, FLOAT fStrength)
 }
 
 
-FLOAT RenderQuitScreen(CDrawPort *pdp, CViewPort *pvp)
+float RenderQuitScreen(CDrawPort *pdp, CViewPort *pvp)
 {
   CDrawPort dpQuit(pdp, TRUE);
   CDrawPort dpWide;
@@ -802,7 +802,7 @@ FLOAT RenderQuitScreen(CDrawPort *pdp, CViewPort *pvp)
   dpWide.Fill(C_BLACK|CT_OPAQUE);
   RenderStarfield(&dpWide, _fLastVolume);
   
-  FLOAT fVolume = Credits_Render(&dpWide);
+  float fVolume = Credits_Render(&dpWide);
   _fLastVolume = fVolume;
 
   dpWide.Unlock();
@@ -822,8 +822,9 @@ void QuitScreenLoop(void)
     CPrintF("%s\n", strError);
   }
   // while it is still running
-  FOREVER {
-    FLOAT fVolume = RenderQuitScreen(pdp, pvpViewPort);
+  for (;;)
+  {
+    float fVolume = RenderQuitScreen(pdp, pvpViewPort);
     if (fVolume<=0) {
       return;
     }

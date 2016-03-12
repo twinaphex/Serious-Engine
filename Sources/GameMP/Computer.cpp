@@ -207,7 +207,8 @@ void SyncScrollWithActive(void)
 static void NextUnreadMessage(void)
 {
   INDEX i=_iActiveMessage;
-  FOREVER {
+  for (;;)
+  {
     i++;
     if (i>=_acmMessages.Count()) {
       i = 0;

@@ -395,7 +395,7 @@ void CTStream::GetLine_t(char *strBuffer, SLONG slBufferSize, char cDelimiter /*
     ThrowF_t(TRANS("EOF reached, file %s"), strm_strStreamDescription);
   }
   // get line from istream
-  FOREVER
+  for (;;) 
   {
     char c;
     Read_t(&c, 1);

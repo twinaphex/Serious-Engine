@@ -273,7 +273,7 @@ void CDependencyList::ImportASCII( CTFileName fnAsciiFile)
   }
 
   // loop loading lines until EOF reached ("catched")
-  FOREVER
+  for (;;) 
   {
     try {
       // load one line from file

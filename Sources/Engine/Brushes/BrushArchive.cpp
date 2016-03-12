@@ -259,7 +259,8 @@ void CBrushArchive::ReadPortalSectorLinks_t( CTStream &strm)  // throw char *
   strm>>slChunkSize;
 
   // repeat
-  FOREVER {
+  for (;;)
+  {
     // read sector index
     INDEX iSector;
     strm>>iSector;
@@ -325,7 +326,8 @@ void CBrushArchive::ReadEntitySectorLinks_t( CTStream &strm)  // throw char *
   strm>>slChunkSize;
 
   // repeat
-  FOREVER {
+  for (;;)
+  {
     // read sector index
     INDEX iSector;
     strm>>iSector;

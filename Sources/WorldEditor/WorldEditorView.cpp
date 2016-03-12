@@ -787,7 +787,7 @@ void CWorldEditorView::RenderView( CDrawPort *pDP)
     ULONG ulLineStyle;
     // loop all vertical grid lines
 #define LINE_EPSILON 0.05f
-    FOREVER
+    for (;;)
     {
       // does this grid lines touch origin point
       if( Abs(fGridX - fGridOriginX) < LINE_EPSILON )
@@ -813,7 +813,7 @@ void CWorldEditorView::RenderView( CDrawPort *pDP)
       }
     }
     // loop all horizontal grid lines
-    FOREVER
+    for (;;)
     {
       // does this grid lines touch origin point
       if( Abs(fGridY - fGridOriginY) < LINE_EPSILON )
@@ -5468,7 +5468,7 @@ void CWorldEditorView::RemoveFromLinkedChain(CEntity *pen)
   CEntity *penCurrent = pen;
   INDEX iInfiniteLoopProtector = 0;
   // loop forever
-  FOREVER
+  for (;;)
   {
     if( !penCurrent->DropsMarker( fnDropClass, strTargetProperty)) return;
     penpProperty = penCurrent->PropertyForName( strTargetProperty);
@@ -7415,7 +7415,8 @@ void CWorldEditorView::OnTestConnectionsBack()
   CEntity *penNext=penCurrent;
 
   // repeat
-  FOREVER {
+  for (;;)
+  {
     // get next target pointer
     penNext->MovesByTargetedRoute( strTargetProperty);
     penpProperty = penCurrent->PropertyForName( strTargetProperty);

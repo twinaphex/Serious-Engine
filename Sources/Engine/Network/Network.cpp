@@ -1949,7 +1949,7 @@ void CNetworkLibrary::MainLoop(void)
 //    _cmiComm.Broadcast_Update();
 
     // repeat
-    FOREVER {
+    for (;;) {
       CNetworkMessage nmReceived;
 
 //      _cmiComm.Broadcast_Update();
@@ -2424,7 +2424,7 @@ void CNetworkLibrary::GameInactive(void)
 //  _cmiComm.Broadcast_Update();
 
   // repeat
-  FOREVER {
+  for (;;) {
     CNetworkMessage nmReceived;
 
 //_cmiComm.Broadcast_Update();

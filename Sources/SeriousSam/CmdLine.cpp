@@ -100,7 +100,8 @@ void ParseCommandLine(CTString strCmd)
   }
   _strCmd = strCmd;
 
-  FOREVER {
+  for (;;)
+  {
     CTString strWord = GetNextParam();
     if (strWord=="") {
       cmd_strOutput+="\n";

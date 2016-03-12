@@ -487,7 +487,8 @@ INDEX CTString::VPrintF(const char *strFormat, va_list arg)
 
   // repeat
   INDEX iLen;
-  FOREVER {
+  for (;;)
+  {
     // print to the buffer
     iLen = _vsnprintf(_pchBuffer, _ctBufferSize, strFormat, arg);
     // if printed ok

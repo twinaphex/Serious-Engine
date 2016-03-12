@@ -289,7 +289,8 @@ static void PrepareSurfaceElements( ModelMipInfo &mmi, MappingSurface &ms)
   _ctStrips++;
   INDEX ctTriPerStrip = 0;
   // repeat
-  FOREVER {
+  for (;;)
+  {
     // put current triangles into done triangles
     _atriDone[ctTrianglesDone++] = *ptri;
     //_RPT3(_CRT_WARN, "Added: %d %d %d\n", ptri->i0, ptri->i1, ptri->i2);

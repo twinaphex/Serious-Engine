@@ -671,7 +671,8 @@ void CGfxLibrary::InitContext_D3D()
   gl_ctTexBuffers = gl_ctTextureUnits;
   gl_ctColBuffers = 1;
   INDEX ctStreamsRemain = gl_ctMaxStreams - (ctMinStreams-1+gl_ctTextureUnits); // -1 because of 1 texture unit inside MinStreams
-  FOREVER {
+  for (;;)
+  {
     // done if no more or enough streams
     if( ctStreamsRemain==0 || (gl_ctTexBuffers==GFX_MAXLAYERS && gl_ctColBuffers==GFX_MAXLAYERS)) break;
     // increase number of tex or color buffers
@@ -938,10 +939,13 @@ static D3DFORMAT FallbackFormat_D3D( D3DFORMAT eFormat, BOOL b2ndTry)
 // find closest 
 extern D3DFORMAT FindClosestFormat_D3D( D3DFORMAT d3df)
 {
-  FOREVER {
-    if( HasTextureFormat_D3D(d3df)) return d3df;
+  for (;;)
+  {
+    if( HasTextureFormat_D3D(d3df))
+       return d3df;
     D3DFORMAT d3df2 = FallbackFormat_D3D( d3df, FALSE);
-    if( HasTextureFormat_D3D(d3df2)) return d3df2;
+    if( HasTextureFormat_D3D(d3df2))
+       return d3df2;
     d3df = FallbackFormat_D3D( d3df, TRUE);
   }
 }

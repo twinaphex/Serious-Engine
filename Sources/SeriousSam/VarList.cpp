@@ -24,21 +24,22 @@ INDEX _ctLines;
 
 CTString GetNonEmptyLine_t(CTStream &strm)
 {
-  FOREVER {
-   if(strm.AtEOF()) {
-     ThrowF_t(TRANS("Unexpected end of file"));
-   }
-   CTString str;
-   _ctLines++;
-   strm.GetLine_t(str);
-   str.TrimSpacesLeft();
-   if (str.RemovePrefix("//")) {  // skip comments
-     continue;
-   }
-   if (str!="") {
-     str.TrimSpacesRight();
-     return str;
-   }
+  for (;;)
+  {
+     if(strm.AtEOF()) {
+        ThrowF_t(TRANS("Unexpected end of file"));
+     }
+     CTString str;
+     _ctLines++;
+     strm.GetLine_t(str);
+     str.TrimSpacesLeft();
+     if (str.RemovePrefix("//")) {  // skip comments
+        continue;
+     }
+     if (str!="") {
+        str.TrimSpacesRight();
+        return str;
+     }
   }
 }
 
@@ -73,7 +74,8 @@ void ParseCFG_t(CTStream &strm)
   CVarSetting *pvs = NULL;
 
   // repeat
-  FOREVER {
+  for (;;)
+  {
     // read one line
     CTString strLine = GetNonEmptyLine_t(strm);
 

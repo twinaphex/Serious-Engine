@@ -3375,65 +3375,65 @@ void CModelerView::OnCreateMipModels()
     mStretch.Diagonal(1.0f);
     try
     {
-		  FOREVER
-      {
-        do
-        {
-          File.GetLine_t(achrLine, 128);
-        }
-		    while( (strlen( achrLine)== 0) || (achrLine[0]==';'));
-
-		    if( EQUAL_SUB_STR( "DIRECTORY"))
-		    {
-			    _strupr( achrLine);
-          sscanf( achrLine, "DIRECTORY %s", achrBasePath);
-			    if( achrBasePath[ strlen( achrBasePath) - 1] != '\\')
-				    strcat( achrBasePath,"\\");
-		    }
-		    else if( EQUAL_SUB_STR( "MIP_MODELS"))
-        {
-          File.GetLine_t(achrLine, 128);
-  			  _strupr( achrLine);
-			    sscanf( achrLine, "%s", achrRestFrame);
-			    sprintf( achrRestFrameFullPath, "%s%s", achrBasePath, achrRestFrame);
-        }
-		    else if( EQUAL_SUB_STR( "SIZE"))
-        {
-  	      _strupr( achrLine);
-          FLOAT fStretch = 1.0f;
-		      sscanf( achrLine, "SIZE %g", &fStretch);
-          mStretch *= fStretch;
-		    }
-		    else if( EQUAL_SUB_STR( "TRANSFORM")) 
-        {
-  	      _strupr( achrLine);
-          FLOATmatrix3D mTran;
-          mTran.Diagonal(1.0f);
-		      sscanf( achrLine, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
-            &mTran(1,1), &mTran(1,2), &mTran(1,3),
-            &mTran(2,1), &mTran(2,2), &mTran(2,3),
-            &mTran(3,1), &mTran(3,2), &mTran(3,3));
-          mStretch *= mTran;
-        }
-		    else if( EQUAL_SUB_STR( "ANIM_START"))
-        {
-  	      pDoc->m_emEditModel.edm_md.LoadFromScript_t( &File, &FrameNamesList);
-          // extract file name of last rendered frame
-          INDEX iFrame = 0;
-          FOREACHINLIST( CFileNameNode, cfnn_Node, FrameNamesList, itFrameName)
+       for (;;) 
+       {
+          do
           {
-            if( m_iCurrentFrame == iFrame)
-            {
-              fnFrameFileName = CTString(itFrameName->cfnn_FileName);
-              break;
-            }
-            iFrame++;
+             File.GetLine_t(achrLine, 128);
           }
-          // clear list of frames
-          FORDELETELIST( CFileNameNode, cfnn_Node, FrameNamesList, litDel)
-            delete &litDel.Current();
-        }
-      }
+          while( (strlen( achrLine)== 0) || (achrLine[0]==';'));
+
+          if( EQUAL_SUB_STR( "DIRECTORY"))
+          {
+             _strupr( achrLine);
+             sscanf( achrLine, "DIRECTORY %s", achrBasePath);
+             if( achrBasePath[ strlen( achrBasePath) - 1] != '\\')
+                strcat( achrBasePath,"\\");
+          }
+          else if( EQUAL_SUB_STR( "MIP_MODELS"))
+          {
+             File.GetLine_t(achrLine, 128);
+             _strupr( achrLine);
+             sscanf( achrLine, "%s", achrRestFrame);
+             sprintf( achrRestFrameFullPath, "%s%s", achrBasePath, achrRestFrame);
+          }
+          else if( EQUAL_SUB_STR( "SIZE"))
+          {
+             _strupr( achrLine);
+             FLOAT fStretch = 1.0f;
+             sscanf( achrLine, "SIZE %g", &fStretch);
+             mStretch *= fStretch;
+          }
+          else if( EQUAL_SUB_STR( "TRANSFORM")) 
+          {
+             _strupr( achrLine);
+             FLOATmatrix3D mTran;
+             mTran.Diagonal(1.0f);
+             sscanf( achrLine, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
+                   &mTran(1,1), &mTran(1,2), &mTran(1,3),
+                   &mTran(2,1), &mTran(2,2), &mTran(2,3),
+                   &mTran(3,1), &mTran(3,2), &mTran(3,3));
+             mStretch *= mTran;
+          }
+          else if( EQUAL_SUB_STR( "ANIM_START"))
+          {
+             pDoc->m_emEditModel.edm_md.LoadFromScript_t( &File, &FrameNamesList);
+             // extract file name of last rendered frame
+             INDEX iFrame = 0;
+             FOREACHINLIST( CFileNameNode, cfnn_Node, FrameNamesList, itFrameName)
+             {
+                if( m_iCurrentFrame == iFrame)
+                {
+                   fnFrameFileName = CTString(itFrameName->cfnn_FileName);
+                   break;
+                }
+                iFrame++;
+             }
+             // clear list of frames
+             FORDELETELIST( CFileNameNode, cfnn_Node, FrameNamesList, litDel)
+                delete &litDel.Current();
+          }
+       }
     }
     catch( char *pstrError)
     {

@@ -218,7 +218,8 @@ inline void MixMono( CSoundObject *pso)
 
   // loop thru source buffer
   INDEX iCt = slMixerBufferSize;
-  FOREVER
+  
+  for (;;)
   {
     // if left channel source sample came to end of sample buffer
     if( fixLeftOfs >= fixSoundBufferSize) {

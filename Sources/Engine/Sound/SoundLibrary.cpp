@@ -347,7 +347,9 @@ static BOOL DSLockBuffer( CSoundLibrary &sl, LPDIRECTSOUNDBUFFER pBuffer, SLONG 
 {
   INDEX ctRetries = 1000;  // too much?
   if( sl.sl_bUsingEAX) slSize/=2; // buffer is mono in case of EAX
-  FOREVER {
+
+  for (;;)
+  {
     HRESULT hResult = pBuffer->Lock( 0, slSize, &lpData, &dwSize, NULL, NULL, 0);
     if( hResult==DS_OK && slSize==dwSize) return TRUE;
     if( hResult!=DSERR_BUFFERLOST) return DSFail( sl, TRANS("  ! DirectSound error: Cannot lock sound buffer.\n"));
@@ -577,8 +579,10 @@ static BOOL StartUp_waveout( CSoundLibrary &sl, BOOL bReport=TRUE)
   INDEX ctMaxRetries = snd_iMaxOpenRetries;
   _ctChannelsOpened = 0;
   MMRESULT res;
+
   // repeat
-  FOREVER {
+  for (;;)
+  {
     // try to open wave device
     HWAVEOUT hwo;
     res = waveOutOpen( &hwo, (snd_iDevice<0)?WAVE_MAPPER:snd_iDevice, &sl.sl_SwfeFormat, NULL, NULL, NONE);

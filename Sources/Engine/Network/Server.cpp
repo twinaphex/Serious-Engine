@@ -1148,7 +1148,7 @@ void CServer::HandleAllForAClient(INDEX iClient)
 
   CNetworkMessage nmReceived;
   // repeat
-  FOREVER {
+  for (;;) {
     // if there is some reliable message
     if (_pNetwork->ReceiveFromClientReliable(iClient, nmReceived)) {
       // process it
@@ -1171,7 +1171,7 @@ void CServer::HandleAllForAClient(INDEX iClient)
   }
 
   // repeat
-  FOREVER {
+  for (;;) {
     // if there is some unreliable message
     if (_pNetwork->ReceiveFromClient(iClient, nmReceived)) {
       // process it

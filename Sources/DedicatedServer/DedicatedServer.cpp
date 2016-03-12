@@ -22,16 +22,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #endif
 
 // application state variables
-extern BOOL _bRunning = TRUE;
-static BOOL _bForceRestart = FALSE;
-static BOOL _bForceNextMap = FALSE;
+extern bool _bRunning = TRUE;
+static bool _bForceRestart = FALSE;
+static bool _bForceNextMap = FALSE;
 
 extern CTString _strSamVersion = "no version information";
 extern INDEX ded_iMaxFPS = 100;
 extern CTString ded_strConfig = "";
 extern CTString ded_strLevel = "";
 extern INDEX ded_bRestartWhenEmpty = TRUE;
-extern FLOAT ded_tmTimeout = -1;
+extern float ded_tmTimeout = -1;
 extern CGame *_pGame = NULL;
 extern CTString sam_strFirstLevel = "Levels\\KarnakDemo.wld";
 extern CTString sam_strIntroLevel = "Levels\\Intro.wld";
@@ -104,7 +104,7 @@ void LimitFrameRate(void)
 }
 
 // break/close handler
-BOOL WINAPI HandlerRoutine(
+bool WINAPI HandlerRoutine(
   DWORD dwCtrlType   //  control signal type
 )
 {
@@ -156,7 +156,7 @@ void DisableLoadingHook(void)
   printf("\n");
 }
 
-BOOL StartGame(CTString &strLevel)
+bool StartGame(CTString &strLevel)
 {
   _pGame->gm_aiStartLocalPlayers[0] = -1;
   _pGame->gm_aiStartLocalPlayers[1] = -1;
@@ -179,7 +179,7 @@ void ExecScript(const CTString &str)
   _pShell->Execute(strCmd);
 }
 
-BOOL Init(int argc, char* argv[])
+bool Init(int argc, char* argv[])
 {
   _bDedicatedServer = TRUE;
 
@@ -273,15 +273,16 @@ void End(void)
 }
 
 static INDEX iRound = 1;
-static BOOL _bHadPlayers = 0;
-static BOOL _bRestart = 0;
+static bool _bHadPlayers = 0;
+static bool _bRestart = 0;
 CTString strBegScript;
 CTString strEndScript;
 
 void RoundBegin(void)
 {
   // repeat generate script names
-  FOREVER {
+  for (;;)
+  {
     strBegScript.PrintF("%s%d_begin.ini", ded_strConfig, iRound);
     strEndScript.PrintF("%s%d_end.ini",   ded_strConfig, iRound);
     // if start script exists

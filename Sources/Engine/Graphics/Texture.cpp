@@ -1581,90 +1581,91 @@ uint32_t CTextureObject::GetFlags(void) const
 
 void ProcessScript_t( const CTFileName &inFileName) // throw char *
 {
-  CTFileStream File;
-	char ld_line[128];
-	char err_str[256];
-  float fTextureWidthMeters = 2.0f;
-  INDEX TexMipmaps = MAX_MEX_LOG2;
-  CTextureData tex;
-	CListHead FrameNamesList;
-  INDEX NoOfDataFound = 0;
-  bool bForce32bit = FALSE;
+   CTFileStream File;
+   char ld_line[128];
+   char err_str[256];
+   float fTextureWidthMeters = 2.0f;
+   INDEX TexMipmaps = MAX_MEX_LOG2;
+   CTextureData tex;
+   CListHead FrameNamesList;
+   INDEX NoOfDataFound = 0;
+   bool bForce32bit = FALSE;
 
-	File.Open_t( inFileName, CTStream::OM_READ);    // open script file for text reading
+   File.Open_t( inFileName, CTStream::OM_READ);    // open script file for text reading
 
-  FOREVER
-	{
-		do {
-      File.GetLine_t( ld_line, 128);
-    }	while( (strlen( ld_line)==0) || (ld_line[0]==';'));
+   for (;;) 
+   {
+      do
+      {
+         File.GetLine_t( ld_line, 128);
+      }	while( (strlen( ld_line)==0) || (ld_line[0]==';'));
 
-		_strupr( ld_line);
+      _strupr( ld_line);
 
-    // specified width of texture
-    if( EQUAL_SUB_STR( "TEXTURE_WIDTH")) {
-      sscanf( ld_line, "TEXTURE_WIDTH %g", &fTextureWidthMeters);
-      NoOfDataFound ++;
-    }
-    // how many mip-map levels will texture have
-		else if( EQUAL_SUB_STR( "TEXTURE_MIPMAPS")) {
-      sscanf( ld_line, "TEXTURE_MIPMAPS %d", &TexMipmaps);
-    }
-    // should texture be forced to keep 32-bit quality even that 16-bit textures are set
-		else if( EQUAL_SUB_STR( "TEXTURE_32BIT")) {
-      bForce32bit = TRUE;
-    }
+      // specified width of texture
+      if( EQUAL_SUB_STR( "TEXTURE_WIDTH")) {
+         sscanf( ld_line, "TEXTURE_WIDTH %g", &fTextureWidthMeters);
+         NoOfDataFound ++;
+      }
+      // how many mip-map levels will texture have
+      else if( EQUAL_SUB_STR( "TEXTURE_MIPMAPS")) {
+         sscanf( ld_line, "TEXTURE_MIPMAPS %d", &TexMipmaps);
+      }
+      // should texture be forced to keep 32-bit quality even that 16-bit textures are set
+      else if( EQUAL_SUB_STR( "TEXTURE_32BIT")) {
+         bForce32bit = TRUE;
+      }
 
-		// Key-word "ANIM_START" starts loading of Animation Data object
-		else if( EQUAL_SUB_STR( "ANIM_START")) {
-      tex.LoadFromScript_t( &File, &FrameNamesList);
-      NoOfDataFound ++;
-		}
-		// Key-word "END" ends infinite loop and script loading is over
-		else if( EQUAL_SUB_STR( "END")) break;
+      // Key-word "ANIM_START" starts loading of Animation Data object
+      else if( EQUAL_SUB_STR( "ANIM_START")) {
+         tex.LoadFromScript_t( &File, &FrameNamesList);
+         NoOfDataFound ++;
+      }
+      // Key-word "END" ends infinite loop and script loading is over
+      else if( EQUAL_SUB_STR( "END")) break;
 
-		// if none of known key-words isn't recognised, throw error
-		else {
-      sprintf( err_str,
-        TRANS("Unidentified key-word found (line: \"%s\") or unexpected end of file reached."), ld_line);
-      throw( err_str);
-		}
-  }
-  if( NoOfDataFound != 2)
-    throw( TRANS("Required key-word(s) has not been specified in script file:\nTEXTURE_WIDTH and/or ANIM_START"));
+      // if none of known key-words isn't recognised, throw error
+      else {
+         sprintf( err_str,
+               TRANS("Unidentified key-word found (line: \"%s\") or unexpected end of file reached."), ld_line);
+         throw( err_str);
+      }
+   }
+   if( NoOfDataFound != 2)
+      throw( TRANS("Required key-word(s) has not been specified in script file:\nTEXTURE_WIDTH and/or ANIM_START"));
 
-  // Now we will create texture file form read script data
-	CImageInfo   inPic;
-  CTFileName   outFileName;
-  CTFileStream outFile;
+   // Now we will create texture file form read script data
+   CImageInfo   inPic;
+   CTFileName   outFileName;
+   CTFileStream outFile;
 
-  // load first picture
-  CFileNameNode *pFirstFNN = LIST_HEAD( FrameNamesList, CFileNameNode, cfnn_Node);
-  inPic.LoadAnyGfxFormat_t( CTString(pFirstFNN->cfnn_FileName));
+   // load first picture
+   CFileNameNode *pFirstFNN = LIST_HEAD( FrameNamesList, CFileNameNode, cfnn_Node);
+   inPic.LoadAnyGfxFormat_t( CTString(pFirstFNN->cfnn_FileName));
 
-  // create texture with one frame
-  tex.Create_t( &inPic, MEX_METERS(fTextureWidthMeters), TexMipmaps, bForce32bit);
-  inPic.Clear();
+   // create texture with one frame
+   tex.Create_t( &inPic, MEX_METERS(fTextureWidthMeters), TexMipmaps, bForce32bit);
+   inPic.Clear();
 
-  // process rest of the frames in animation (if any)
-  INDEX i=0;
-  FOREACHINLIST( CFileNameNode, cfnn_Node, FrameNamesList, it1)
-  {
-    if( i != 0) {   // we have to skip first picture since it has already been done
-      inPic.LoadAnyGfxFormat_t( CTString(it1->cfnn_FileName));
-      // add picture as next frame in texture
-      tex.AddFrame_t( &inPic);
-      inPic.Clear();
-    }
-    i++;
-  }
-  // save texture
-  outFileName = inFileName.FileDir() + inFileName.FileName() + ".TEX";
-  tex.Save_t( outFileName);
+   // process rest of the frames in animation (if any)
+   INDEX i=0;
+   FOREACHINLIST( CFileNameNode, cfnn_Node, FrameNamesList, it1)
+   {
+      if( i != 0) {   // we have to skip first picture since it has already been done
+         inPic.LoadAnyGfxFormat_t( CTString(it1->cfnn_FileName));
+         // add picture as next frame in texture
+         tex.AddFrame_t( &inPic);
+         inPic.Clear();
+      }
+      i++;
+   }
+   // save texture
+   outFileName = inFileName.FileDir() + inFileName.FileName() + ".TEX";
+   tex.Save_t( outFileName);
 
-  // clear list
-  FORDELETELIST( CFileNameNode, cfnn_Node, FrameNamesList, itDel)
-    delete &itDel.Current();
+   // clear list
+   FORDELETELIST( CFileNameNode, cfnn_Node, FrameNamesList, itDel)
+      delete &itDel.Current();
 }
 
 

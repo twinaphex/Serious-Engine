@@ -1098,7 +1098,8 @@ void CWorldEditorDoc::OnIdle(void)
   
   POSITION pos = GetFirstViewPosition();
   CWorldEditorView *pWedView;
-  FOREVER
+
+  for (;;)
   {
     pWedView = (CWorldEditorView *) GetNextView(pos);
     if( pWedView == NULL) break;
@@ -3768,7 +3769,8 @@ void CWorldEditorDoc::SaveThumbnail()
   POSITION pos = GetFirstViewPosition();
   CWorldEditorView *pViewForThumbnail = theApp.GetActiveView();
   CWorldEditorView *pWedView;
-  FOREVER
+
+  for (;;)
   {
     pWedView = (CWorldEditorView *) GetNextView(pos);
     if( pWedView == NULL) return;
@@ -4128,7 +4130,8 @@ void CWorldEditorDoc::SetCutMode( CWorldEditorView *pwedView)
 {
   POSITION pos = GetFirstViewPosition();
   CWorldEditorView *pwedTemp;
-  FOREVER
+
+  for (;;)
   {
     pwedTemp = (CWorldEditorView *) GetNextView(pos);
     if( pwedTemp == NULL) return;
@@ -4223,7 +4226,8 @@ void CWorldEditorDoc::ApplyCut( void)
   }
 
   CWorldEditorView *pwedView;
-  FOREVER
+
+  for (;;)
   {
     pwedView = (CWorldEditorView *) GetNextView(posView);
     // if we didn't find it in list of views

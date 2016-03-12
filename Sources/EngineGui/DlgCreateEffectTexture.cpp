@@ -299,7 +299,8 @@ void CDlgCreateEffectTexture::InitializeSizeCombo(void)
   INDEX iPotention = 0;
   // set default created texture's size
   INDEX iInitialSelectedSize = 0;
-  FOREVER
+
+  for (;;)
   {
     char strSize[ 64];
     MEX mexPotentionWidth = m_pixInitialCreatedWidth * (1 << iPotention);

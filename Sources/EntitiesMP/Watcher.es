@@ -147,7 +147,7 @@ functions:
     CEntity *penPlayer = NULL;
     m_iPlayerToCheck = (m_iPlayerToCheck+1)%ctPlayers;
     INDEX iFirstChecked = m_iPlayerToCheck;
-    FOREVER {
+    for (;;) {
       penPlayer = GetPlayerEntity(m_iPlayerToCheck);
       if (penPlayer!=NULL) {
         break;

@@ -237,7 +237,8 @@ BOOL CDlgCreateNormalTexture::OnInitDialog()
 
   // obtain all available potentions of source picture's dimensions
   INDEX iPotention = 0;
-  FOREVER
+
+  for (;;) 
   {
     MEX mexPotentionWidth = m_pixSourceWidth * (1 << iPotention);
     MEX mexPotentionHeight = m_pixSourceHeight * (1 << iPotention);

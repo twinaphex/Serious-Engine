@@ -505,7 +505,8 @@ void CWorldEditorApp::MyParseCommandLine(void)
     return;
   }
 
-  FOREVER {
+  for (;;)
+  {
     CTString strWord = GetNextParam();
     if (strWord=="") {
       cmd_strOutput+="\n";

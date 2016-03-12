@@ -253,7 +253,8 @@ CTFileName CEngineGUI::FileRequester(
       CTFileName fnDirectory = CTString( chrFiles) + "\\";
 
       INDEX iOffset = ofnRequestFiles.nFileOffset;
-      FOREVER
+
+      for (;;) 
       {
         try
         {

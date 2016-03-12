@@ -965,7 +965,8 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 
   // to hold number of line's chars
   int iLineChars;
-	FOREVER
+
+  for (;;)	
 	{
 		do
     {
@@ -1718,7 +1719,7 @@ void CEditModel::UpdateAnimations_t(CTFileName &fnScriptName) // throw char *
 
 	File.Open_t( fnScriptName); // open script file for reading
 
-  FOREVER
+  for (;;)
 	{
 		do
     {
@@ -1836,7 +1837,7 @@ void CEditModel::UpdateMipModels_t(CTFileName &fnScriptName) // throw char *
 	}
 	edm_md.md_MipCt = 1;
 
-	FOREVER
+	for (;;)
 	{
 		do
     {

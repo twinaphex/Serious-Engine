@@ -169,7 +169,8 @@ void CRConDlg::OnTimer(UINT nIDEvent)
 {
   // repeat
   BOOL bChanged = FALSE;
-  FOREVER {
+  for (;;)
+  {
     CNetworkMessage nmReceived;
 
     _cmiComm.Client_Update();

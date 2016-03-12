@@ -1166,7 +1166,7 @@ void ObtainLayerTileInfo(CDynamicContainer<CTileInfo> *pdcTileInfo, CTextureData
     CTFileStream strm;
   	strm.Open_t( fnTileInfo);
 
-	  FOREVER
+	  for (;;)
 	  {
       CDynamicContainer<CTString> dcTokens;
 

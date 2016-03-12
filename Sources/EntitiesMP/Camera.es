@@ -267,7 +267,7 @@ functions:
       CCameraMarker *pcmNp2 = &(CCameraMarker&)*pcmNp1->m_penTarget;
 
       // repeat
-      FOREVER {
+      for (;;) {
         // if there is a trigger at the hit marker
         if (pcmNp0->m_penTrigger!=NULL) {
           // trigger it

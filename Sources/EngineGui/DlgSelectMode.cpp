@@ -358,7 +358,9 @@ void CDlgSelectMode::OnTestButton()
   // get starting time
   CTimerValue tvStart = _pTimer->GetHighPrecisionTimer();
   // loop forever
-  FOREVER {
+  
+  for (;;)
+  {
     // get current time
     CTimerValue tvCurrent = _pTimer->GetHighPrecisionTimer();
     // get time difference in seconds

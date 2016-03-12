@@ -723,7 +723,7 @@ INDEX _ctLines;
 
 CTString GetNonEmptyLine_t(CTStream &strm)
 {
-  FOREVER {
+  for (;;) {
    if(strm.AtEOF()) {
      ThrowF_t(TRANS("Unexpected end of file"));
    }
@@ -783,7 +783,7 @@ void ParseAMC_t(CModelObject *pmo, CTStream &strm, BOOL bPreview)
   }
 
   // repeat
-  FOREVER {
+  for (;;) {
     // read one line
     strLine = GetNonEmptyLine_t(strm);
     

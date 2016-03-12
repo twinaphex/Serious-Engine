@@ -346,7 +346,8 @@ INDEX CBrowser::GetSelectedDirectory( CTString strArray[])
   INDEX iSubDirsCt = 0;
   HTREEITEM pItem = m_TreeCtrl.GetSelectedItem();
   if( pItem == NULL) return -1;
-  FOREVER
+
+  for (;;) 
   {
     CTString strItemName = CTString( CStringA(m_TreeCtrl.GetItemText(pItem)));
     strArray[ iSubDirsCt] = strItemName;
@@ -370,7 +371,8 @@ HTREEITEM CBrowser::GetVirtualDirectoryItem( CTString strArray[], INDEX iSubDirs
   {
     BOOL bSucess;
     HTREEITEM pStartItem = pItem;
-    FOREVER
+
+    for (;;)
     {
       if( pItem == NULL)
       {

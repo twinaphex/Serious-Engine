@@ -699,7 +699,7 @@ void CSessionState::HandleTimers(TIME tmCurrentTick)
   _pfPhysicsProfile.StartTimer(CPhysicsProfile::PTI_HANDLETIMERS);
   // repeat
   CListHead &lhTimers = _pNetwork->ga_World.wo_lhTimers;
-  FOREVER {
+  for (;;) {
     // no entity found initially
     CRationalEntity *penTimer = NULL;
     // for each entity in list of timers
@@ -1109,7 +1109,7 @@ void CSessionState::ProcessGameStream(void)
   }
 
   // repeat
-  FOREVER {
+  for (;;) {
     // if playing a demo
     if (_pNetwork->ga_bDemoPlay) {
       // if finished for this pass

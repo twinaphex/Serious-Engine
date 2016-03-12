@@ -4974,7 +4974,7 @@ functions:
     INDEX iStartMarker = IRnd()%ctFarMarkers;
     // find first next marker that was not used lately
     INDEX iMarker=iStartMarker;
-    FOREVER{
+    for (;;) {
       if (_pTimer->CurrentTick()>amdMarkers[iMarker].md_ppm->m_tmLastSpawned+1.0f) {
         break;
       }
