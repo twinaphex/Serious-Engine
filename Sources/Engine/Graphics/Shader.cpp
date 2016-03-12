@@ -54,7 +54,7 @@ static FLOAT3D     _vLightDir  = FLOAT3D(0,0,0); // Light direction
 
 static COLOR       _colConstant   = NULL; // current set color
 static COLOR       *_paColors    = NULL;  // array of colors to chose from
-static FLOAT       *_paFloats    = NULL;  // array of floats to chose from
+static float       *_paFloats    = NULL;  // array of floats to chose from
 static uint32_t       _ulFlags      = 0;
 
 // Vertex colors
@@ -208,9 +208,9 @@ void shaCalculateLight(void)
   colModel.MultiplyRGBA(colModel,colSurface);
 
   uint8_t ubColShift = 8;
-  SLONG slar = colAmbient.r;
-  SLONG slag = colAmbient.g;
-  SLONG slab = colAmbient.b;
+  int32_t slar = colAmbient.r;
+  int32_t slag = colAmbient.g;
+  int32_t slab = colAmbient.b;
 
   if(shaOverBrightningEnabled()) {
     slar = ClampUp(slar,127L);
@@ -228,9 +228,9 @@ void shaCalculateLight(void)
   for(INDEX ivx=0;ivx<_ctVertices;ivx++) {
     // calculate vertex light
     FLOAT3D &vNorm = FLOAT3D(_paNormals[ivx].nx,_paNormals[ivx].ny,_paNormals[ivx].nz);
-    FLOAT fDot = vNorm % _vLightDir;
+    float fDot = vNorm % _vLightDir;
     fDot = Clamp(fDot,0.0f,1.0f);
-    SLONG slDot = NormFloatToByte(fDot);
+    int32_t slDot = NormFloatToByte(fDot);
 
     _acolVtxColors[ivx].r = ClampUp(colModel.r * (slar + ((colLight.r * slDot)>>ubColShift))>>8,255L);
     _acolVtxColors[ivx].g = ClampUp(colModel.g * (slag + ((colLight.g * slDot)>>ubColShift))>>8,255L);
@@ -257,9 +257,9 @@ void shaCalculateLightForSpecular(void)
   colModel.MultiplyRGBA(colModel,colSurface);
 
   uint8_t ubColShift = 8;
-  SLONG slar = colAmbient.r;
-  SLONG slag = colAmbient.g;
-  SLONG slab = colAmbient.b;
+  int32_t slar = colAmbient.r;
+  int32_t slag = colAmbient.g;
+  int32_t slab = colAmbient.b;
 
   if(shaOverBrightningEnabled()) {
     slar = ClampUp(slar,127L);
@@ -277,9 +277,9 @@ void shaCalculateLightForSpecular(void)
   for(INDEX ivx=0;ivx<_ctVertices;ivx++) {
     // calculate vertex light
     FLOAT3D &vNorm = FLOAT3D(_paNormals[ivx].nx,_paNormals[ivx].ny,_paNormals[ivx].nz);
-    FLOAT fDot = vNorm % _vLightDir;
+    float fDot = vNorm % _vLightDir;
     fDot = Clamp(fDot,0.0f,1.0f);
-    SLONG slDot = NormFloatToByte(fDot);
+    int32_t slDot = NormFloatToByte(fDot);
 
     _acolVtxColors[ivx].r = ClampUp(colModel.r * (slar + ((colLight.r * slDot)>>ubColShift))>>8,255L);
     _acolVtxColors[ivx].g = ClampUp(colModel.g * (slag + ((colLight.g * slDot)>>ubColShift))>>8,255L);
@@ -389,7 +389,7 @@ void shaSetColorArray(COLOR *paColors, INDEX ctColors)
 }
 
 // Set array of floats for shader
-void shaSetFloatArray(FLOAT *paFloats, INDEX ctFloats)
+void shaSetFloatArray(float *paFloats, INDEX ctFloats)
 {
   ASSERT(paFloats!=NULL);
   _paFloats = paFloats;
@@ -511,7 +511,7 @@ INDEX shaGetIndexCount(void)
 }
 
 // Get float from array of floats
-FLOAT shaGetFloat(INDEX iFloatIndex)
+float shaGetFloat(INDEX iFloatIndex)
 {
   ASSERT(iFloatIndex>=0);
   ASSERT(iFloatIndex<_ctFloats);
@@ -786,7 +786,7 @@ void CShader::Clear(void)
 }
 
 // Count used memory
-SLONG CShader::GetUsedMemory(void)
+int32_t CShader::GetUsedMemory(void)
 {
   return sizeof(CShader);
 }

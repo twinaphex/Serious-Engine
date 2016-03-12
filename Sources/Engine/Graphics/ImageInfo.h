@@ -31,8 +31,8 @@ class ENGINE_API CImageInfo {
 public:
   PIX    ii_Width;	           // width of image in pixels
   PIX    ii_Height;	           // height of image in pixels
-  SLONG  ii_BitsPerPixel;      // depth of image (color bits; 24 or 32=24+8 alpha)
-  UBYTE *ii_Picture; 	         // pointer to picture contents (raw bytes)
+  int32_t  ii_BitsPerPixel;      // depth of image (color bits; 24 or 32=24+8 alpha)
+  uint8_t *ii_Picture; 	         // pointer to picture contents (raw bytes)
 private:
   void LoadTGA_t( const CTFileName &strFileName); // throw char *
   void LoadPCX_t( const CTFileName &strFileName); // throw char *
@@ -46,7 +46,7 @@ public:
   void Write_t( CTStream *outFile) const; // throw char *
 
   // initializes structure members and attaches pointer to image
-  void Attach( UBYTE *pPicture, PIX pixWidth, PIX pixHeight, SLONG slBitsPerPixel);
+  void Attach( uint8_t *pPicture, PIX pixWidth, PIX pixHeight, int32_t slBitsPerPixel);
   // clears the content of an image info structure but does not free allocated memory
   void Detach(void);
   // clears the content of an image info structure and frees allocated memory

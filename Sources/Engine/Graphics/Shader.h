@@ -71,7 +71,7 @@ public:
   void Read_t( CTStream *istrFile); // throw char *
   void Write_t( CTStream *ostrFile); // throw char *
   void Clear(void);
-  SLONG GetUsedMemory(void);
+  int32_t GetUsedMemory(void);
 };
 
 // Begin shader using

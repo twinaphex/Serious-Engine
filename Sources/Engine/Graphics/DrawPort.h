@@ -47,8 +47,8 @@ public:
   double dp_MinIOverRasterSizeI,  dp_MinJOverRasterSizeJ;
 
   // adjust this during frame to be used for screen blending
-  ULONG dp_ulBlendingRA, dp_ulBlendingGA, dp_ulBlendingBA; // r*a, g*a, b*a
-  ULONG dp_ulBlendingA;
+  uint32_t dp_ulBlendingRA, dp_ulBlendingGA, dp_ulBlendingBA; // r*a, g*a, b*a
+  uint32_t dp_ulBlendingA;
 
   // set cloned drawport dimensions
   void InitCloned(CDrawPort *pdpBase, double rMinI,double rMinJ, double rSizeI,double rSizeJ);
@@ -83,7 +83,7 @@ public:
   inline BOOL IsOverlappedRendering(void) const     { return dp_bRenderingOverlay; }; 
 
   // returns unique drawport number
-  ULONG GetID(void);
+  uint32_t GetID(void);
 
   // Get dimensions and location of drawport
   inline PIX GetWidth( void) const { return dp_Width;  };
@@ -97,7 +97,7 @@ public:
   inline void SetTextAspect(  FLOAT fAspectRatio)   { dp_fTextAspect  = fAspectRatio; };
   inline void SetTextMode(    INDEX iMode)          { dp_iTextMode    = iMode; };
   // returns width of entire text string (with scale included)
-  ULONG GetTextWidth( const CTString &strText) const; 
+  uint32_t GetTextWidth( const CTString &strText) const; 
    
   // writes text string on drawport (left-aligned)
   void PutText(    const CTString &strText, PIX pixX0, PIX pixY0, const COLOR colBlend=0xFFFFFFFF) const;
@@ -145,10 +145,10 @@ public:
   void DrawPoint( PIX pixI, PIX pixJ, COLOR col, PIX pixRadius=1) const;
   void DrawPoint3D( FLOAT3D v, COLOR col, FLOAT fRadius=1.0f) const; // in 3D
   // draw line
-  void DrawLine( PIX pixI0, PIX pixJ0, PIX pixI1, PIX pixJ1, COLOR col, ULONG typ=_FULL_) const;
+  void DrawLine( PIX pixI0, PIX pixJ0, PIX pixI1, PIX pixJ1, COLOR col, uint32_t typ=_FULL_) const;
   void DrawLine3D( FLOAT3D v0, FLOAT3D v1, COLOR col) const; // in 3D
   // draw border
-  void DrawBorder( PIX pixI, PIX pixJ, PIX pixWidth, PIX pixHeight, COLOR col, ULONG typ=_FULL_) const;
+  void DrawBorder( PIX pixI, PIX pixJ, PIX pixWidth, PIX pixHeight, COLOR col, uint32_t typ=_FULL_) const;
 
   // fill with blending part of a drawport with a given color
   void Fill( PIX pixI, PIX pixJ, PIX pixWidth, PIX pixHeight, COLOR col) const;

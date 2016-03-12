@@ -54,9 +54,9 @@ extern CStaticStackArray<INDEX>       _aiCommonQuads;
 
 // D3D vertex for simple draw functions
 struct CTVERTEX {
-  FLOAT fX,fY,fZ;  // position
-  ULONG ulColor;   // color
-  FLOAT fU,fV;     // texture coordinates
+  float fX,fY,fZ;      // position
+  uint32_t ulColor;   // color
+  float fU,fV;        // texture coordinates
 };
 #define D3DFVF_CTVERTEX (D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1)
 
@@ -128,7 +128,7 @@ public:
   INDEX gl_iCurrentAdapter;
   INDEX gl_iCurrentDepth; 
   INDEX gl_ctDriverChanges;        // count of driver changes
-  ULONG gl_ulFlags;
+  uint32_t gl_ulFlags;
 
 #ifdef SE1_D3D
   // DirectX info
@@ -162,15 +162,15 @@ public:
   INDEX gl_iSwapInterval;           // current swap interval (0=immediate, n=VSyncs to wait)
   INDEX gl_ctTextureUnits;          // maximum supported texture units (1=no multitexturing)
   INDEX gl_ctRealTextureUnits;      // maximum reported texture units
-  FLOAT gl_fTextureLODBias;         // current texture lod bias
-  FLOAT gl_fMaxTextureLODBias;      // absolute maximum possible texture lod bias (0 if biasing is not supported)
+  float gl_fTextureLODBias;         // current texture lod bias
+  float gl_fMaxTextureLODBias;      // absolute maximum possible texture lod bias (0 if biasing is not supported)
   INDEX gl_iMaxTextureAnisotropy;   // maximum possible texture degree of anisotropy (1 if isotropic only)
   INDEX gl_iMaxTessellationLevel;   // maximum possible truform tesselation level (0=no truform)
   INDEX gl_iTessellationLevel;      // current tesselation level
 
   INDEX gl_iFrameNumber;           // frame number currently rendering 
   CTimerValue gl_tvFrameTime;      // time when swapbuffer occured 
-  SLONG gl_slAllowedUploadBurst;   // remain upload burst size for this frame (max texture or shadowmap size *2)
+  int32_t gl_slAllowedUploadBurst;   // remain upload burst size for this frame (max texture or shadowmap size *2)
   CListHead gl_lhCachedShadows;    // list of all cached shadowmaps
   CListHead gl_lhRenderTextures;   // list of all render-textures
   BOOL gl_bAllowProbing;
@@ -192,15 +192,15 @@ private:
   // OpenGL specific
   BOOL InitDriver_OGL( BOOL b3Dfx=FALSE);  // DLL init and function call adjustments
   void EndDriver_OGL(void);
-  void TestExtension_OGL( ULONG ulFlag, const char *strName); // if exist, add OpenGL extension to flag and list
-  void AddExtension_OGL(  ULONG ulFlag, const char *strName); // unconditionally add OpenGL extension to flag and list
+  void TestExtension_OGL( uint32_t ulFlag, const char *strName); // if exist, add OpenGL extension to flag and list
+  void AddExtension_OGL(  uint32_t ulFlag, const char *strName); // unconditionally add OpenGL extension to flag and list
 #ifdef PLATFORM_WIN32
   BOOL CreateContext_OGL( HDC hdc);
   BOOL SetupPixelFormat_OGL( HDC hdc, BOOL bReport=FALSE);
 #endif
   void InitContext_OGL(void);
   BOOL SetCurrentViewport_OGL( CViewPort *pvp);
-  void UploadPattern_OGL( ULONG ulPatternEven); 
+  void UploadPattern_OGL( uint32_t ulPatternEven); 
   void SwapBuffers_OGL( CViewPort *pvpToSwap);
 
   // Direct3D specific
@@ -209,7 +209,7 @@ private:
   BOOL InitDisplay_D3D( INDEX iAdapter, PIX pixSizeI, PIX pixSizeJ, enum DisplayDepth eColorDepth);
   void InitContext_D3D(void);
   BOOL SetCurrentViewport_D3D( CViewPort *pvp);
-  void UploadPattern_D3D( ULONG ulPatternEven);
+  void UploadPattern_D3D( uint32_t ulPatternEven);
   void SwapBuffers_D3D( CViewPort *pvpToSwap);
 
 public:
@@ -283,10 +283,10 @@ public:
 
 struct MipmapTable {
   INDEX mmt_ctMipmaps;      // number of mip-maps
-  SLONG mmt_slTotalSize;    // total size of all mip-maps (in pixels)
+  int32_t mmt_slTotalSize;    // total size of all mip-maps (in pixels)
   PIX mmt_pixU;             // size of first mip-map
   PIX mmt_pixV;
-  SLONG mmt_aslOffsets[MAX_MEX_LOG2]; // offsets of each mip-map (in pixels)
+  int32_t mmt_aslOffsets[MAX_MEX_LOG2]; // offsets of each mip-map (in pixels)
 };
 
 
@@ -298,9 +298,9 @@ extern INDEX ClampTextureSize( PIX pixClampSize, PIX pixClampDimension, PIX pixS
 extern void MakeMipmapTable( PIX pixU, PIX pixV, MipmapTable &mmt);
 
 // adds 8-bit opaque alpha channel to 24-bit bitmap (in place suported)
-extern void AddAlphaChannel( UBYTE *pubSrcBitmap, ULONG *pulDstBitmap, PIX pixSize, UBYTE *pubAlphaBitmap=NULL);
+extern void AddAlphaChannel( UBYTE *pubSrcBitmap, uint32_t *pulDstBitmap, PIX pixSize, UBYTE *pubAlphaBitmap=NULL);
 // removes 8-bit alpha channel from 32-bit bitmap (in place suported)
-extern void RemoveAlphaChannel( ULONG *pulSrcBitmap, UBYTE *pubDstBitmap, PIX pixSize);
+extern void RemoveAlphaChannel( uint32_t *pulSrcBitmap, UBYTE *pubDstBitmap, PIX pixSize);
 
 // flips 24 or 32-bit bitmap (iType: 1-horizontal, 2-vertical, 3-diagonal) - in place supported
 extern void FlipBitmap( UBYTE *pubSrc, UBYTE *pubDst, PIX pixWidth, PIX pixHeight, INDEX iFlipType, BOOL bAlphaChannel);
@@ -310,24 +310,24 @@ extern void FlipBitmap( UBYTE *pubSrc, UBYTE *pubDst, PIX pixWidth, PIX pixHeigh
 // this is done in-place! - all subsequent mip-maps will be posioned just after the original, input bitmap)
 // (only first ctFineMips number of mip-maps will be filtered with bilinear subsampling, while
 //  all others will be downsampled with nearest-neighbour method with border preservance)
-extern void MakeMipmaps( INDEX ctFineMips, ULONG *pulMipmaps, PIX pixWidth, PIX pixHeight, INDEX iFilter=NONE);
+extern void MakeMipmaps( INDEX ctFineMips, uint32_t *pulMipmaps, PIX pixWidth, PIX pixHeight, INDEX iFilter=NONE);
 
 // colorize mipmaps
-extern void ColorizeMipmaps( INDEX i1stMipmapToColorize, ULONG *pulMipmaps, PIX pixWidth, PIX pixHeight);
+extern void ColorizeMipmaps( INDEX i1stMipmapToColorize, uint32_t *pulMipmaps, PIX pixWidth, PIX pixHeight);
 
 
 // performs dithering of a 32-bit bipmap (can be in-place)
-extern void DitherBitmap( INDEX iDitherType, ULONG *pulSrc, ULONG *pulDst, PIX pixWidth, PIX pixHeight,
+extern void DitherBitmap( INDEX iDitherType, uint32_t *pulSrc, uint32_t *pulDst, PIX pixWidth, PIX pixHeight,
                           PIX pixCanvasWidth=0, PIX pixCanvasHeight=0);
 // performs dithering of a 32-bit mipmaps (can be in-place)
-extern void DitherMipmaps( INDEX iDitherType, ULONG *pulSrc, ULONG *pulDst, PIX pixWidth, PIX pixHeight);
+extern void DitherMipmaps( INDEX iDitherType, uint32_t *pulSrc, uint32_t *pulDst, PIX pixWidth, PIX pixHeight);
 
 // adjust bitmap's saturation and/or hue (hue 0 and saturation 256 are defaults)
-extern void AdjustBitmapColor( ULONG *pulSrc, ULONG *pulDst, PIX pixWidth, PIX pixHeight, 
-                               SLONG const slHueShift, SLONG const slSaturation);
+extern void AdjustBitmapColor( uint32_t *pulSrc, uint32_t *pulDst, PIX pixWidth, PIX pixHeight, 
+                               int32_t const slHueShift, int32_t const slSaturation);
 
 // applies filter to 32-bit bitmap (iFilter from -6 to 6; negative=sharpen, positive=blur, 0=none)
-extern void FilterBitmap( INDEX iFilter, ULONG *pulSrc, ULONG *pulDst, PIX pixWidth, PIX pixHeight,
+extern void FilterBitmap( INDEX iFilter, uint32_t *pulSrc, uint32_t *pulDst, PIX pixWidth, PIX pixHeight,
                           PIX pixCanvasWidth=0, PIX pixCanvasHeight=0);
 
 
@@ -340,7 +340,7 @@ __forceinline INDEX GetNoOfMipmaps( PIX pixWidth, PIX pixHeight) { return( FastL
 extern PIX GetMipmapOffset( INDEX iMipLevel, PIX pixWidth, PIX pixHeight);
 
 // return offset, pointer and dimensions of mipmap of specified size inside texture or shadowmap mipmaps
-extern INDEX GetMipmapOfSize( PIX pixSize, ULONG *&pulFrame, PIX &pixProbeWidth, PIX &pixProbeHeight);
+extern INDEX GetMipmapOfSize( PIX pixSize, uint32_t *&pulFrame, PIX &pixProbeWidth, PIX &pixProbeHeight);
 
 
 // flat white texture
