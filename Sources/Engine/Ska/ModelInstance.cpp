@@ -518,7 +518,7 @@ CModelInstance *CModelInstance::GetFirstNonReferencedParent(CModelInstance *pmiR
 }
 
 // add animation to ModelInstance
-void CModelInstance::AddAnimation(INDEX iAnimID, ULONG ulFlags, FLOAT fStrength, INDEX iGroupID, FLOAT fSpeedMul/*=1.0f*/)
+void CModelInstance::AddAnimation(INDEX iAnimID, uint32_t ulFlags, FLOAT fStrength, INDEX iGroupID, FLOAT fSpeedMul/*=1.0f*/)
 {
 
 #ifdef SKADEBUG
@@ -832,7 +832,7 @@ BOOL CModelInstance::IsAnimationPlaying(INDEX iAnimID)
 }
 
 // Add flags to animation playing in anim queue
-BOOL CModelInstance::AddFlagsToPlayingAnim(INDEX iAnimID, ULONG ulFlags)
+BOOL CModelInstance::AddFlagsToPlayingAnim(INDEX iAnimID, uint32_t ulFlags)
 {
   // check last anim list if animation iAnimID exists in it
   INDEX ctal = mi_aqAnims.aq_Lists.Count();

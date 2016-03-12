@@ -55,8 +55,8 @@ public:
   BOOL wrp_bShowVisTweaksOn;  // set if visibility tweaks for selected sectors should be shown
   BOOL wrp_bDisableVisTweaks; // set if entities utilitizing visibility tweaks should be shown allways
   BOOL wrp_bAutoMipBrushingOn;        // set if mip brushing should be automatic
-  FLOAT wrp_fManualMipBrushingFactor; // mip factor for manual mip brushing
-  FLOAT wrp_fFarClipPlane;                          // far clip plane
+  float wrp_fManualMipBrushingFactor; // mip factor for manual mip brushing
+  float wrp_fFarClipPlane;                          // far clip plane
   BOOL wrp_bApplyFarClipPlaneInIsometricProjection; // if far clip plane should be applied in isometric projections
 
   enum FillType wrp_ftVertices; // fill type for vertices
@@ -77,7 +77,7 @@ public:
   BOOL wrp_bHazeOn;         // set if haze should be rendered
   BOOL wrp_bMirrorsOn;      // set if mirrors should be rendered
 
-  FLOAT wrp_fMinimumRenderRange; // range (in meters) around viewer that is always drawn
+  float wrp_fMinimumRenderRange; // range (in meters) around viewer that is always drawn
 
   CModelObject *wrp_pmoSelectedEntity; // model used for marking selected entities
   CModelObject *wrp_pmoSelectedPortal; // model used for marking selected portals
@@ -146,8 +146,8 @@ public:
   /* Set mip brushing should to automatic or manual. */
   inline void SetAutoMipBrushingOn(BOOL bOn) { wrp_bAutoMipBrushingOn = bOn; };
   /* Set/get mip factor for manual mip brushing. */
-  inline void SetManualMipBrushingFactor(FLOAT fFactor) { wrp_fManualMipBrushingFactor = fFactor; };
-  inline FLOAT GetManualMipBrushingFactor(void) { return wrp_fManualMipBrushingFactor; };
+  inline void SetManualMipBrushingFactor(float fFactor) { wrp_fManualMipBrushingFactor = fFactor; };
+  inline float GetManualMipBrushingFactor(void) { return wrp_fManualMipBrushingFactor; };
 
   /* Test if texture layer is shown. */
   inline BOOL IsTextureLayerOn(INDEX iTexture) {
@@ -161,7 +161,7 @@ public:
   };
 
   // Get mip brushing factor relevant for given distance mip factor
-  FLOAT GetCurrentMipBrushingFactor(FLOAT fDistanceMipFactor);
+  float GetCurrentMipBrushingFactor(float fDistanceMipFactor);
 
   /* Set/get the fill type for vertices. */
   inline void SetVerticesFillType(enum FillType ft) { wrp_ftVertices = ft; };
@@ -193,8 +193,8 @@ public:
   inline enum LensFlaresType GetLensFlares(void) { return wrp_lftLensFlares; };
 
   /* Set/get range (in meters) around viewer that is always drawn. */
-  inline void SetMinimumRenderRange(FLOAT fRange) { wrp_fMinimumRenderRange = fRange; };
-  inline FLOAT GetMinimumRenderRange(void) { return wrp_fMinimumRenderRange; };
+  inline void SetMinimumRenderRange(float fRange) { wrp_fMinimumRenderRange = fRange; };
+  inline float GetMinimumRenderRange(void) { return wrp_fMinimumRenderRange; };
 
   /* Set/get model object used for marking selected models. */
   inline void SetSelectedEntityModel(CModelObject *pmoSelection) { wrp_pmoEmptyBrush = wrp_pmoSelectedEntity = pmoSelection; };

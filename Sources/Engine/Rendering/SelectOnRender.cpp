@@ -91,7 +91,7 @@ void InitSelectOnRender(PIX pixSizeI, PIX pixSizeJ)
     }
 
     // calculate step
-    FIX16_16 xStep = FIX16_16(FLOAT(pixI1-pixI0)/(pixJ1-pixJ0));
+    FIX16_16 xStep = FIX16_16((float)(pixI1-pixI0)/(pixJ1-pixJ0));
     // start in first row
     FIX16_16 xI = FIX16_16(pixI0);
     

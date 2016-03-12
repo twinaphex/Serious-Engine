@@ -368,7 +368,7 @@ public:
 
   INDEX re_iCurrentScan;            // index of current scan line in tables
   PIX re_pixCurrentScanJ;           // J coordinate of current scan line
-  FLOAT re_fCurrentScanJ;
+  float re_fCurrentScanJ;
   FIX16_16 re_xCurrentScanI;        // I coordinate on current scan line
   bool re_bCoherentScanLine;        // set if this line is coherent with previous one
 
@@ -390,7 +390,7 @@ public:
   void DrawFieldBrushSectorEdges(CBrushSector &bscSector);
 
   /* Make a screen edge from two vertices. */
-  inline void MakeScreenEdge(CScreenEdge &sed, FLOAT fI0, FLOAT fJ0, FLOAT fI1, FLOAT fJ1);
+  inline void MakeScreenEdge(CScreenEdge &sed, float fI0, float fJ0, float fI1, float fJ1);
   // set scene rendering parameters for one polygon texture
   inline void SetOneTextureParameters(CBrushPolygon &bpo, ScenePolygon &spo, INDEX iTexture);
   /* Make a screen polygon for a brush polygon */
@@ -495,14 +495,14 @@ public:
 
   /* Find lights for one model. */
   bool FindModelLights( CEntity &en, const CPlacement3D &plModel, COLOR &colLight, COLOR &colAmbient,
-                        FLOAT &fTotalShadowIntensity, FLOAT3D &vTotalLightDirection, FLOATplane3D &plFloorPlane);
+                        float &fTotalShadowIntensity, FLOAT3D &vTotalLightDirection, FLOATplane3D &plFloorPlane);
   /* Render a model. */
   void RenderOneModel( CEntity &en, CModelObject &moModel, const CPlacement3D &plModel,
-                       const FLOAT fDistanceFactor, bool bRenderShadow, ULONG ulDMFlags);
+                       const float fDistanceFactor, bool bRenderShadow, ULONG ulDMFlags);
 
   /* Render a ska model. */
   void CRenderer::RenderOneSkaModel( CEntity &en, const CPlacement3D &plModel,
-                                  const FLOAT fDistanceFactor, bool bRenderShadow, ULONG ulDMFlags);
+                                  const float fDistanceFactor, bool bRenderShadow, ULONG ulDMFlags);
 
   /* Render models that were kept for delayed rendering. */
   void RenderModels(bool bBackground);

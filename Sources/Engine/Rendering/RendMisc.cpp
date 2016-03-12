@@ -71,7 +71,7 @@ CWorldRenderPrefs::CWorldRenderPrefs(void)
 }
 
 // Get mip brushing factor relevant for given distance mip factor
-FLOAT CWorldRenderPrefs::GetCurrentMipBrushingFactor(FLOAT fDistanceMipFactor)
+float CWorldRenderPrefs::GetCurrentMipBrushingFactor(float fDistanceMipFactor)
 {
   // if mip brushing is automatical
   if (wrp_bAutoMipBrushingOn) {
@@ -99,10 +99,10 @@ CScreenPolygon::~CScreenPolygon(void) {
 // helper functions
 
 // Coordinate conversion functions
-static FLOAT fDiff;
+static float fDiff;
 static SLONG slTmp;
 
-static inline PIX PIXCoord(FLOAT f) // (f+0.9999f) or (ceil(f))
+static inline PIX PIXCoord(float f) // (f+0.9999f) or (ceil(f))
 {
   PIX pixRet;
   __asm {
@@ -183,14 +183,14 @@ static inline void DrawArrowLine(CDrawPort &dp, const FLOAT2D &vPoint0,
 static inline void DrawArrow(CDrawPort &dp, PIX i0, PIX j0, PIX i1, PIX j1, COLOR color,
                              ULONG ulLineType)
 {
-  FLOAT2D vPoint0 = FLOAT2D((FLOAT)i0, (FLOAT)j0);
-  FLOAT2D vPoint1 = FLOAT2D((FLOAT)i1, (FLOAT)j1);
+  FLOAT2D vPoint0 = FLOAT2D((float)i0, (float)j0);
+  FLOAT2D vPoint1 = FLOAT2D((float)i1, (float)j1);
   FLOAT2D vDelta      = vPoint1-vPoint0;
-  FLOAT fDelta = vDelta.Length();
+  float fDelta = vDelta.Length();
   FLOAT2D vArrowLen, vArrowWidth;
   if (fDelta>0.01) {
-    vArrowLen   = vDelta/fDelta*FLOAT(10.0);
-    vArrowWidth = vDelta/fDelta*FLOAT(2.0);
+    vArrowLen   = vDelta/fDelta* (float)(10.0);
+    vArrowWidth = vDelta/fDelta* (float)(2.0);
   } else {
     vArrowWidth = vArrowLen = FLOAT2D(0.0f, 0.0f);
   }
@@ -449,7 +449,7 @@ void CRenderer::RenderEntityNames(void)
       continue; 
     }
         
-    FLOAT fSize = boxModel.Size().Length()*0.3f;
+    float fSize = boxModel.Size().Length()*0.3f;
     _wrpWorldRenderPrefs.wrp_pmoSelectedEntity->mo_Stretch = FLOAT3D( fSize, fSize, fSize);
     CPlacement3D plSelection = en.GetLerpedPlacement();
     plSelection.Translate_OwnSystem( FLOAT3D(0.0f, boxModel.Max()(2), 0.0f));
@@ -457,9 +457,9 @@ void CRenderer::RenderEntityNames(void)
     FLOAT3D vProjected=FLOAT3D(0,0,0);
     re_prProjection->ProjectCoordinate( vOrigin, vProjected);
     if( vProjected(3)>0.0f) continue;
-    FLOAT fSizeFactor=1.0f+fSize;
-    FLOAT fRatio=Clamp( -vProjected(3)/fSizeFactor, 0.0f, 25.0f);
-    FLOAT fPower=CalculateRatio(fRatio, 0, 25.0f, 0, 0.25f);
+    float fSizeFactor=1.0f+fSize;
+    float fRatio=Clamp( -vProjected(3)/fSizeFactor, 0.0f, 25.0f);
+    float fPower=CalculateRatio(fRatio, 0, 25.0f, 0, 0.25f);
     if( fPower==0) continue;
 
     PIX pixH=re_pdpDrawPort->GetHeight();

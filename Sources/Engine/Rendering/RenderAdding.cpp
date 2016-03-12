@@ -78,15 +78,14 @@ void CRenderer::AddModelEntity(CEntity *penModel)
   FLOAT3D vHandle;
   pprProjection->PreClip(penModel->en_plPlacement.pl_PositionVector, vHandle);
   // setup mip factor
-  FLOAT fDistance  = vHandle(3)+penModel->GetDepthSortOffset();
-
-  FLOAT fMipFactor = pprProjection->MipFactor(fDistance);
+  float fDistance  = vHandle(3)+penModel->GetDepthSortOffset();
+  float fMipFactor = pprProjection->MipFactor(fDistance);
 
   penModel->AdjustMipFactor(fMipFactor);
   dm.dm_fDistance  = fDistance;
   dm.dm_fMipFactor = fMipFactor;
 
-  FLOAT fR = penModel->en_fSpatialClassificationRadius;
+  float fR = penModel->en_fSpatialClassificationRadius;
   if( penModel->en_RenderType==CEntity::RT_BRUSH
    || penModel->en_RenderType==CEntity::RT_FIELDBRUSH) {
     fR = 1.0f;
@@ -116,7 +115,7 @@ void CRenderer::AddModelEntity(CEntity *penModel)
   extern INDEX gap_iOptimizeClipping;
   if( gap_iOptimizeClipping>0 && (pprProjection->pr_bMirror || pprProjection->pr_bWarp)) {
     // test sphere against plane
-    const FLOAT fPlaneDistance = pprProjection->pr_plMirrorView.PointDistance(vHandle);
+    const float fPlaneDistance = pprProjection->pr_plMirrorView.PointDistance(vHandle);
          if( fPlaneDistance < -fR) iMirrorPlaneTest = -1;
     else if( fPlaneDistance > +fR) iMirrorPlaneTest = +1;
     else { // if test is indeterminate
@@ -218,16 +217,15 @@ void CRenderer::AddSkaModelEntity(CEntity *penModel)
   FLOAT3D vHandle;
   pprProjection->PreClip(penModel->en_plPlacement.pl_PositionVector, vHandle);
   // setup mip factor
-  FLOAT fDistance  = vHandle(3)+penModel->GetDepthSortOffset();
-
-  FLOAT fMipFactor = pprProjection->MipFactor(fDistance);
+  float fDistance  = vHandle(3)+penModel->GetDepthSortOffset();
+  float fMipFactor = pprProjection->MipFactor(fDistance);
   fMipFactor = -fDistance;
 
   penModel->AdjustMipFactor(fMipFactor);
   dm.dm_fDistance  = fDistance;
   dm.dm_fMipFactor = fMipFactor;
 
-  FLOAT fR = penModel->en_fSpatialClassificationRadius;
+  float fR = penModel->en_fSpatialClassificationRadius;
   ASSERT(fR>0.0f);
 
   // test object sphere to frustum
@@ -253,7 +251,7 @@ void CRenderer::AddSkaModelEntity(CEntity *penModel)
   extern INDEX gap_iOptimizeClipping;
   if( gap_iOptimizeClipping>0 && (pprProjection->pr_bMirror || pprProjection->pr_bWarp)) {
     // test sphere against plane
-    const FLOAT fPlaneDistance = pprProjection->pr_plMirrorView.PointDistance(vHandle);
+    const float fPlaneDistance = pprProjection->pr_plMirrorView.PointDistance(vHandle);
          if( fPlaneDistance < -fR) iMirrorPlaneTest = -1;
     else if( fPlaneDistance > +fR) iMirrorPlaneTest = +1;
     else { // if test is indeterminate
@@ -600,7 +598,7 @@ void CRenderer::AddEntitiesInBox(const FLOATaabbox3D &boxNear)
       FLOATaabbox3D boxModel;
       iten->en_pmoModelObject->GetCurrentFrameBBox(boxModel);
       // get center and radius of the bounding sphere
-      FLOAT fSphereRadius = Max( boxModel.Min().Length(), boxModel.Max().Length() );
+      float fSphereRadius = Max( boxModel.Min().Length(), boxModel.Max().Length() );
       FLOAT3D vSphereCenter = iten->en_plPlacement.pl_PositionVector;
       // create maximum box for the model (in cases of any rotation) from the sphere
       FLOATaabbox3D boxMaxModel(vSphereCenter, fSphereRadius);
@@ -615,7 +613,7 @@ void CRenderer::AddEntitiesInBox(const FLOATaabbox3D &boxNear)
       FLOATaabbox3D boxModel;
       iten->GetModelInstance()->GetCurrentColisionBox(boxModel);
       // get center and radius of the bounding sphere
-      FLOAT fSphereRadius = Max( boxModel.Min().Length(), boxModel.Max().Length() );
+      float fSphereRadius = Max( boxModel.Min().Length(), boxModel.Max().Length() );
       FLOAT3D vSphereCenter = iten->en_plPlacement.pl_PositionVector;
       // create maximum box for the model (in cases of any rotation) from the sphere
       FLOATaabbox3D boxMaxModel(vSphereCenter, fSphereRadius);
@@ -628,7 +626,7 @@ void CRenderer::AddEntitiesInBox(const FLOATaabbox3D &boxNear)
       FLOATaabbox3D boxTerrain;
       iten->GetTerrain()->GetAllTerrainBBox(boxTerrain);
       // get center and radius of the bounding sphere
-      FLOAT fSphereRadius = Max( boxTerrain.Min().Length(), boxTerrain.Max().Length() );
+      float fSphereRadius = Max( boxTerrain.Min().Length(), boxTerrain.Max().Length() );
       FLOAT3D vSphereCenter = iten->en_plPlacement.pl_PositionVector;
       // create maximum box for the model (in cases of any rotation) from the sphere
       FLOATaabbox3D boxMaxTerrain(vSphereCenter, fSphereRadius);
@@ -747,7 +745,7 @@ void CRenderer::AddZoningSectorsAroundBox(const FLOATaabbox3D &boxNear)
   _pfRenderProfile.StartTimer(CRenderProfile::PTI_ADDZONINGSECTORS);
 
   // get center and radius of the bounding sphere
-  FLOAT fSphereRadius = boxNear.Size().Length()/2.0f;
+  float fSphereRadius = boxNear.Size().Length()/2.0f;
   FLOAT3D vSphereCenter = boxNear.Center();
 
   re_dViewSphereR = re_prProjection->NearClipDistanceR()*1.5f;
@@ -854,7 +852,7 @@ void CMirror::FinishAdding(void)
     mi_boxOnScreen|=PIX2D(spo.spo_pixMinI, spo.spo_pixMinJ);
     mi_boxOnScreen|=PIX2D(spo.spo_pixMaxI, spo.spo_pixMaxJ);
     mi_fpixArea += spo.spo_pixTotalArea;
-    mi_fpixMaxPolygonArea = Max(mi_fpixMaxPolygonArea, FLOAT(spo.spo_pixTotalArea));
+    mi_fpixMaxPolygonArea = Max(mi_fpixMaxPolygonArea, (float)(spo.spo_pixTotalArea));
   }
 }
 

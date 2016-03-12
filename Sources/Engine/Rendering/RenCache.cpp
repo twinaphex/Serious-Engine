@@ -28,16 +28,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 static FLOATaabbox2D *pfbbClipBox;
 static PIX pixCurrentScanJ;
 static PIX pixBottomScanJ;
-static const FLOAT f65536=65536.0f;
+static const float f65536=65536.0f;
 
 /////////////////////////////////////////////////////////////////////
 // Functions for support of transformed caches
 
-static FLOAT fCenterI, fCenterJ, fRatioI, fRatioJ;
-static FLOAT fNearClipDistance, fooNearClipDistance;
-static FLOAT fFarClipDistance,  fooFarClipDistance;
-static FLOAT fooNearRatioI, fooNearRatioJ;
-static FLOAT fooFarRatioI,  fooFarRatioJ;
+static float fCenterI, fCenterJ, fRatioI, fRatioJ;
+static float fNearClipDistance, fooNearClipDistance;
+static float fFarClipDistance,  fooFarClipDistance;
+static float fooNearRatioI, fooNearRatioJ;
+static float fooFarRatioI,  fooFarRatioJ;
 
 
 static CRenderer *_preThis;
@@ -54,7 +54,7 @@ __forceinline INDEX CRenderer::IsSectorVisible(CBrush3D &br, CBrushSector &bsc)
     ppr = re_prProjection;
   }
   ppr->PreClip(bsc.bsc_boxBoundingBox.Center(), vCenter);
-  FLOAT fR = bsc.bsc_boxBoundingBox.Size().Length()/2.0f;
+  float fR = bsc.bsc_boxBoundingBox.Size().Length()/2.0f;
 
   // if the sector bounding sphere is inside view frustum
   INDEX iFrustumTest = ppr->TestSphereToFrustum( vCenter, fR);
@@ -83,9 +83,9 @@ void CRenderer::PreClipVertices(void)
   {
     const CWorkingVertex &wvx = re_pbscCurrent->bsc_awvxVertices[ivx];
     // transform it to view space
-    const FLOAT fx = wvx.wvx_vRelative(1);
-    const FLOAT fy = wvx.wvx_vRelative(2);
-    const FLOAT fz = wvx.wvx_vRelative(3);
+    const float fx = wvx.wvx_vRelative(1);
+    const float fy = wvx.wvx_vRelative(2);
+    const float fz = wvx.wvx_vRelative(3);
     avvx[ivx].vvx_vView(1) = fx*m(1, 1)+fy*m(1, 2)+fz*m(1, 3)+v(1);
     avvx[ivx].vvx_vView(2) = fx*m(2, 1)+fy*m(2, 2)+fz*m(2, 3)+v(2);
     avvx[ivx].vvx_vView(3) = fx*m(3, 1)+fy*m(3, 2)+fz*m(3, 3)+v(3);
@@ -115,10 +115,10 @@ void CRenderer::PreClipPlanes(void)
     for(INDEX ipl=0; ipl<ctpl; ipl++){
       // transform it to view space
       CWorkingPlane &wpl = re_pbscCurrent->bsc_awplPlanes[ipl];
-      const FLOAT fx = wpl.wpl_plRelative(1);
-      const FLOAT fy = wpl.wpl_plRelative(2);
-      const FLOAT fz = wpl.wpl_plRelative(3);
-      const FLOAT fd = wpl.wpl_plRelative.Distance();
+      const float fx = wpl.wpl_plRelative(1);
+      const float fy = wpl.wpl_plRelative(2);
+      const float fz = wpl.wpl_plRelative(3);
+      const float fd = wpl.wpl_plRelative.Distance();
       wpl.wpl_plView(1) = fx*m(1, 1)+fy*m(1, 2)+fz*m(1, 3);
       wpl.wpl_plView(2) = fx*m(2, 1)+fy*m(2, 2)+fz*m(2, 3);
       wpl.wpl_plView(3) = fx*m(3, 1)+fy*m(3, 2)+fz*m(3, 3);
@@ -149,15 +149,15 @@ void CRenderer::PreClipPlanes(void)
     // make gradients without fog
     ppr->MakeOoKGradient(wpl.wpl_plView, wpl.wpl_pgOoK);
     // transform it to view space
-    const FLOAT fxO = wpl.wpl_mvRelative.mv_vO(1);
-    const FLOAT fyO = wpl.wpl_mvRelative.mv_vO(2);
-    const FLOAT fzO = wpl.wpl_mvRelative.mv_vO(3);
-    const FLOAT fxU = wpl.wpl_mvRelative.mv_vU(1);
-    const FLOAT fyU = wpl.wpl_mvRelative.mv_vU(2);
-    const FLOAT fzU = wpl.wpl_mvRelative.mv_vU(3);
-    const FLOAT fxV = wpl.wpl_mvRelative.mv_vV(1);
-    const FLOAT fyV = wpl.wpl_mvRelative.mv_vV(2);
-    const FLOAT fzV = wpl.wpl_mvRelative.mv_vV(3);
+    const float fxO = wpl.wpl_mvRelative.mv_vO(1);
+    const float fyO = wpl.wpl_mvRelative.mv_vO(2);
+    const float fzO = wpl.wpl_mvRelative.mv_vO(3);
+    const float fxU = wpl.wpl_mvRelative.mv_vU(1);
+    const float fyU = wpl.wpl_mvRelative.mv_vU(2);
+    const float fzU = wpl.wpl_mvRelative.mv_vU(3);
+    const float fxV = wpl.wpl_mvRelative.mv_vV(1);
+    const float fyV = wpl.wpl_mvRelative.mv_vV(2);
+    const float fzV = wpl.wpl_mvRelative.mv_vV(3);
     wpl.wpl_mvView.mv_vO(1) = fxO*m(1, 1)+fyO*m(1, 2)+fzO*m(1, 3)+v(1);
     wpl.wpl_mvView.mv_vO(2) = fxO*m(2, 1)+fyO*m(2, 2)+fzO*m(2, 3)+v(2);
     wpl.wpl_mvView.mv_vO(3) = fxO*m(3, 1)+fyO*m(3, 2)+fzO*m(3, 3)+v(3);
@@ -196,7 +196,7 @@ void CRenderer::PostClipVertices(void)
     for(INDEX ivx = re_iViewVx0; ivx<iVxTop; ivx++) {
       CViewVertex &vvx = re_avvxViewVertices[ivx];
       // transform it to view space
-      FLOAT fooz = 1.0f/vvx.vvx_vView(3);
+      float fooz = 1.0f/vvx.vvx_vView(3);
       vvx.vvx_fI = fCenterI+vvx.vvx_vView(1)*fRatioI*fooz;
       vvx.vvx_fJ = fCenterJ-vvx.vvx_vView(2)*fRatioJ*fooz;
     }
@@ -352,7 +352,7 @@ void CRenderer::AddEdgeToAddAndRemoveLists(CScreenEdge &sed)
  * Make a screen edge from two vertices doing 2D clipping.
  */
 inline void CRenderer::MakeScreenEdge(
-  CScreenEdge &sed, FLOAT fI0, FLOAT fJ0, FLOAT fI1, FLOAT fJ1)
+  CScreenEdge &sed, float fI0, float fJ0, float fI1, float fJ1)
 {
   // mark both vertices as not clipped
   _pfRenderProfile.IncrementTimerAveragingCounter(CRenderProfile::PTI_MAKESCREENEDGE, 1);
@@ -382,10 +382,10 @@ inline void CRenderer::MakeScreenEdge(
     fI1 = re_fbbClipBox.Max()(1);
   }
 
-  FLOAT fDJ=fJ1-fJ0;
-  FLOAT fDI=fI1-fI0;
+  float fDJ=fJ1-fJ0;
+  float fDI=fI1-fI0;
   
-  FLOAT fDIoDJ = fDI/fDJ;
+  float fDIoDJ = fDI/fDJ;
 
   // mark edge as descending
   ldtDirection = LDT_DESCENDING;
@@ -417,8 +417,8 @@ inline void CRenderer::MakeScreenEdge(
   sed.sed_psedNextRemove = NULL;
 
   // if bottom vertex is above screen top or top vertex is below screen bottom
-  FLOAT fDJ1Up = fJ1-re_fbbClipBox.Min()(2);
-  FLOAT fDJ0Dn = re_fbbClipBox.Max()(2)-fJ0;
+  float fDJ1Up = fJ1-re_fbbClipBox.Min()(2);
+  float fDJ0Dn = re_fbbClipBox.Max()(2)-fJ0;
   if ((SLONG&)(fDJ1Up)<0 || (SLONG&)(fDJ0Dn)<0) {
     // generate dummy horizontal screen edge
     sed.sed_pixTopJ    = (PIX) 0;
@@ -446,7 +446,7 @@ inline void CRenderer::MakeScreenEdge(
     }
 
     // make fixed integer representation of top I coordinate with correction
-    sed.sed_xI = (FIX16_16) (fI0 + ((FLOAT)sed.sed_pixTopJ-fJ0) * fDIoDJ );
+    sed.sed_xI = (FIX16_16) (fI0 + ((float)sed.sed_pixTopJ-fJ0) * fDIoDJ );
   }
 
   ASSERT( sed.sed_xI > FIX16_16(-1.0f)
@@ -551,10 +551,10 @@ void CRenderer::SetOneTextureParameters(CBrushPolygon &bpo, ScenePolygon &spo, I
       mdTmp.md_fUOffset = (FloatToInt(mdTmp.md_fUOffset*1024.0f) & mexMaskU) /1024.0f;
       mdTmp.md_fVOffset = (FloatToInt(mdTmp.md_fVOffset*1024.0f) & mexMaskV) /1024.0f;
       const FLOAT3D vOffset = wpl.wpl_plView.ReferencePoint() - wpl.wpl_mvView.mv_vO;
-      const FLOAT fS = vOffset % wpl.wpl_mvView.mv_vU;
-      const FLOAT fT = vOffset % wpl.wpl_mvView.mv_vV;
-      const FLOAT fU = fS*mdTmp.md_fUoS + fT*mdTmp.md_fUoT + mdTmp.md_fUOffset;
-      const FLOAT fV = fS*mdTmp.md_fVoS + fT*mdTmp.md_fVoT + mdTmp.md_fVOffset;
+      const float fS = vOffset % wpl.wpl_mvView.mv_vU;
+      const float fT = vOffset % wpl.wpl_mvView.mv_vV;
+      const float fU = fS*mdTmp.md_fUoS + fT*mdTmp.md_fUoT + mdTmp.md_fUOffset;
+      const float fV = fS*mdTmp.md_fVoS + fT*mdTmp.md_fVoT + mdTmp.md_fVOffset;
       mdTmp.md_fUOffset += (FloatToInt(fU*1024.0f) & ~mexMaskU) /1024.0f;
       mdTmp.md_fVOffset += (FloatToInt(fV*1024.0f) & ~mexMaskV) /1024.0f;
       // make texture mapping vectors from default vectors of the plane
@@ -696,7 +696,7 @@ CScreenPolygon *CRenderer::MakeScreenPolygon(CBrushPolygon &bpo)
 
   // eventually adjust polygon opacity depending on brush entity variable
   BOOL bForceTraslucency = false;
-  const FLOAT fOpacity = br.br_penEntity->GetOpacity();
+  const float fOpacity = br.br_penEntity->GetOpacity();
   if( fOpacity<1)
   { // better to hold opacity in integer
     const SLONG slOpacity = NormFloatToByte(fOpacity);
@@ -751,7 +751,7 @@ CScreenPolygon *CRenderer::MakeScreenPolygon(CBrushPolygon &bpo)
         // get its mapping gradients from shadowmap and stretch
         CWorkingPlane &wpl  = *bpo.bpo_pbplPlane->bpl_pwplWorking;
         sppo.spo_amvMapping[0] = sppo.spo_amvMapping[3];
-        FLOAT fStretch = bpo.bpo_boxBoundingBox.Size().Length()/1000;
+        float fStretch = bpo.bpo_boxBoundingBox.Size().Length()/1000;
         sppo.spo_amvMapping[0].mv_vU *= fStretch;
         sppo.spo_amvMapping[0].mv_vV *= fStretch;
       }
@@ -793,7 +793,7 @@ void CRenderer::AddPolygonToScene( CScreenPolygon *pspo)
   GFXVertex3 *pvtx  = _avtxScene.Push(ctVtx);
 
   // find vertex with nearest Z distance while copying vertices
-  FLOAT fNearestZ = 123456789.0f;
+  float fNearestZ = 123456789.0f;
   for( INDEX i=0; i<ctVtx; i++) {
     CBrushVertex *pbvx = bpo.bpo_apbvxTriangleVertices[i];
     const INDEX iVtx = bsc.bsc_abvxVertices.Index(pbvx);
@@ -804,7 +804,7 @@ void CRenderer::AddPolygonToScene( CScreenPolygon *pspo)
     pvtx[i].z = v(3);
   }
   // nearestZ is larger one of plane distance and nearest vertex distance
-  const FLOAT fNearestD = -pspo->spo_pbpoBrushPolygon->bpo_pbplPlane->bpl_pwplWorking->wpl_plView.Distance();
+  const float fNearestD = -pspo->spo_pbpoBrushPolygon->bpo_pbplPlane->bpl_pwplWorking->wpl_plView.Distance();
   sppo.spo_fNearestZ = Max( fNearestZ, fNearestD);
 
   // all done
@@ -870,7 +870,7 @@ void CRenderer::AddSpansToScene(void)
     return;
   }
 
-  FLOAT fpixLastScanJOffseted = re_pixCurrentScanJ-1 +OFFSET_DN;
+  float fpixLastScanJOffseted = re_pixCurrentScanJ-1 +OFFSET_DN;
   // first, little safety check - quit if zero spans in line!
   INDEX ctSpans = re_aspSpans.Count();
   if( ctSpans==0) {

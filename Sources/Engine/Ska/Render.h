@@ -157,11 +157,11 @@ ENGINE_API void TransformVertex(GFXVertex &v, const Matrix12 &m);
 ENGINE_API void RotateVector(FLOAT3 &v, const Matrix12 &m);
 
 // model flags
-ENGINE_API void RM_SetFlags(ULONG ulNewFlags);
-ENGINE_API ULONG RM_GetFlags();
-ENGINE_API void RM_AddFlag(ULONG ulFlag);
-ENGINE_API void RM_RemoveFlag(ULONG ulFlag);
-ENGINE_API ULONG &RM_GetRenderFlags();
+ENGINE_API void RM_SetFlags(uint32_t ulNewFlags);
+ENGINE_API uint32_t RM_GetFlags(void);
+ENGINE_API void RM_AddFlag(uint32_t ulFlag);
+ENGINE_API void RM_RemoveFlag(uint32_t ulFlag);
+ENGINE_API uint32_t &RM_GetRenderFlags(void);
 ENGINE_API void RM_DoFogAndHaze(BOOL bOpaque);
 
 

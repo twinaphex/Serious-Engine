@@ -112,12 +112,12 @@ struct AnimList
 
 struct PlayedAnim
 {
-  FLOAT pa_fStartTime; // Time when this animation was started
-  FLOAT pa_fSpeedMul;  // Speed multiplier
-  INDEX pa_iAnimID;    // Animation id
-  ULONG pa_ulFlags;    // Animation flags
-  FLOAT pa_Strength;   // Animation strength
-  INDEX pa_GroupID;    // Group ID
+  FLOAT pa_fStartTime;     // Time when this animation was started
+  FLOAT pa_fSpeedMul;      // Speed multiplier
+  INDEX pa_iAnimID;        // Animation id
+  uint32_t pa_ulFlags;     // Animation flags
+  FLOAT pa_Strength;       // Animation strength
+  INDEX pa_GroupID;        // Group ID
 };
 
 class ENGINE_API CModelInstance
@@ -208,7 +208,7 @@ public:
   // Check if given animation is currently playing
   BOOL IsAnimationPlaying(INDEX iAnimID);
   // Add flags to animation playing in anim queue
-  BOOL AddFlagsToPlayingAnim(INDEX iAnimID, ULONG ulFlags);
+  BOOL AddFlagsToPlayingAnim(INDEX iAnimID, uint32_t ulFlags);
 
   // Model color
   COLOR &GetModelColor(void);

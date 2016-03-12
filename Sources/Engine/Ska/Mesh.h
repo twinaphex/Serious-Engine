@@ -39,7 +39,7 @@ struct ENGINE_API MeshLOD
   };
   ~MeshLOD() {}
   float mlod_fMaxDistance;
-  ULONG mlod_ulFlags;
+  uint32_t mlod_ulFlags;
   CStaticArray<struct MeshVertex>    mlod_aVertices;   // vertices
   CStaticArray<struct MeshNormal>    mlod_aNormals;	   // normals
   CStaticArray<struct MeshUVMap>     mlod_aUVMaps;     // UV maps
@@ -52,18 +52,18 @@ struct ENGINE_API MeshLOD
 struct ENGINE_API MeshVertex
 {
   float x, y, z;
-  ULONG dummy; // 16 byte alingment
+  uint32_t dummy; // 16 byte alingment
 };
 
 struct ENGINE_API MeshNormal
 {
   float nx, ny, nz;
-  ULONG dummy; // 16 byte alingment
+  uint32_t dummy; // 16 byte alingment
 };
 
 struct ENGINE_API MeshUVMap
 {
-  ULONG muv_iID;
+  uint32_t muv_iID;
   CStaticArray<struct MeshTexCoord>  muv_aTexCoords; // texture coordinates
 };
 
@@ -115,7 +115,7 @@ struct ENGINE_API MeshVertexMorph
   float mwm_nx;
   float mwm_ny;
   float mwm_nz;
-  ULONG dummy;        // 32 byte padding
+  uint32_t dummy;        // 32 byte padding
 };
 
 class ENGINE_API CMesh : public CSerial

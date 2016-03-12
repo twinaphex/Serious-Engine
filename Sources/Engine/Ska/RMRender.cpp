@@ -47,8 +47,8 @@ static Matrix12 _mAbsToViewer;      // absolute to viewer
 static Matrix12 _mObjToView;        // object to viewer
 static Matrix12 _mObjToViewStretch; // object to viewer, stretch by root model instance stretch factor
 
-ULONG _ulFlags = RMF_SHOWTEXTURE;
-static ULONG _ulRenFlags = 0;
+uint32_t _ulFlags = RMF_SHOWTEXTURE;
+static uint32_t _ulRenFlags = 0;
 static FLOAT _fCustomMlodDistance=-1; // custom distance for mesh lods
 static FLOAT _fCustomSlodDistance=-1; // custom distance for skeleton lods
 extern FLOAT ska_fLODMul;
@@ -297,7 +297,7 @@ static BOOL IsModelInHaze( FLOAT3D &vMin, FLOAT3D &vMax)
 
 BOOL PrepareHaze(void)
 {
-  ULONG &ulRenFlags = RM_GetRenderFlags();
+  uint32_t &ulRenFlags = RM_GetRenderFlags();
   if( ulRenFlags & SRMF_HAZE) {
     _fHazeAdd  = _haze_hp.hp_fNear;
     _fHazeAdd += -_mObjToView[11];
@@ -325,7 +325,7 @@ BOOL PrepareHaze(void)
 
 BOOL PrepareFog(void)
 {
-  ULONG &ulRenFlags = RM_GetRenderFlags();
+  uint32_t &ulRenFlags = RM_GetRenderFlags();
 
   if( ulRenFlags & SRMF_FOG) {
     // get viewer -z in viewer space
@@ -680,7 +680,7 @@ void RM_AddSimpleShadow_View(CModelInstance &mi, const FLOAT fIntensity, const F
 
   // prepare color
   ASSERT( fIntensity>=0 && fIntensity<=1);
-  ULONG ulAAAA = NormFloatToByte(fIntensity);
+  uint32_t ulAAAA = NormFloatToByte(fIntensity);
   ulAAAA |= (ulAAAA<<8) | (ulAAAA<<16); // alpha isn't needed
 
   // add to vertex arrays
@@ -1174,27 +1174,30 @@ static void RenderActiveBones(void)
 
 
 // get render flags for model
-ULONG &RM_GetRenderFlags()
+uint32_t &RM_GetRenderFlags(void)
 {
   return _ulRenFlags;
 }
+
 // set new flag
-void RM_SetFlags(ULONG ulNewFlags)
+void RM_SetFlags(uint32_t ulNewFlags)
 {
   _ulFlags = ulNewFlags;
 }
+
 // get curent flags
-ULONG RM_GetFlags()
+uint32_t RM_GetFlags(void)
 {
   return _ulFlags;
 }
 // add flag
-void RM_AddFlag(ULONG ulFlag)
+void RM_AddFlag(uint32_t ulFlag)
 {
    _ulFlags |= ulFlag;
 }
+
 // remove flag
-void RM_RemoveFlag(ULONG ulFlag)
+void RM_RemoveFlag(uint32_t ulFlag)
 {
   _ulFlags &= ~ulFlag;
 }
@@ -1459,7 +1462,7 @@ void RM_SetLightDirection(FLOAT3D &vLightDir)
 // calculate object matrices for givem model instance
 void RM_SetObjectMatrices(CModelInstance &mi)
 {
-  ULONG ulFlags = RM_GetRenderFlags();
+  uint32_t ulFlags = RM_GetRenderFlags();
 
   // adjust clipping to frustum
   if( ulFlags & SRMF_INSIDE) gfxDisableClipping();
