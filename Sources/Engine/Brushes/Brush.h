@@ -58,7 +58,7 @@ public:
   void SetAbsolutePosition(const DOUBLE3D &vAbsolute);
 
   // get amount of memory used by this object
-  inline SLONG GetUsedMemory(void) { return sizeof(CBrushVertex); };
+  inline int32_t GetUsedMemory(void) { return sizeof(CBrushVertex); };
 };
 
 
@@ -82,7 +82,7 @@ public:
   inline void Clear(void) {};
 
   // get amount of memory used by this object
-  inline SLONG GetUsedMemory(void) { return sizeof(CBrushPlane); };
+  inline int32_t GetUsedMemory(void) { return sizeof(CBrushPlane); };
 };
 
 
@@ -105,7 +105,7 @@ public:
   BOOL TouchesInAnySector(CBrushEdge &bedOther);
 
   // get amount of memory used by this object
-  inline SLONG GetUsedMemory(void) { return sizeof(CBrushEdge); };
+  inline int32_t GetUsedMemory(void) { return sizeof(CBrushEdge); };
 };
 
 // a reference to edge used in brush polygon
@@ -182,8 +182,8 @@ public:
   PIX bsl_pixMinV;
   PIX bsl_pixSizeU;
   PIX bsl_pixSizeV;
-  SLONG bsl_slSizeInPixels; // size of bit mask in pixels (with all mip-maps)
-  UBYTE *bsl_pubLayer;  // bit mask set where the polygon is lighted
+  int32_t bsl_slSizeInPixels; // size of bit mask in pixels (with all mip-maps)
+  uint8_t *bsl_pubLayer;  // bit mask set where the polygon is lighted
   COLOR bsl_colLastAnim;  // last animating color cached
 
 // interface:
@@ -192,10 +192,10 @@ public:
   // discard shadows but keep the layer
   void DiscardShadows(void);
   // get shadow/light percentage at given coordinates in shadow layer
-  FLOAT GetLightStrength(PIX pixU, PIX pixV, FLOAT fLt, FLOAT fUp);
+  float GetLightStrength(PIX pixU, PIX pixV, float fLt, float fUp);
 
   // get amount of memory used by this object
-  SLONG GetUsedMemory(void);
+  int32_t GetUsedMemory(void);
 };
 
 
@@ -206,7 +206,7 @@ public:
   CListNode bsm_lnInUncalculatedShadowMaps;
 
   CListHead bsm_lhLayers;     // list of all layers of this shadow map
-  UBYTE *bsm_pubPolygonMask;  // bit packed polygon mask
+  uint8_t *bsm_pubPolygonMask;  // bit packed polygon mask
 
   // get pointer to embedding brush polygon
   inline CBrushPolygon *GetBrushPolygon(void);
@@ -244,7 +244,7 @@ public:
   // get number of shadow layers
   INDEX GetShadowLayersCount(void) { return bsm_lhLayers.Count(); };
   // get amount of memory used by this object
-  SLONG GetUsedMemory(void);
+  int32_t GetUsedMemory(void);
 };
 
 
@@ -268,13 +268,13 @@ public:
 
   union {
   struct {
-    UBYTE bpt_ubScroll;               // texture scroll
-    UBYTE bpt_ubBlend;                // type of texture blending used
-    UBYTE bpt_ubFlags;                // additional flags
-    UBYTE bpt_ubDummy;                // unused (alignment)
+    uint8_t bpt_ubScroll;               // texture scroll
+    uint8_t bpt_ubBlend;                // type of texture blending used
+    uint8_t bpt_ubFlags;                // additional flags
+    uint8_t bpt_ubDummy;                // unused (alignment)
     COLOR bpt_colColor;               // defines constant color and alpha of polygon
   } s;
-    UBYTE bpt_auProperties[8];
+    uint8_t bpt_auProperties[8];
   };
 
   CBrushPolygonTexture(void)
@@ -305,7 +305,7 @@ public:
   void Write_t( CTStream &strm);  // throw char *
 
   // get amount of memory used by this object
-  inline SLONG GetUsedMemory(void) { return sizeof(CBrushPolygonTexture); };
+  inline int32_t GetUsedMemory(void) { return sizeof(CBrushPolygonTexture); };
 };
 
 
@@ -351,13 +351,13 @@ public:
 
 // properties that are retained in conversions to/from CObjectPolygon
 struct CBrushPolygonProperties {
-  UBYTE bpp_ubSurfaceType;        // surface type on this polygon
-  UBYTE bpp_ubIlluminationType;   // type of illuminating polygon, 0 if not illuminating
-  UBYTE bpp_ubShadowBlend;        // type of texture blending used for shadow map
-  UBYTE bpp_ubMirrorType;         // mirror or warp
-  UBYTE bpp_ubGradientType;       // for gradiental shadows
-  SBYTE bpp_sbShadowClusterSize;  // size of shadow clusters (size=(1<<ub)*0.5m)
-  UWORD bpp_uwPretenderDistance;  // distance for pretender switching [m]
+  uint8_t bpp_ubSurfaceType;        // surface type on this polygon
+  uint8_t bpp_ubIlluminationType;   // type of illuminating polygon, 0 if not illuminating
+  uint8_t bpp_ubShadowBlend;        // type of texture blending used for shadow map
+  uint8_t bpp_ubMirrorType;         // mirror or warp
+  uint8_t bpp_ubGradientType;       // for gradiental shadows
+  int8_t bpp_sbShadowClusterSize;  // size of shadow clusters (size=(1<<ub)*0.5m)
+  uint16_t bpp_uwPretenderDistance;  // distance for pretender switching [m]
   /* Default constructor. */
   CBrushPolygonProperties(void) { memset(this, 0, sizeof(*this)); };
 };
@@ -443,13 +443,13 @@ public:
   FLOAT GetDistanceFromEdges(const FLOAT3D &v);
 
   // get amount of memory used by this object
-  SLONG GetUsedMemory(void);
+  int32_t GetUsedMemory(void);
 };
 
 
 // get pointer to embedding brush polygon
 inline CBrushPolygon *CBrushShadowMap::GetBrushPolygon(void) {
-  return (CBrushPolygon *) ((UBYTE*)this-offsetof(CBrushPolygon, bpo_smShadowMap));
+  return (CBrushPolygon *) ((uint8_t*)this-offsetof(CBrushPolygon, bpo_smShadowMap));
 }
 
 
@@ -628,7 +628,7 @@ public:
   }
 
   // get amount of memory used by this object
-  SLONG GetUsedMemory(void);
+  int32_t GetUsedMemory(void);
 };
 
 

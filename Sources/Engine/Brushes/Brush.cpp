@@ -57,7 +57,7 @@ void CBrush3D::DeleteBrushMip(CBrushMip *pbmToDelete)
 }
 
 /* Create a new brush mip. */
-CBrushMip *CBrush3D::NewBrushMipAfter(CBrushMip *pbmOld, BOOL bCopy)
+CBrushMip *CBrush3D::NewBrushMipAfter(CBrushMip *pbmOld, bool bCopy)
 {
   ASSERT(pbmOld!=NULL);
   ASSERT(pbmOld->bm_pbrBrush == this);
@@ -76,7 +76,7 @@ CBrushMip *CBrush3D::NewBrushMipAfter(CBrushMip *pbmOld, BOOL bCopy)
 
   return pbmNew;
 }
-CBrushMip *CBrush3D::NewBrushMipBefore(CBrushMip *pbmOld, BOOL bCopy)
+CBrushMip *CBrush3D::NewBrushMipBefore(CBrushMip *pbmOld, bool bCopy)
 {
   ASSERT(pbmOld!=NULL);
   ASSERT(pbmOld->bm_pbrBrush == this);
@@ -93,7 +93,7 @@ CBrushMip *CBrush3D::NewBrushMipBefore(CBrushMip *pbmOld, BOOL bCopy)
   }
 
   // get factor of mip before the new one
-  FLOAT fFactorBefore = 0.0f;
+  float fFactorBefore = 0.0f;
   CBrushMip *pbmBefore = pbmNew->GetPrev();
   if (pbmBefore!=NULL) {
     fFactorBefore = pbmBefore->bm_fMaxDistance;
@@ -113,7 +113,7 @@ CBrushMip *CBrush3D::NewBrushMipBefore(CBrushMip *pbmOld, BOOL bCopy)
 /*
  * Get a brush mip for given mip-factor.
  */
-CBrushMip *CBrush3D::GetBrushMipByDistance(FLOAT fMipDistance)
+CBrushMip *CBrush3D::GetBrushMipByDistance(float fMipDistance)
 {
   // initially there is no brush mip
   CBrushMip *pbmLastGood=NULL;
@@ -182,7 +182,7 @@ void CBrush3D::Clear(void) {
 }
 
 /* Copy brush from another brush with possible mirror and stretch. */
-void CBrush3D::Copy(CBrush3D &brOther, FLOAT fStretch, BOOL bMirrorX)
+void CBrush3D::Copy(CBrush3D &brOther, float fStretch, bool bMirrorX)
 {
   // clear this brush in case there is something in it
   Clear();
@@ -244,8 +244,8 @@ void CBrush3D::CalculateBoundingBoxesForOneMip(CBrushMip *pbmOnly)  // for only 
   // if this brush is zoning
   if (br_penEntity!=NULL && (br_penEntity->en_ulFlags&ENF_ZONING)) {
     // portal links must be updated also
-    extern BOOL _bPortalSectorLinksPreLoaded;
-    extern BOOL _bDontDiscardLinks;
+    extern bool _bPortalSectorLinksPreLoaded;
+    extern bool _bDontDiscardLinks;
     br_penEntity->en_pwoWorld->wo_bPortalLinksUpToDate = _bPortalSectorLinksPreLoaded||_bDontDiscardLinks;
   }
 

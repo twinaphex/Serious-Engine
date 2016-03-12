@@ -60,7 +60,7 @@ void CBrushPolygon::CalculateBoundingBox(void)
 {
   // NOTE: vertices are already transformed to absolute space
   // discard portal-sector links to this polygon
-  extern BOOL _bDontDiscardLinks;
+  extern bool _bDontDiscardLinks;
   if (!(bpo_pbscSector->bsc_ulTempFlags&BSCTF_PRELOADEDLINKS)&&!_bDontDiscardLinks) {
     bpo_rsOtherSideSectors.Clear();
   }
@@ -84,7 +84,7 @@ void CBrushPolygon::CreateBSPPolygon(BSPPolygon<DOUBLE, 3> &bspo)
 
   // set the plane of the bsp polygon
   ((DOUBLEplane3D &)bspo) = *brpo.bpo_pbplPlane->bpl_ppldPreciseAbsolute;
-  bspo.bpo_ulPlaneTag = (ULONG)brpo.bpo_pbscSector->bsc_abplPlanes.Index(brpo.bpo_pbplPlane);
+  bspo.bpo_ulPlaneTag = (uintptr_t)brpo.bpo_pbscSector->bsc_abplPlanes.Index(brpo.bpo_pbplPlane);
 
   // create the array of edges in the bsp polygon
   INDEX ctEdges = brpo.bpo_abpePolygonEdges.Count();
@@ -109,7 +109,7 @@ void CBrushPolygon::CreateBSPPolygonNonPrecise(BSPPolygon<DOUBLE, 3> &bspo)
 
   // set the plane of the bsp polygon
   ((DOUBLEplane3D &)bspo) = FLOATtoDOUBLE(brpo.bpo_pbplPlane->bpl_plAbsolute);
-  bspo.bpo_ulPlaneTag = (ULONG)brpo.bpo_pbscSector->bsc_abplPlanes.Index(brpo.bpo_pbplPlane);
+  bspo.bpo_ulPlaneTag = (uintptr_t)brpo.bpo_pbscSector->bsc_abplPlanes.Index(brpo.bpo_pbplPlane);
   // calculate offset for points
   DOUBLE3D vOffset = FLOATtoDOUBLE(((FLOAT3D&)brpo.bpo_pbplPlane->bpl_plAbsolute))*-fOffset;
   // offset the plane
@@ -253,7 +253,7 @@ void CBrushPolygon::CopyFromSameSector(CBrushPolygon &bpoOriginal)
   bpo_pbplPlane    = bpoOriginal.bpo_pbplPlane;
   bpo_colColor     = bpoOriginal.bpo_colColor;
   bpo_ulFlags      = bpoOriginal.bpo_ulFlags;
-  BOOL bCopyMapping = TRUE;
+  bool bCopyMapping = TRUE;
   bpo_abptTextures[0].CopyTextureProperties( bpoOriginal.bpo_abptTextures[0], bCopyMapping);
   bpo_abptTextures[1].CopyTextureProperties( bpoOriginal.bpo_abptTextures[1], bCopyMapping);
   bpo_abptTextures[2].CopyTextureProperties( bpoOriginal.bpo_abptTextures[2], bCopyMapping);
@@ -265,7 +265,7 @@ void CBrushPolygon::CopyFromSameSector(CBrushPolygon &bpoOriginal)
 }
 
 /* Copy polygon properties */
-CBrushPolygon &CBrushPolygon::CopyProperties(CBrushPolygon &bpoOther, BOOL bCopyMapping) {
+CBrushPolygon &CBrushPolygon::CopyProperties(CBrushPolygon &bpoOther, bool bCopyMapping) {
   bpo_ulFlags &= ~BPOF_MASK_FOR_COPYING;
   bpo_ulFlags |= (bpoOther.bpo_ulFlags&BPOF_MASK_FOR_COPYING);
   bpo_bppProperties = bpoOther.bpo_bppProperties;
@@ -338,7 +338,7 @@ void CBrushPolygon::MovePolygonEdges(CBrushPolygon &bpoSource)
 #define TOUCHEPSILON 0.001f
 extern INDEX wed_bIgnoreTJunctions;
 
-BOOL CBrushEdge::TouchesInSameSector(CBrushEdge &bedOther)
+bool CBrushEdge::TouchesInSameSector(CBrushEdge &bedOther)
 {
   // if they have some common vertices
   if (
@@ -370,7 +370,8 @@ BOOL CBrushEdge::TouchesInSameSector(CBrushEdge &bedOther)
   }
   return FALSE;
 }
-BOOL CBrushEdge::TouchesInAnySector(CBrushEdge &bedOther)
+
+bool CBrushEdge::TouchesInAnySector(CBrushEdge &bedOther)
 {
   // if they have some common vertices
   if (
@@ -404,7 +405,7 @@ BOOL CBrushEdge::TouchesInAnySector(CBrushEdge &bedOther)
 }
 
 /* Test if this polygon touches another one. */
-BOOL CBrushPolygon::TouchesInAnySector(CBrushPolygon &bpoOther)
+bool CBrushPolygon::TouchesInAnySector(CBrushPolygon &bpoOther)
 {
   INDEX ctEdgesThis  = bpo_abpePolygonEdges.Count();
   INDEX ctEdgesOther = bpoOther.bpo_abpePolygonEdges.Count();
@@ -424,7 +425,8 @@ BOOL CBrushPolygon::TouchesInAnySector(CBrushPolygon &bpoOther)
   // if no two edges touch, the polygons don't touch
   return FALSE;
 }
-BOOL CBrushPolygon::TouchesInSameSector(CBrushPolygon &bpoOther)
+
+bool CBrushPolygon::TouchesInSameSector(CBrushPolygon &bpoOther)
 {
   INDEX ctEdgesThis  = bpo_abpePolygonEdges.Count();
   INDEX ctEdgesOther = bpoOther.bpo_abpePolygonEdges.Count();
@@ -516,10 +518,10 @@ CBrushPolygon &CBrushPolygon::CopyPolygon(CBrushPolygon &bp)
 
 
 // get amount of memory used by this object
-SLONG CBrushPolygon::GetUsedMemory(void)
+int32_t CBrushPolygon::GetUsedMemory(void)
 {
   // basic size of class
-  SLONG slUsedMemory = sizeof(CBrushPolygon);
+  int32_t slUsedMemory = sizeof(CBrushPolygon);
   // add arrays
   slUsedMemory += bpo_abpePolygonEdges.sa_Count      * sizeof(CBrushPolygonEdge);
   slUsedMemory += bpo_apbvxTriangleVertices.sa_Count * sizeof(CBrushVertex*);

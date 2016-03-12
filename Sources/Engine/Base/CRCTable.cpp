@@ -27,8 +27,8 @@ extern INDEX net_bReportCRC;
 class CCRCEntry {
 public:
   CTFileName ce_fnmFile;    // the file that CRC is for
-  ULONG ce_ulCRC;           // CRC of the file
-  BOOL ce_bActive;          // set if the file is now active for CRC checking
+  uint32_t ce_ulCRC;           // CRC of the file
+  bool ce_bActive;          // set if the file is now active for CRC checking
 
   // filename is its name (used for storing in nametable)
   inline const CTFileName &GetName(void) { return ce_fnmFile; };
@@ -41,7 +41,7 @@ public:
 };
 
 extern CDynamicStackArray<CTFileName> _afnmNoCRC;
-extern BOOL FileMatchesList(CDynamicStackArray<CTFileName> &afnm, const CTFileName &fnm);
+extern bool FileMatchesList(CDynamicStackArray<CTFileName> &afnm, const CTFileName &fnm);
 
 #ifndef SE_INCL_CRCTABLE_CPP
 #define SE_INCL_CRCTABLE_CPP
@@ -61,7 +61,7 @@ extern BOOL FileMatchesList(CDynamicStackArray<CTFileName> &afnm, const CTFileNa
 static CDynamicStackArray<CCRCEntry> _aceEntries;
 static CNameTable_CCRCEntry _ntEntries;
 
-extern BOOL CRCT_bGatherCRCs = FALSE;  // set while gathering CRCs of all loaded files
+extern bool CRCT_bGatherCRCs = FALSE;  // set while gathering CRCs of all loaded files
 
 // init CRC table
 void CRCT_Init(void)
@@ -70,13 +70,13 @@ void CRCT_Init(void)
 }
 
 // check if a file is added
-BOOL CRCT_IsFileAdded(const CTFileName &fnm)
+bool CRCT_IsFileAdded(const CTFileName &fnm)
 {
   return _ntEntries.Find(fnm)!=NULL;
 }
 
 // add one file to active list and get its crc
-void CRCT_AddFile_t(const CTFileName &fnm, ULONG ulCRC/*=0*/) // throw char *
+void CRCT_AddFile_t(const CTFileName &fnm, uint32_t ulCRC/*=0*/) // throw char *
 {
   // if not gathering CRCs now
   if (!CRCT_bGatherCRCs) {
@@ -87,7 +87,7 @@ void CRCT_AddFile_t(const CTFileName &fnm, ULONG ulCRC/*=0*/) // throw char *
   // try to find it in table
   CCRCEntry *pce = _ntEntries.Find(fnm);
 
-  BOOL bNew = FALSE;
+  bool bNew = FALSE;
   // if found
   if (pce!=NULL) {
     // just activate it
@@ -167,12 +167,12 @@ void CRCT_MakeFileList_t(CTStream &strmFiles)  // throw char *
 }
 
 // dump checksums for all files from the list
-ULONG CRCT_MakeCRCForFiles_t(CTStream &strmFiles)  // throw char *
+uint32_t CRCT_MakeCRCForFiles_t(CTStream &strmFiles)  // throw char *
 {
-  BOOL bOld = CRCT_bGatherCRCs;
+  bool bOld = CRCT_bGatherCRCs;
   CRCT_bGatherCRCs = TRUE;
 
-  ULONG ulCRC;
+  uint32_t ulCRC;
   CRC_Start(ulCRC);
   // read number of active files
   INDEX ctFiles;

@@ -70,13 +70,12 @@ CMemHandlerInit::CMemHandlerInit(void)
 
 #undef AllocMemory
 
-void *AllocMemory( SLONG memsize )
+void *AllocMemory( int32_t memsize )
 {
   void *pmem;
   ASSERTMSG(memsize>0, "AllocMemory: Block size is less or equal zero.");
-  if (_bCheckAllAllocations) {
+  if (_bCheckAllAllocations)
     _CrtCheckMemory();
-  }
   pmem = malloc( memsize);
   // memory handler asures no null results here?!
   if (pmem==NULL) {
@@ -87,7 +86,7 @@ void *AllocMemory( SLONG memsize )
 }
 
 #ifndef NDEBUG
-void *_debug_AllocMemory( SLONG memsize, int iType, const char *strFile, int iLine)
+void *_debug_AllocMemory( int32_t memsize, int iType, const char *strFile, int iLine)
 {
   void *pmem;
   ASSERTMSG(memsize>0, "AllocMemory: Block size is less or equal zero.");
@@ -105,16 +104,16 @@ void *_debug_AllocMemory( SLONG memsize, int iType, const char *strFile, int iLi
 }
 #endif
 
-void *AllocMemoryAligned( SLONG memsize, SLONG slAlignPow2)
+void *AllocMemoryAligned( int32_t memsize, int32_t slAlignPow2)
 {
-  ULONG ulMem = (ULONG)AllocMemory(memsize+slAlignPow2*2);
-  ULONG ulMemAligned = ((ulMem+slAlignPow2-1) & ~(slAlignPow2-1)) + slAlignPow2;
-  ((ULONG *)ulMemAligned)[-1] = ulMem;
+  uint32_t ulMem = (uint32_t)AllocMemory(memsize+slAlignPow2*2);
+  uint32_t ulMemAligned = ((ulMem+slAlignPow2-1) & ~(slAlignPow2-1)) + slAlignPow2;
+  ((uint32_t *)ulMemAligned)[-1] = ulMem;
   return (void*)ulMemAligned;
 }
 void FreeMemoryAligned( void *memory)
 {
-  FreeMemory((void*) ( ( (ULONG*)memory )[-1] ) );
+  FreeMemory((void*) ( ( (uint32_t*)memory )[-1] ) );
 }
 
 void FreeMemory( void *memory )
@@ -123,7 +122,7 @@ void FreeMemory( void *memory )
   free( (char *)memory);
 }
 
-void ResizeMemory( void **ppv, SLONG slSize )
+void ResizeMemory( void **ppv, int32_t slSize )
 {
   if (_bCheckAllAllocations) {
     _CrtCheckMemory();
@@ -137,12 +136,12 @@ void ResizeMemory( void **ppv, SLONG slSize )
   *ppv = pv;
 }
 
-void GrowMemory( void **ppv, SLONG newSize )
+void GrowMemory( void **ppv, int32_t newSize )
 {
   ResizeMemory(ppv, newSize);
 }
 
-void ShrinkMemory( void **ppv, SLONG newSize )
+void ShrinkMemory( void **ppv, int32_t newSize )
 {
   ResizeMemory(ppv, newSize);
 }
@@ -153,7 +152,7 @@ void ShrinkMemory( void **ppv, SLONG newSize )
  */
 char *StringDuplicate(const char *strOriginal) {
   // get the size
-  SLONG slSize = strlen(strOriginal)+1;
+  int32_t slSize = strlen(strOriginal)+1;
   // allocate that much memory
   char *strCopy = (char *)AllocMemory(slSize);
   // copy it there
@@ -165,7 +164,7 @@ char *StringDuplicate(const char *strOriginal) {
 
 
 // return position where we encounter zero byte or iBytes
-INDEX FindZero( UBYTE *pubMemory, INDEX iBytes)
+INDEX FindZero( uint8_t *pubMemory, INDEX iBytes)
 {
   for( INDEX i=0; i<iBytes; i++) if( pubMemory[i]==0) return i;
   return iBytes;
