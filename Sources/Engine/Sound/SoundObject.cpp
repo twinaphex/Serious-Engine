@@ -134,10 +134,10 @@ void CSoundObject::Copy(CSoundObject &soOther)
 void CSoundObject::Set3DParameters( FLOAT fFalloff, FLOAT fHotSpot,
                              FLOAT fMaxVolume, FLOAT fPitch)
 {
-  ASSERT( (fFalloff > 0) && (fHotSpot >= 0));
-  ASSERT(  fMaxVolume >= 0);
-  ASSERT(  fFalloff >= fHotSpot);
-  ASSERT(  fPitch > 0);
+  assert( (fFalloff > 0) && (fHotSpot >= 0));
+  assert(  fMaxVolume >= 0);
+  assert(  fFalloff >= fHotSpot);
+  assert(  fPitch > 0);
 
   CSoundObject *pso = this;
   // if the sound's entity is a predictor
@@ -227,7 +227,7 @@ void CSoundObject::Play(CSoundData *pCsdLink, SLONG slFlags)
 // play sound - internal function - doesn't account for prediction
 void CSoundObject::Play_internal( CSoundData *pCsdLink, SLONG slFlags)
 {
-  ASSERT(so_penEntity==NULL || !so_penEntity->IsPredictor());
+  assert(so_penEntity==NULL || !so_penEntity->IsPredictor());
 
   // check if should continue with new sound
   bool bContinue = 
@@ -265,7 +265,7 @@ void CSoundObject::Play_internal( CSoundData *pCsdLink, SLONG slFlags)
     if (so_pCsdLink->sd_ulFlags&SDF_STREAMING) {
       so_psdcDecoder = new CSoundDecoder(so_pCsdLink->GetName());
     } else {
-      ASSERT(FALSE);  // nonstreaming not supported anymore
+      assert(FALSE);  // nonstreaming not supported anymore
     }
   }
 
@@ -319,7 +319,7 @@ void CSoundObject::SetOffset( FLOAT fOffset)
   }
 
   // safety check
-  ASSERT( fOffset>=0);
+  assert( fOffset>=0);
   if( fOffset<0) {
     CPrintF( "BUG: Trying to set negative offset (%.2g) in sound '%s' !\n", fOffset, (CTString&)psoTail->so_pCsdLink->GetName());
     fOffset = 0.0f;
@@ -371,7 +371,7 @@ void CSoundObject::Stop_internal(void)
 
   // if added in link list, remove it from list
   if( IsHooked()) {
-    ASSERT(so_pCsdLink != NULL);
+    assert(so_pCsdLink != NULL);
     so_pCsdLink->RemoveObjectLink(*this);
     // remove reference from SoundData
     so_pCsdLink->RemReference();
@@ -456,7 +456,7 @@ void CSoundObject::Update3DEffects(void)
       fDistanceFactor = (so_sp3.sp3_fFalloff - fAbsDelta) /
                         (so_sp3.sp3_fFalloff - so_sp3.sp3_fHotSpot);
     }
-    ASSERT(fDistanceFactor>=0 && fDistanceFactor<=+1);
+    assert(fDistanceFactor>=0 && fDistanceFactor<=+1);
 
     // calculate volumetric influence
     // NOTE: decoded sounds must be threated as volumetric
@@ -466,7 +466,7 @@ void CSoundObject::Update3DEffects(void)
       fNonVolumetric = 1.0f-fDistanceFactor;
       fNonVolumetricAdvanced = 0.0f;
     }
-    ASSERT(fNonVolumetric>=0 && fNonVolumetric<=+1);
+    assert(fNonVolumetric>=0 && fNonVolumetric<=+1);
 
     // find doppler effect pitch shift
     fPitchShift = 1.0f;
@@ -499,14 +499,14 @@ void CSoundObject::Update3DEffects(void)
       fFBFactor = -vDir(3);
       fUDFactor = +vDir(2);
     }
-    ASSERT(fLRFactor>=-1.1 && fLRFactor<=+1.1);
-    ASSERT(fFBFactor>=-1.1 && fFBFactor<=+1.1);
-    ASSERT(fUDFactor>=-1.1 && fUDFactor<=+1.1);
+    assert(fLRFactor>=-1.1 && fLRFactor<=+1.1);
+    assert(fFBFactor>=-1.1 && fFBFactor<=+1.1);
+    assert(fUDFactor>=-1.1 && fUDFactor<=+1.1);
 
 
     // calculate panning influence factor
     FLOAT fPanningFactor= fNonVolumetric*snd_fPanStrength;
-    ASSERT(fPanningFactor>=0 && fPanningFactor<=+1);
+    assert(fPanningFactor>=0 && fPanningFactor<=+1);
 
     // calc volume for left and right channel
     FLOAT fVolume = so_sp3.sp3_fMaxVolume * fDistanceFactor;
@@ -593,7 +593,7 @@ void CSoundObject::Update3DEffects(void)
 // Prepare sound
 void CSoundObject::PrepareSound(void)
 {
-  ASSERT(so_penEntity==NULL || !so_penEntity->IsPredictor());
+  assert(so_penEntity==NULL || !so_penEntity->IsPredictor());
 
   so_fLastLeftVolume = so_spNew.sp_fLeftVolume;
   so_fLastRightVolume = so_spNew.sp_fRightVolume;
