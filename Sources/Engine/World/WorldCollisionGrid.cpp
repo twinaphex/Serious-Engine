@@ -43,10 +43,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 static inline void BoxToGrid(
   const FLOATaabbox3D &boxEntity, INDEX &iMinX, INDEX &iMaxX, INDEX &iMinZ, INDEX &iMaxZ)
 {
-  FLOAT fMinX = boxEntity.Min()(1);
-  FLOAT fMinZ = boxEntity.Min()(3);
-  FLOAT fMaxX = boxEntity.Max()(1);
-  FLOAT fMaxZ = boxEntity.Max()(3);
+  float fMinX = boxEntity.Min()(1);
+  float fMinZ = boxEntity.Min()(3);
+  float fMaxX = boxEntity.Max()(1);
+  float fMaxZ = boxEntity.Max()(3);
   iMinX = INDEX(floor(fMinX/GRID_CELLSIZE));
   iMinZ = INDEX(floor(fMinZ/GRID_CELLSIZE));
   iMaxX = INDEX(ceil(fMaxX/GRID_CELLSIZE));

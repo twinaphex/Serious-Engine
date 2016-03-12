@@ -278,7 +278,7 @@ void CLightSource::UpdateLayer(CBrushShadowLayer &bsl)
 
 static inline bool IsPolygonInfluencedByDirectionalLight(CBrushPolygon *pbpo)
 {
-  ULONG ulFlags = pbpo->bpo_ulFlags;
+  uint32_t ulFlags = pbpo->bpo_ulFlags;
 
   // if polygon has no directional light, not influenced
   if (!(ulFlags&(BPOF_HASDIRECTIONALLIGHT|BPOF_HASDIRECTIONALAMBIENT)))
@@ -368,7 +368,7 @@ static INDEX _iDynamic; // 0=disallow, 1=maybe (depend on flag), 2=allow
 
 static inline bool IsPolygonInfluencedByPointLight(CBrushPolygon *pbpo)
 {
-  ULONG ulFlags = pbpo->bpo_ulFlags;
+  uint32_t ulFlags = pbpo->bpo_ulFlags;
 
   // if has no shadows
   bool bIsTransparent = (ulFlags&BPOF_PORTAL) && !(ulFlags&(BPOF_TRANSLUCENT|BPOF_TRANSPARENT));
@@ -411,7 +411,7 @@ void CLightSource::FindShadowLayersPoint(bool bSelectedOnly)
   _iDynamic = 2;
   if( ls_ulFlags&LSF_NONPERSISTENT) {
     extern INDEX shd_iAllowDynamic;
-    if( ((ULONG)shd_iAllowDynamic) > 2) shd_iAllowDynamic = 1L; // clamp fast
+    if( ((uint32_t)shd_iAllowDynamic) > 2) shd_iAllowDynamic = 1L; // clamp fast
     _iDynamic = shd_iAllowDynamic;
   }
 
@@ -644,12 +644,12 @@ COLOR CLightSource::GetLightColor(void) const
   // no animation?
   if( ls_paoLightAnimation==NULL) return ls_colColor;
   // animation!
-  UBYTE ubR, ubG, ubB;
+  uint8_t ubR, ubG, ubB;
   GetLightColor( ubR, ubG, ubB);
   return RGBToColor( ubR, ubG, ubB);
 }
 
-void CLightSource::GetLightColor( UBYTE &ubR, UBYTE &ubG, UBYTE &ubB) const 
+void CLightSource::GetLightColor( uint8_t &ubR, uint8_t &ubG, uint8_t &ubB) const 
 {
   // no animation?
   ColorToRGB( ls_colColor, ubR, ubG, ubB);
@@ -657,12 +657,12 @@ void CLightSource::GetLightColor( UBYTE &ubR, UBYTE &ubG, UBYTE &ubB) const
   // animation!
   float fRatio;
   COLOR col0, col1;
-  UBYTE ubMR, ubMG, ubMB;
-  ls_paoLightAnimation->GetFrame( (SLONG&)col0, (SLONG&)col1, fRatio);
+  uint8_t ubMR, ubMG, ubMB;
+  ls_paoLightAnimation->GetFrame( (int32_t&)col0, (int32_t&)col1, fRatio);
   LerpColor( col0, col1, fRatio, ubMR, ubMG, ubMB);
-  ubR = ( ((((SLONG)ubR)<<8)|ubR) * ((((SLONG)ubMR)<<8)|ubMR) ) >>24;
-  ubG = ( ((((SLONG)ubG)<<8)|ubG) * ((((SLONG)ubMG)<<8)|ubMG) ) >>24;
-  ubB = ( ((((SLONG)ubB)<<8)|ubB) * ((((SLONG)ubMB)<<8)|ubMB) ) >>24;
+  ubR = ( ((((int32_t)ubR)<<8)|ubR) * ((((int32_t)ubMR)<<8)|ubMR) ) >>24;
+  ubG = ( ((((int32_t)ubG)<<8)|ubG) * ((((int32_t)ubMG)<<8)|ubMG) ) >>24;
+  ubB = ( ((((int32_t)ubB)<<8)|ubB) * ((((int32_t)ubMB)<<8)|ubMB) ) >>24;
 }
 
 
@@ -670,21 +670,21 @@ void CLightSource::GetLightColor( UBYTE &ubR, UBYTE &ubG, UBYTE &ubB) const
 COLOR CLightSource::GetLightAmbient(void) const 
 {
   if( ls_paoAmbientLightAnimation==NULL) return ls_colAmbient;
-  UBYTE ubAR, ubAG, ubAB;
+  uint8_t ubAR, ubAG, ubAB;
   GetLightAmbient( ubAR, ubAG, ubAB);
   return RGBToColor( ubAR, ubAG, ubAB);
 }
 
-void CLightSource::GetLightAmbient( UBYTE &ubAR, UBYTE &ubAG, UBYTE &ubAB) const 
+void CLightSource::GetLightAmbient( uint8_t &ubAR, uint8_t &ubAG, uint8_t &ubAB) const 
 {
   ColorToRGB( ls_colAmbient, ubAR, ubAG, ubAB);
   if( ls_paoAmbientLightAnimation==NULL) return;
   float fRatio;
   COLOR col0, col1;
-  UBYTE ubMR, ubMG, ubMB;
-  ls_paoAmbientLightAnimation->GetFrame( (SLONG&)col0, (SLONG&)col1, fRatio);
+  uint8_t ubMR, ubMG, ubMB;
+  ls_paoAmbientLightAnimation->GetFrame( (int32_t&)col0, (int32_t&)col1, fRatio);
   LerpColor( col0, col1, fRatio, ubMR, ubMG, ubMB);
-  ubAR = ( ((((SLONG)ubAR)<<8)|ubAR) * ((((SLONG)ubMR)<<8)|ubMR) ) >>24;
-  ubAG = ( ((((SLONG)ubAG)<<8)|ubAG) * ((((SLONG)ubMG)<<8)|ubMG) ) >>24;
-  ubAB = ( ((((SLONG)ubAB)<<8)|ubAB) * ((((SLONG)ubMB)<<8)|ubMB) ) >>24;
+  ubAR = ( ((((int32_t)ubAR)<<8)|ubAR) * ((((int32_t)ubMR)<<8)|ubMR) ) >>24;
+  ubAG = ( ((((int32_t)ubAG)<<8)|ubAG) * ((((int32_t)ubMG)<<8)|ubMG) ) >>24;
+  ubAB = ( ((((int32_t)ubAB)<<8)|ubAB) * ((((int32_t)ubMB)<<8)|ubMB) ) >>24;
 }

@@ -47,8 +47,8 @@ template CBrushPolygonSelection;
 template CBrushSectorSelection;
 template CEntitySelection;
 
-extern BOOL _bPortalSectorLinksPreLoaded;
-extern BOOL _bEntitySectorLinksPreLoaded;
+extern bool _bPortalSectorLinksPreLoaded;
+extern bool _bEntitySectorLinksPreLoaded;
 extern INDEX _ctPredictorEntities;
 
 // calculate ray placement from origin and target positions (obsolete?)
@@ -534,8 +534,8 @@ void CWorld::CalculateNonDirectionalShadows(void)
 /* Find all shadow layers near a certain position. */
 void CWorld::FindShadowLayers(
   const FLOATaabbox3D &boxNear,
-  BOOL bSelectedOnly /*=FALSE*/,
-  BOOL bDirectional /*= TRUE*/)
+  bool bSelectedOnly /*=FALSE*/,
+  bool bDirectional /*= TRUE*/)
 {
   _pfWorldEditingProfile.StartTimer(CWorldEditingProfile::PTI_FINDSHADOWLAYERS);
   // for each entity in the world
@@ -778,7 +778,7 @@ void CWorld::PrecacheEntities_t(void)
   INDEX iEntity = 0;
   FOREACHINDYNAMICCONTAINER(wo_cenEntities, CEntity, iten) {
     // precache
-    CallProgressHook_t(FLOAT(iEntity)/ctEntities);
+    CallProgressHook_t((float)(iEntity)/ctEntities);
     iten->Precache();
     iEntity++;
   }
@@ -789,7 +789,7 @@ void CWorld::FilterEntitiesBySpawnFlags(ULONG ulFlags)
   // must be in 24bit mode when managing entities
   CSetFPUPrecision FPUPrecision(FPT_24BIT);
 
-  BOOL bOldAllowRandom = _pNetwork->ga_sesSessionState.ses_bAllowRandom;
+  bool bOldAllowRandom = _pNetwork->ga_sesSessionState.ses_bAllowRandom;
   _pNetwork->ga_sesSessionState.ses_bAllowRandom = TRUE;
 
   // create an empty selection of entities
@@ -840,7 +840,7 @@ void CWorld::LinkEntitiesToSectors(void)
     if (en.en_RenderType==CEntity::RT_BRUSH && 
       (en.en_ulFlags&ENF_ZONING) && (en.en_ulPhysicsFlags&EPF_MOVABLE)){
       // recalculate all bounding boxes relative to new position
-      extern BOOL _bDontDiscardLinks;
+      extern bool _bDontDiscardLinks;
       _bDontDiscardLinks = TRUE;
       en.en_pbrBrush->CalculateBoundingBoxes();
       _bDontDiscardLinks = FALSE;
@@ -956,7 +956,7 @@ void CWorld::MarkForPrediction(void)
   extern INDEX cli_bPredictIfServer;
   extern INDEX cli_bPredictLocalPlayers;
   extern INDEX cli_bPredictRemotePlayers;
-  extern FLOAT cli_fPredictEntitiesRange;
+  extern float cli_fPredictEntitiesRange;
   static CStaticStackArray<FLOAT3D> avLocalPlayers;
   avLocalPlayers.PopAll();
 
@@ -966,7 +966,7 @@ void CWorld::MarkForPrediction(void)
     // if it exists
     if (pen!=NULL) {
       // find whether it is local
-      BOOL bLocal = _pNetwork->IsPlayerLocal(pen);
+      bool bLocal = _pNetwork->IsPlayerLocal(pen);
       // if allowed for prediction
       if (  bLocal && cli_bPredictLocalPlayers
         || !bLocal && cli_bPredictRemotePlayers) {
@@ -1001,16 +1001,15 @@ void CWorld::MarkForPrediction(void)
 
     // if predicting entities by range
     if (cli_fPredictEntitiesRange>0) {
-      FLOAT fRange = en.GetPredictionRange();
-      if (fRange<=0) {
+      float fRange = en.GetPredictionRange();
+      if (fRange<=0)
         continue;
-      }
       fRange = Min(fRange, cli_fPredictEntitiesRange);
 
       // get its coordinates and maximal prediction range
       const FLOAT3D &v = en.GetPlacement().pl_PositionVector;
       // check if it is within range of any local player
-      BOOL bInRange = FALSE;
+      bool bInRange = FALSE;
       for(INDEX i=0; i<avLocalPlayers.Count(); i++) {
         if ((avLocalPlayers[i]-v).Length()<fRange) {
           bInRange = TRUE;

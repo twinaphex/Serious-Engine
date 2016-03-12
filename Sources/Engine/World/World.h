@@ -36,11 +36,12 @@ class CEnvironmentType;
 class CIlluminationType;
 
 // mirroring types for mirror and stretch
-enum WorldMirrorType {
+enum WorldMirrorType
+{
   WMT_NONE,
   WMT_X,
   WMT_Y,
-  WMT_Z,
+  WMT_Z
 };
 
 class ENGINE_API CWorld {
@@ -88,15 +89,15 @@ public:
   FLOAT wo_fThumbnailTargetDistance;// target distance for thumbnail in WED
 
   CTFileName wo_fnmFileName;  // the file that the world was loaded from
-  SLONG wo_slStateDictionaryOffset;   // offset of the world state filename dictionary
+  int32_t wo_slStateDictionaryOffset;   // offset of the world state filename dictionary
   CTString wo_strName;    // name of the level to be shown to player
-  ULONG wo_ulSpawnFlags;  // spawn flags telling in which game modes can the level be played
+  uint32_t wo_ulSpawnFlags;  // spawn flags telling in which game modes can the level be played
   CTString wo_strDescription; // description of the level (intro, mission, etc.)
 
-  ULONG wo_ulNextEntityID;    // next free ID for entities
+  uint32_t wo_ulNextEntityID;    // next free ID for entities
   CListHead wo_lhTimers;      // timer scheduled entities
   CListHead wo_lhMovers;        // entities that want to/have to move
-  BOOL wo_bPortalLinksUpToDate; // set if portal-sector links are up to date
+  bool wo_bPortalLinksUpToDate; // set if portal-sector links are up to date
 
   /* Initialize collision grid. */
   void InitCollisionGrid(void);
@@ -165,7 +166,7 @@ public:
   void SplitOneSector(CBrushSector &bscToSplit, CObject3D &obToSplitBy);
 
   // read/write world information (description, name, flags...)
-  void ReadInfo_t(CTStream *strm, BOOL bMaybeDescription); // throw char *
+  void ReadInfo_t(CTStream *strm, bool bMaybeDescription); // throw char *
   void WriteInfo_t(CTStream *strm); // throw char *
 
   // mark all predictable entities that will be predicted using user-set criterions
@@ -178,7 +179,7 @@ public:
   void DeletePredictors(void);
 
   // get entity by its ID
-  CEntity *EntityFromID(ULONG ulID);
+  CEntity *EntityFromID(uint32_t ulID);
   // triangularize selected polygons
   void TriangularizePolygons(CDynamicContainer<CBrushPolygon> &dcPolygons);
 public:
@@ -210,7 +211,7 @@ public:
     CEntitySelection &senCopied, const CPlacement3D &plOtherSystem);
   /* Copy entity in world. */
   CEntity *CopyEntityInWorld(CEntity &enOriginal, const CPlacement3D &plOtherEntity,
-    BOOL bWithDescendants = TRUE);
+    bool bWithDescendants = TRUE);
   /* Destroy a selection of entities - reserved for use in WEd only! */
   void DestroyEntities(CEntitySelection &senToDestroy);
   /* Destroy given entity - reserved for use in WEd only! */
@@ -246,8 +247,8 @@ public:
   void SetName(const CTString &strName);
   const CTString &GetName(void);
   // get/set spawn flags for the world
-  void SetSpawnFlags(ULONG ulFlags);
-  ULONG GetSpawnFlags(void);
+  void SetSpawnFlags(uint32_t ulFlags);
+  uint32_t GetSpawnFlags(void);
 
   /* Save entire world (both brushes and current state). */
   void Save_t(const CTFileName &fnmWorld); // throw char *
@@ -258,7 +259,7 @@ public:
   /* Precache data needed by entities. */
   void PrecacheEntities_t(void);  // throw char *
   // delete all entities that don't fit given spawn flags
-  void FilterEntitiesBySpawnFlags(ULONG ulFlags);
+  void FilterEntitiesBySpawnFlags(uint32_t ulFlags);
 
   /* Read entire world (both brushes and current state). */
   void Read_t(CTStream *pistrm); // throw char *
@@ -290,7 +291,7 @@ public:
   void SplitSectors(CEntity &enThis, CBrushSectorSelection &selbscSectorsToSplit,
     CWorld &woOther, CEntity &enOther, const CPlacement3D &plOther);
   /* If two or more sectors can be joined. */
-  BOOL CanJoinSectors(CBrushSectorSelection &selbscSectorsToJoin);
+  bool CanJoinSectors(CBrushSectorSelection &selbscSectorsToJoin);
   /* Join two or more sectors from one brush-mip together. */
   void JoinSectors(CBrushSectorSelection &selbscSectorsToJoin);
 
@@ -302,18 +303,18 @@ public:
   /* Join two or more polygons from one brush-sector together. */
   void JoinPolygons(CBrushPolygonSelection &selbpoPolygonsToJoin);
   /* Test if a polygon selection can be joined. */
-  BOOL CanJoinPolygons(CBrushPolygonSelection &selbpoPolygonsToJoin);
+  bool CanJoinPolygons(CBrushPolygonSelection &selbpoPolygonsToJoin);
   /* Join all selected polygons that can be joined. */
   void JoinAllPossiblePolygons(CBrushPolygonSelection &selbpoPolygonsToJoin,
-    BOOL bPreserveTextures, INDEX iTexture);
+    bool bPreserveTextures, INDEX iTexture);
   /* Test if a polygon selection can be joined. */
-  BOOL CanJoinAllPossiblePolygons(CBrushPolygonSelection &selbpoPolygonsToJoin);
+  bool CanJoinAllPossiblePolygons(CBrushPolygonSelection &selbpoPolygonsToJoin);
 
   /* Copy selected sectors from one brush to a new entity in another world. */
-  BOOL CanCopySectors(CBrushSectorSelection &selbscSectorsToCopy);
-  void CopySectors(CBrushSectorSelection &selbscSectorsToCopy, CEntity *penTarget, BOOL bWithEntities);
+  bool CanCopySectors(CBrushSectorSelection &selbscSectorsToCopy);
+  void CopySectors(CBrushSectorSelection &selbscSectorsToCopy, CEntity *penTarget, bool bWithEntities);
   /* Delete selected sectors. */
-  void DeleteSectors(CBrushSectorSelection &selbscSectorsToDelete, BOOL bClearPortalFlags);
+  void DeleteSectors(CBrushSectorSelection &selbscSectorsToDelete, bool bClearPortalFlags);
   void CopyPolygonInWorld(CBrushPolygon &bpoSrc, CBrushSector &bsc, INDEX iPol, INDEX &iEdg, INDEX &iVtx);
   void CopyPolygonsToBrush(CBrushPolygonSelection &selPolygons, CEntity *penbr);
   void DeletePolygons(CDynamicContainer<CBrushPolygon> &dcPolygons);
@@ -347,7 +348,7 @@ public:
   void CalculateDirectionalShadows(void);
   void CalculateNonDirectionalShadows(void);
   /* Find all shadow layers near a certain position. */
-  void FindShadowLayers(const FLOATaabbox3D &boxNear, BOOL bSelectedOnly=FALSE, BOOL bDirectional = TRUE);
+  void FindShadowLayers(const FLOATaabbox3D &boxNear, bool bSelectedOnly=FALSE, bool bDirectional = TRUE);
   /* Discard shadows on all brush polygons in the world. */
   void DiscardAllShadows(void);
 
@@ -368,7 +369,7 @@ public:
   void ReadState_old_t( CTStream *istr);   // throw char *
   void ReadState_new_t( CTStream *istr);   // throw char *
   /* Write current world state to stream. */
-  void WriteState_t( CTStream *ostr, BOOL bImportDictionary = FALSE);  // throw char *
+  void WriteState_t( CTStream *ostr, bool bImportDictionary = FALSE);  // throw char *
 };
 
 

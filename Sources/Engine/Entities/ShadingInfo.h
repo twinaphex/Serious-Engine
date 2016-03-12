@@ -30,7 +30,7 @@ public:
   CTerrain      *si_ptrTerrain;   // terrain that entity is above
   FLOAT3D si_vNearPoint;          // the relevant point in absolute space
   PIX si_pixShadowU, si_pixShadowV; // the relevant point in the polygon shadow map
-  FLOAT si_fUDRatio, si_fLRRatio;   // fraction between pixels
+  float si_fUDRatio, si_fLRRatio;   // fraction between pixels
   CEntity *si_penEntity;          // the entity which uses this shading info
 };
 

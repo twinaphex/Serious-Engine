@@ -47,8 +47,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 class CForceStrength {
 public:
   FLOAT3D fs_vDirection;    // direction of the force (must be normalized)
-  FLOAT fs_fAcceleration;   // acceleration of the force (m/s2) (along the direction)
-  FLOAT fs_fVelocity;       // max. velocity that force can give (m/s) (along the direction)
+  float fs_fAcceleration;   // acceleration of the force (m/s2) (along the direction)
+  float fs_fVelocity;       // max. velocity that force can give (m/s) (along the direction)
 };
 
 
@@ -193,7 +193,7 @@ public:
   };
   CShadingInfo *en_psiShadingInfo;      // shading info for model entities
   CCollisionInfo *en_pciCollisionInfo;  // collision info for movable colliding entities
-  FLOAT en_fSpatialClassificationRadius;  // radius for spatial classification
+  float en_fSpatialClassificationRadius;  // radius for spatial classification
   FLOATaabbox3D en_boxSpatialClassification;  // box in object space for spatial classification
   CLastPositions *en_plpLastPositions;    // last positions of entity
 
@@ -370,7 +370,7 @@ public:
   void SetModelAttachmentSpecularTexture(INDEX iAttachment, SLONG idTextureComponent);
   
   // Get all vertices of model entity in absolute space
-  void GetModelVerticesAbsolute( CStaticStackArray<FLOAT3D> &avVertices, FLOAT fNormalOffset, FLOAT fMipFactor);
+  void GetModelVerticesAbsolute( CStaticStackArray<FLOAT3D> &avVertices, float fNormalOffset, float fMipFactor);
   // Returns true if bone exists and sets two given vectors as start and end point of specified bone in abs space
   BOOL GetBoneAbsPosition(INDEX iBoneID, FLOAT3D &vStartPoint, FLOAT3D &vEndPoint);
   // Returns true if bone exists and sets two given vectors as start and end point of specified bone in relative space
@@ -391,13 +391,13 @@ public:
 
   /* Apply some damage directly to one entity. */
   void InflictDirectDamage(CEntity *penToDamage, CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection);
+    float fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection);
   /* Apply some damage to all entities in some range (this tests for obstacles). */
   void InflictRangeDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vCenter, FLOAT fHotSpotRange, FLOAT fFallOffRange);
+    float fDamageAmmount, const FLOAT3D &vCenter, float fHotSpotRange, float fFallOffRange);
   /* Apply some damage to all entities in a box (this doesn't test for obstacles). */
   void InflictBoxDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOATaabbox3D &box);
+    float fDamageAmmount, const FLOATaabbox3D &box);
 
   // notify engine that gravity defined by this entity has changed
   void NotifyGravityChanged(void);
@@ -406,7 +406,7 @@ public:
 
   // get a pseudo-random number (safe for network gaming)
   ULONG IRnd(void);   // [0x0000 , 0xFFFF]
-  FLOAT FRnd(void);   // [0.0f , 1.0f]
+  float FRnd(void);   // [0.0f , 1.0f]
 
   // DLL class overridables
   /* Called after creating and setting its properties. */
@@ -429,7 +429,7 @@ public:
   void UnsetTimer(void) {};
 
   // return opacity of the entity (1 is default)
-  virtual FLOAT GetOpacity(void) { return 1.0f; };
+  virtual float GetOpacity(void) { return 1.0f; };
 
   // returns ammount of memory used by entity
   virtual SLONG GetUsedMemory(void);
@@ -528,7 +528,7 @@ public:
   /* Get last positions structure for particles. */
   CLastPositions *GetLastPositions(INDEX ctPositions);
   /* Get nearest position of nearest brush polygon to this entity if available. */
-  CBrushPolygon *GetNearestPolygon(FLOAT3D &vPoint, FLOATplane3D &plPlane, FLOAT &fDistanceToEdge);
+  CBrushPolygon *GetNearestPolygon(FLOAT3D &vPoint, FLOATplane3D &plPlane, float &fDistanceToEdge);
   /* Get absolute position of point on entity given relative to its size. */
   void GetEntityPointRatio(const FLOAT3D &vRatio, FLOAT3D &vAbsPoint, BOOL bLerped=FALSE);
   /* Get absolute position of point on entity given in meters. */
@@ -598,7 +598,7 @@ public:
   virtual BOOL AdjustShadingParameters(FLOAT3D &vLightDirection,
     COLOR &colLight, COLOR &colAmbient);
   /* Adjust model mip factor if needed. */
-  virtual void AdjustMipFactor(FLOAT &fMipFactor);
+  virtual void AdjustMipFactor(float &fMipFactor);
   // get a different model object for rendering - so entity can change its appearance dynamically
   // NOTE: base model is always used for other things (physics, etc).
   virtual CModelObject *GetModelForRendering(void);
@@ -614,14 +614,14 @@ public:
   /* Render game view */
   virtual void RenderGameView(CDrawPort *pdp, void *pvUserData);
   // apply mirror and stretch to the entity if supported
-  virtual void MirrorAndStretch(FLOAT fStretch, BOOL bMirrorX);
+  virtual void MirrorAndStretch(float fStretch, BOOL bMirrorX);
   // get offset for depth-sorting of alpha models (in meters, positive is nearer)
-  virtual FLOAT GetDepthSortOffset(void);
+  virtual float GetDepthSortOffset(void);
   // get visibility tweaking bits
   virtual ULONG GetVisTweaks(void);
 
   /* Get max tessellation level. */
-  virtual FLOAT GetMaxTessellationLevel(void);
+  virtual float GetMaxTessellationLevel(void);
 
   // get/set pointer to your predictor/predicted (autogenerated by ECC feature)
   virtual CEntity *GetPredictionPair(void);
@@ -634,7 +634,7 @@ public:
   // called by engine to get the upper time limit 
   virtual TIME GetPredictionTime(void);   // return moment in time up to which to predict this entity
   // get maximum allowed range for predicting this entity
-  virtual FLOAT GetPredictionRange(void);
+  virtual float GetPredictionRange(void);
   // add to prediction entities that this entity depends on
   virtual void AddDependentsToPrediction(void);
   // copy for prediction
@@ -647,7 +647,7 @@ public:
 
   /* apply some damage to the entity (see event EDamage for more info) */
   virtual void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection);
+    float fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection);
 
   /* Receive item through event - for AI purposes only */
   virtual BOOL ReceiveItem(const CEntityEvent &ee);
@@ -714,7 +714,7 @@ inline void CEntity::RemReference(void) {
  */
 class ENGINE_API CLiveEntity : public CEntity {
 public:
-  FLOAT en_fHealth;            // health of the entity
+  float en_fHealth;            // health of the entity
 
   /* Copy entity from another entity of same class. */
   virtual void Copy(CEntity &enOther, ULONG ulFlags);
@@ -724,17 +724,17 @@ public:
   virtual void Write_t( CTStream *ostr); // throw char *
 public:
   /* Set health of the entity. (Use only for initialization!) */
-  void SetHealth(FLOAT fHealth) { en_fHealth = fHealth; };
+  void SetHealth(float fHealth) { en_fHealth = fHealth; };
 
 public:
   /* Constructor. */
   CLiveEntity(void);
 
   /* Get health of the entity. */
-  FLOAT GetHealth(void) const { return en_fHealth; };
+  float GetHealth(void) const { return en_fHealth; };
   // apply some damage to the entity (see event EDamage for more info)
   virtual void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection);
+    float fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection);
 
   // returns bytes of memory used by this object
   inline SLONG GetUsedMemory(void) {

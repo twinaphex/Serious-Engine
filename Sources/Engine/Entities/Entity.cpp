@@ -381,7 +381,7 @@ BOOL CEntity::AdjustShadingParameters(FLOAT3D &vLightDirection,
   return TRUE;
 }
 /* Adjust model mip factor if needed. */
-void CEntity::AdjustMipFactor(FLOAT &fMipFactor)
+void CEntity::AdjustMipFactor(float &fMipFactor)
 {
   (void)fMipFactor;
   NOTHING;
@@ -498,12 +498,12 @@ void CEntity::RenderGameView(CDrawPort *pdp, void *pvUserData)
   NOTHING;
 }
 // apply mirror and stretch to the entity if supported
-void CEntity::MirrorAndStretch(FLOAT fStretch, BOOL bMirrorX)
+void CEntity::MirrorAndStretch(float fStretch, BOOL bMirrorX)
 {
   NOTHING;
 }
 // get offset for depth-sorting of alpha models (in meters, positive is nearer)
-FLOAT CEntity::GetDepthSortOffset(void)
+float CEntity::GetDepthSortOffset(void)
 {
   return 0.0f;
 }
@@ -514,7 +514,7 @@ ULONG CEntity::GetVisTweaks(void)
 }
 
 // Get max tessellation level
-FLOAT CEntity::GetMaxTessellationLevel(void)
+float CEntity::GetMaxTessellationLevel(void)
 {
   return 0.0f;
 }
@@ -550,7 +550,7 @@ TIME CEntity::GetPredictionTime(void)   // return moment in time up to which to 
 }
 
 // get maximum allowed range for predicting this entity
-FLOAT CEntity::GetPredictionRange(void)
+float CEntity::GetPredictionRange(void)
 {
   return UpperLimit(0.0f);    // by default, cli_fPredictEntitiesRange is the limit
 }
@@ -988,7 +988,7 @@ void CEntity::FallDownToFloor( void)
     vRay[3] = vCenterUp;
   }
 
-  FLOAT fMaxY = -9999999.0f;
+  float fMaxY = -9999999.0f;
   BOOL bFloorHitted = FALSE;
   for( INDEX iRay=0; iRay<4; iRay++)
   {
@@ -1268,7 +1268,7 @@ void CEntity::Destroy(void)
 FLOAT3D _vHandle;
 CBrushPolygon *_pbpoNear;
 CTerrain *_ptrTerrainNear;
-FLOAT _fNearDistance;
+float _fNearDistance;
 FLOAT3D _vNearPoint;
 
 static void CheckPolygonForShadingInfo(CBrushPolygon &bpo)
@@ -1286,7 +1286,7 @@ static void CheckPolygonForShadingInfo(CBrushPolygon &bpo)
 
   const FLOATplane3D &plPolygon = bpo.bpo_pbplPlane->bpl_plAbsolute;
   // find distance of the polygon plane from the handle
-  FLOAT fDistance = plPolygon.PointDistance(_vHandle);
+  float fDistance = plPolygon.PointDistance(_vHandle);
   // if it is behind the plane or further than nearest found
   if (fDistance<0.0f || fDistance>_fNearDistance) {
     // skip it
@@ -1296,7 +1296,7 @@ static void CheckPolygonForShadingInfo(CBrushPolygon &bpo)
   FLOAT3D vOnPlane = plPolygon.ProjectPoint(_vHandle);
   // if it is not in the bounding box of polygon
   const FLOATaabbox3D &boxPolygon = bpo.bpo_boxBoundingBox;
-  const FLOAT EPSILON = 0.01f;
+  const float EPSILON = 0.01f;
   if (
     (boxPolygon.Min()(1)-EPSILON>vOnPlane(1)) ||
     (boxPolygon.Max()(1)+EPSILON<vOnPlane(1)) ||
@@ -1347,7 +1347,7 @@ static void CheckTerrainForShadingInfo(CTerrain *ptrTerrain)
   FLOAT3D vHitPoint;
   FLOATplane3D plHitPlane;
   vTerrainNormal = FLOAT3D(0,-1,0) * pen->en_mRotation;
-  FLOAT fDistance = TestRayCastHit(ptrTerrain,pen->en_mRotation,pen->en_plPlacement.pl_PositionVector,
+  float fDistance = TestRayCastHit(ptrTerrain,pen->en_mRotation,pen->en_plPlacement.pl_PositionVector,
                                    _vHandle,_vHandle+vTerrainNormal,_fNearDistance,FALSE,plHitPlane,vHitPoint);
   if(fDistance<_fNearDistance) {
     _vNearPoint = vHitPoint;
@@ -1443,8 +1443,8 @@ void CEntity::FindShadingInfo(void)
       _vNearPoint, vmexShadow);
     CBrushShadowMap &bsm = _pbpoNear->bpo_smShadowMap;
     INDEX iMipLevel = bsm.sm_iFirstMipLevel;
-    FLOAT fpixU = FLOAT(vmexShadow(1)+bsm.sm_mexOffsetX)*(1.0f/(1<<iMipLevel));
-    FLOAT fpixV = FLOAT(vmexShadow(2)+bsm.sm_mexOffsetY)*(1.0f/(1<<iMipLevel));
+    float fpixU = (float)(vmexShadow(1)+bsm.sm_mexOffsetX)*(1.0f/(1<<iMipLevel));
+    float fpixV = (float)(vmexShadow(2)+bsm.sm_mexOffsetY)*(1.0f/(1<<iMipLevel));
     en_psiShadingInfo->si_pixShadowU = floor(fpixU);
     en_psiShadingInfo->si_pixShadowV = floor(fpixV);
     en_psiShadingInfo->si_fUDRatio = fpixU-en_psiShadingInfo->si_pixShadowU;
@@ -1533,9 +1533,9 @@ void CCollisionInfo::FromModel(CEntity *penModel, INDEX iBox)
   }
 
   // calculate radius of one sphere
-  FLOAT fSphereRadius = vBoxSize(iAxis1)/2.0f;
+  float fSphereRadius = vBoxSize(iAxis1)/2.0f;
   // calculate length along which to set spheres
-  FLOAT fSphereCentersSpan = vBoxSize(iAxisMain)-fSphereRadius*2;
+  float fSphereCentersSpan = vBoxSize(iAxisMain)-fSphereRadius*2;
   // calculate number of spheres to use
   INDEX ctSpheres = 0;
   if (fSphereRadius>0.0001f) {
@@ -1545,18 +1545,18 @@ void CCollisionInfo::FromModel(CEntity *penModel, INDEX iBox)
     ctSpheres=1;
   }
   // calculate how far from each other to set sphere centers
-  FLOAT fSphereCentersDistance;
+  float fSphereCentersDistance;
   if (ctSpheres==1) {
     fSphereCentersDistance = 0.0f;
   } else {
-    fSphereCentersDistance = fSphereCentersSpan/(FLOAT)(ctSpheres-1);
+    fSphereCentersDistance = fSphereCentersSpan/(float)(ctSpheres-1);
   }
 
   // calculate coordinates for spreading sphere centers
-  FLOAT fSphereCenterX = vBoxOffset(iAxis1);
-  FLOAT fSphereCenterZ = vBoxOffset(iAxis2);
-  FLOAT fSphereCenterY0 = vBoxOffset(iAxisMain)-(vBoxSize(iAxisMain)/2.0f)+fSphereRadius;
-  FLOAT fSphereCenterKY = fSphereCentersDistance;
+  float fSphereCenterX = vBoxOffset(iAxis1);
+  float fSphereCenterZ = vBoxOffset(iAxis2);
+  float fSphereCenterY0 = vBoxOffset(iAxisMain)-(vBoxSize(iAxisMain)/2.0f)+fSphereRadius;
+  float fSphereCenterKY = fSphereCentersDistance;
 
   ci_fMinHeight = boxModel.Min()(2);
   ci_fMaxHeight = boxModel.Max()(2);
@@ -1647,7 +1647,7 @@ void CCollisionInfo::MakeBoxAtPlacement(const FLOAT3D &vPosition, const FLOATmat
 }
 
 // get maximum radius of entity in xz plane (relative to entity handle)
-FLOAT CCollisionInfo::GetMaxFloorRadius(void)
+float CCollisionInfo::GetMaxFloorRadius(void)
 {
   ASSERT(GetFPUPrecision()==FPT_24BIT);
 
@@ -1821,7 +1821,7 @@ void CEntity::FindSectorsAroundEntity(void)
     return;
   }
   // get bounding sphere and box of entity
-  FLOAT fSphereRadius = en_fSpatialClassificationRadius;
+  float fSphereRadius = en_fSpatialClassificationRadius;
   const FLOAT3D &vSphereCenter = en_plPlacement.pl_PositionVector;
   // make oriented bounding box of the entity
   FLOATobbox3D boxEntity = FLOATobbox3D(en_boxSpatialClassification, 
@@ -1884,7 +1884,7 @@ void CEntity::FindSectorsAroundEntityNear(void)
   CMovableEntity *pen = (CMovableEntity *)this;
 
   // get bounding sphere and box of entity
-  FLOAT fSphereRadius = en_fSpatialClassificationRadius;
+  float fSphereRadius = en_fSpatialClassificationRadius;
   const FLOAT3D &vSphereCenter = en_plPlacement.pl_PositionVector;
   FLOATaabbox3D boxEntity(vSphereCenter, fSphereRadius);
   // make oriented bounding box of the entity
@@ -2590,7 +2590,7 @@ void CEntity::SetModelAttachmentSpecularTexture(INDEX iAttachment, SLONG idTextu
 }
 
 // Get all vertices of model entity in absolute space
-void CEntity::GetModelVerticesAbsolute( CStaticStackArray<FLOAT3D> &avVertices, FLOAT fNormalOffset, FLOAT fMipFactor)
+void CEntity::GetModelVerticesAbsolute( CStaticStackArray<FLOAT3D> &avVertices, float fNormalOffset, float fMipFactor)
 {
   ASSERT(en_RenderType==RT_MODEL || en_RenderType==RT_EDITORMODEL ||
          en_RenderType==RT_SKAMODEL || en_RenderType==RT_SKAEDITORMODEL);
@@ -2966,7 +2966,7 @@ void CEntity::PlaySound(CSoundObject &so, const CTFileName &fnmSound, SLONG slPl
  * Apply some damage directly to one entity.
  */
 void CEntity::InflictDirectDamage(CEntity *penToDamage, CEntity *penInflictor, enum DamageType dmtType,
-  FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection)
+  float fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection)
 {
   ASSERT(GetFPUPrecision()==FPT_24BIT);
 
@@ -2985,8 +2985,8 @@ void CEntity::InflictDirectDamage(CEntity *penToDamage, CEntity *penInflictor, e
 }
 
 // find intensity of current entity at given distance
-static inline FLOAT IntensityAtDistance(
-  FLOAT fDamageAmmount, FLOAT fHotSpotRange, FLOAT fFallOffRange, FLOAT fDistance)
+static inline float IntensityAtDistance(
+  float fDamageAmmount, float fHotSpotRange, float fFallOffRange, float fDistance)
 {
   // if further than fall-off range
   if (fDistance>fFallOffRange) {
@@ -3005,7 +3005,7 @@ static inline FLOAT IntensityAtDistance(
 
 // check if a range damage can hit given model entity
 static BOOL CheckModelRangeDamage(
-  CEntity &en, const FLOAT3D &vCenter, FLOAT &fMinD, FLOAT3D &vHitPos)
+  CEntity &en, const FLOAT3D &vCenter, float &fMinD, FLOAT3D &vHitPos)
 {
   CCollisionInfo *pci = en.en_pciCollisionInfo;
   if (pci==NULL) {
@@ -3051,7 +3051,7 @@ static BOOL CheckModelRangeDamage(
   FOREACHINSTATICARRAY(pci->ci_absSpheres, CMovingSphere, itms) {
     // project it
     itms->ms_vRelativeCenter0 = itms->ms_vCenter*en.en_mRotation+vO;
-    FLOAT fD = (itms->ms_vRelativeCenter0-vCenter).Length()-itms->ms_fR;
+    float fD = (itms->ms_vRelativeCenter0-vCenter).Length()-itms->ms_fR;
     if (fD<fMinD) {
       fMinD = Min(fD, fMinD);
       vHitPos = itms->ms_vRelativeCenter0;
@@ -3065,7 +3065,7 @@ static BOOL CheckModelRangeDamage(
 
 // check if a range damage can hit given brush entity
 static BOOL CheckBrushRangeDamage(
-  CEntity &en, const FLOAT3D &vCenter, FLOAT &fMinD, FLOAT3D &vHitPos)
+  CEntity &en, const FLOAT3D &vCenter, float &fMinD, FLOAT3D &vHitPos)
 {
   // don't actually check for brushes, doesn't have to be too exact
   const FLOAT3D &vO = en.en_plPlacement.pl_PositionVector;
@@ -3076,7 +3076,7 @@ static BOOL CheckBrushRangeDamage(
 
 /* Apply some damage to all entities in some range. */
 void CEntity::InflictRangeDamage(CEntity *penInflictor, enum DamageType dmtType,
-  FLOAT fDamageAmmount, const FLOAT3D &vCenter, FLOAT fHotSpotRange, FLOAT fFallOffRange)
+  float fDamageAmmount, const FLOAT3D &vCenter, float fHotSpotRange, float fFallOffRange)
 {
   ASSERT(GetFPUPrecision()==FPT_24BIT);
 
@@ -3102,7 +3102,7 @@ void CEntity::InflictRangeDamage(CEntity *penInflictor, enum DamageType dmtType,
 
     // if can be hit
     FLOAT3D vHitPos;
-    FLOAT fMinD;
+    float fMinD;
     if (
       (en.en_RenderType==RT_MODEL || en.en_RenderType==RT_EDITORMODEL || 
         en.en_RenderType==RT_SKAMODEL || en.en_RenderType==RT_SKAEDITORMODEL )&&
@@ -3111,7 +3111,7 @@ void CEntity::InflictRangeDamage(CEntity *penInflictor, enum DamageType dmtType,
        CheckBrushRangeDamage(en, vCenter, fMinD, vHitPos)) {
 
       // find damage ammount
-      FLOAT fAmmount = IntensityAtDistance(fDamageAmmount, fHotSpotRange, fFallOffRange, fMinD);
+      float fAmmount = IntensityAtDistance(fDamageAmmount, fHotSpotRange, fFallOffRange, fMinD);
 
       // if significant
       if (fAmmount>0) {
@@ -3124,7 +3124,7 @@ void CEntity::InflictRangeDamage(CEntity *penInflictor, enum DamageType dmtType,
 
 /* Apply some damage to all entities in a box (this doesn't test for obstacles). */
 void CEntity::InflictBoxDamage(CEntity *penInflictor, enum DamageType dmtType,
-  FLOAT fDamageAmmount, const FLOATaabbox3D &box)
+  float fDamageAmmount, const FLOATaabbox3D &box)
 {
   ASSERT(GetFPUPrecision()==FPT_24BIT);
 
@@ -3233,7 +3233,7 @@ void CEntity::NotifyCollisionChanged(void)
 
 // apply some damage to the entity (see event EDamage for more info)
 void CEntity::ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-  FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection)
+  float fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection)
 {
   CEntityPointer penThis = this;  // keep this entity alive during this function
   // just throw an event that you are damaged (base entities don't really have health)
@@ -3561,9 +3561,9 @@ ULONG CEntity::IRnd(void)
 }
 
 
-FLOAT CEntity::FRnd(void)
+float CEntity::FRnd(void)
 {
-  return ((_pNetwork->ga_sesSessionState.Rnd()>>(31-24))&0xFFFFFF)/FLOAT(0xFFFFFF);
+  return ((_pNetwork->ga_sesSessionState.Rnd()>>(31-24))&0xFFFFFF)/(float)(0xFFFFFF);
 }
 
 
@@ -3670,7 +3670,7 @@ void CLiveEntity::Write_t( CTStream *ostr) // throw char *
 
 // apply some damage to the entity (see event EDamage for more info)
 void CLiveEntity::ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-  FLOAT fDamage, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection)
+  float fDamage, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection)
 {
   CEntityPointer penThis = this;  // keep this entity alive during this function
 

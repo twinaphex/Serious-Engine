@@ -44,8 +44,8 @@ extern INDEX shd_bFineQuality;
 extern INDEX shd_iFiltering;
 extern INDEX shd_iDithering;
 
-extern const UBYTE *pubClipByte;
-extern UBYTE aubSqrt[  SQRTTABLESIZE];
+extern const uint8_t *pubClipByte;
+extern uint8_t aubSqrt[  SQRTTABLESIZE];
 extern UWORD auw1oSqrt[SQRTTABLESIZE];
 extern UWORD auw1oSqrt[SQRTTABLESIZE];
 // static FLOAT3D _v00;
@@ -68,8 +68,8 @@ public:
   PIX   lm_pixCanvasSizeV;
   PIX   lm_pixPolygonSizeU;    // polygon (used part of shadowmap size in pixels
   PIX   lm_pixPolygonSizeV;
-  ULONG*lm_pulShadowMap;       // buffer for final shadow map
-  ULONG*lm_pulStaticShadowMap; // precached static shadow map
+  uint32_t*lm_pulShadowMap;       // buffer for final shadow map
+  uint32_t*lm_pulStaticShadowMap; // precached static shadow map
 
   // gradients for shadow map walking
   FLOAT3D lm_vO;     // upper left corner of shadow map in 3D
@@ -92,46 +92,46 @@ public:
   void MixOneMipmapDynamic(CBrushShadowMap *pbsm, INDEX iMipmap);
 
   // find start of a mip-map inside a layer
-  void FindLayerMipmap( CBrushShadowLayer *pbsl, UBYTE *&pub, UBYTE &ubMask);
+  void FindLayerMipmap( CBrushShadowLayer *pbsl, uint8_t *&pub, uint8_t &ubMask);
 
   // add one point layer to the shadow map
   void AddAmbientPoint(void);
-  void AddAmbientMaskPoint( UBYTE *pubMask, UBYTE ubMask);
+  void AddAmbientMaskPoint( uint8_t *pubMask, uint8_t ubMask);
   void AddDiffusionPoint(void);
-  void AddDiffusionMaskPoint( UBYTE *pubMask, UBYTE ubMask);
+  void AddDiffusionMaskPoint( uint8_t *pubMask, uint8_t ubMask);
   bool PrepareOneLayerPoint( CBrushShadowLayer *pbsl, bool bNoMask);
-  void AddOneLayerPoint( CBrushShadowLayer *pbsl, UBYTE *pub, UBYTE ubMask=0);
+  void AddOneLayerPoint( CBrushShadowLayer *pbsl, uint8_t *pub, uint8_t ubMask=0);
 
   // add one directional layer to the shadow map
   void AddDirectional(void);
-  void AddMaskDirectional( UBYTE *pubMask, UBYTE ubMask);
-  void AddOneLayerDirectional( CBrushShadowLayer *pbsl, UBYTE *pub, UBYTE ubMask=0);
+  void AddMaskDirectional( uint8_t *pubMask, uint8_t ubMask);
+  void AddOneLayerDirectional( CBrushShadowLayer *pbsl, uint8_t *pub, uint8_t ubMask=0);
 
   // add one gradient layer to the shadow map
   void AddOneLayerGradient( CGradientParameters &gp);
 
   // add the intensity to the pixel
-  inline void AddToCluster( UBYTE *pub);
-  inline void AddAmbientToCluster( UBYTE *pub);
-  inline void AddToCluster( UBYTE *pub, FLOAT fIntensity);
+  inline void AddToCluster( uint8_t *pub);
+  inline void AddAmbientToCluster( uint8_t *pub);
+  inline void AddToCluster( uint8_t *pub, float fIntensity);
 
   // additional functions
   __forceinline void CopyShadowLayer(void);
   __forceinline void FillShadowLayer( COLOR col);
-  // inline FLOAT IntensityAtDistance( FLOAT fDistance, FLOAT fMinDistance);
-  // FLOAT lm_fLightMax, lm_fLightStep;
+  // inline float IntensityAtDistance( float fDistance, float fMinDistance);
+  // float lm_fLightMax, lm_fLightStep;
 };
 
 
 // increment a byte without overflowing it
-static inline void IncrementByteWithClip( UBYTE &ub, SLONG slAdd)
+static inline void IncrementByteWithClip( uint8_t &ub, int32_t slAdd)
 {
-  ub = pubClipByte[(SLONG)ub+slAdd];
+  ub = pubClipByte[(int32_t)ub+slAdd];
 }
 
 // increment a color without overflowing it
-static inline void IncrementColorWithClip( UBYTE &ubR, UBYTE &ubG, UBYTE &ubB,
-                                           SLONG  slR, SLONG  slG, SLONG  slB)
+static inline void IncrementColorWithClip( uint8_t &ubR, uint8_t &ubG, uint8_t &ubB,
+                                           int32_t  slR, int32_t  slG, int32_t  slB)
 {
   IncrementByteWithClip( ubR, slR);
   IncrementByteWithClip( ubG, slG);
@@ -139,23 +139,23 @@ static inline void IncrementColorWithClip( UBYTE &ubR, UBYTE &ubG, UBYTE &ubB,
 }
 
 // add the intensity to the pixel
-inline void CLayerMixer::AddToCluster( UBYTE *pub)
+inline void CLayerMixer::AddToCluster( uint8_t *pub)
 {
-  IncrementByteWithClip(pub[0], ((UBYTE*)&lm_colLight)[3]);
-  IncrementByteWithClip(pub[1], ((UBYTE*)&lm_colLight)[2]);
-  IncrementByteWithClip(pub[2], ((UBYTE*)&lm_colLight)[1]);
+  IncrementByteWithClip(pub[0], ((uint8_t*)&lm_colLight)[3]);
+  IncrementByteWithClip(pub[1], ((uint8_t*)&lm_colLight)[2]);
+  IncrementByteWithClip(pub[2], ((uint8_t*)&lm_colLight)[1]);
 }
-inline void CLayerMixer::AddAmbientToCluster( UBYTE *pub)
+inline void CLayerMixer::AddAmbientToCluster( uint8_t *pub)
 {
-  IncrementByteWithClip(pub[0], ((UBYTE*)&lm_colAmbient)[3]);
-  IncrementByteWithClip(pub[1], ((UBYTE*)&lm_colAmbient)[2]);
-  IncrementByteWithClip(pub[2], ((UBYTE*)&lm_colAmbient)[1]);
+  IncrementByteWithClip(pub[0], ((uint8_t*)&lm_colAmbient)[3]);
+  IncrementByteWithClip(pub[1], ((uint8_t*)&lm_colAmbient)[2]);
+  IncrementByteWithClip(pub[2], ((uint8_t*)&lm_colAmbient)[1]);
 }
-inline void CLayerMixer::AddToCluster( UBYTE *pub, FLOAT fIntensity)
+inline void CLayerMixer::AddToCluster( uint8_t *pub, float fIntensity)
 {
-  IncrementByteWithClip(pub[0], ((UBYTE*)&lm_colLight)[3] *fIntensity);
-  IncrementByteWithClip(pub[1], ((UBYTE*)&lm_colLight)[2] *fIntensity);
-  IncrementByteWithClip(pub[2], ((UBYTE*)&lm_colLight)[1] *fIntensity);
+  IncrementByteWithClip(pub[0], ((uint8_t*)&lm_colLight)[3] *fIntensity);
+  IncrementByteWithClip(pub[1], ((uint8_t*)&lm_colLight)[2] *fIntensity);
+  IncrementByteWithClip(pub[2], ((uint8_t*)&lm_colLight)[1] *fIntensity);
 }
 
   
@@ -193,7 +193,7 @@ void CLayerMixer::CalculateData( CBrushShadowMap *pbsm, INDEX iMipmap)
 
   // prepare 3D positions
   CEntity *penWithPolygon = lm_pbpoPolygon->bpo_pbscSector->bsc_pbmBrushMip->bm_pbrBrush->br_penEntity;
-  ASSERT(penWithPolygon!=NULL);
+  assert(penWithPolygon!=NULL);
   const FLOATmatrix3D &mPolygonRotation = penWithPolygon->en_mRotation;
   const FLOAT3D &vPolygonTranslation = penWithPolygon->GetPlacement().pl_PositionVector;
 
@@ -221,19 +221,19 @@ void CLayerMixer::CalculateData( CBrushShadowMap *pbsm, INDEX iMipmap)
   lm_vStepU-= lm_vO;
   lm_vStepV-= lm_vO;
 
-  ASSERT( lm_pixPolygonSizeU>0 && lm_pixPolygonSizeV>0);
+  assert( lm_pixPolygonSizeU>0 && lm_pixPolygonSizeV>0);
   _pfWorldEditingProfile.StopTimer(CWorldEditingProfile::PTI_CALCULATEDATA);
 }
 
 
 // find start of a mip-map inside a layer
-void CLayerMixer::FindLayerMipmap( CBrushShadowLayer *pbsl, UBYTE *&pub, UBYTE &ubMask)
+void CLayerMixer::FindLayerMipmap( CBrushShadowLayer *pbsl, uint8_t *&pub, uint8_t &ubMask)
 {
   struct MipmapTable mmtLayer;
   // find mip-mapping information for the layer
   MakeMipmapTable(pbsl->bsl_pixSizeU, pbsl->bsl_pixSizeV, mmtLayer);
   // get pixel offset of the mipmap
-  SLONG slPixOffset = mmtLayer.mmt_aslOffsets[lm_iMipLevel-lm_iFirstLevel];
+  int32_t slPixOffset = mmtLayer.mmt_aslOffsets[lm_iMipLevel-lm_iFirstLevel];
   // convert offset to bits
   pub = pbsl->bsl_pubLayer + (slPixOffset>>3);
   ubMask = 1<<(slPixOffset&7);
@@ -246,13 +246,13 @@ void CLayerMixer::FindLayerMipmap( CBrushShadowLayer *pbsl, UBYTE *&pub, UBYTE &
 
 // static variables for easier transfers
 static const FLOAT3D *_vLight;
-static FLOAT _fMinLightDistance, _f1oFallOff;
+static float _fMinLightDistance, _f1oFallOff;
 static INDEX _iPixCt, _iRowCt;
-static SLONG _slModulo;
-static ULONG _ulLightFlags, _ulPolyFlags;
-static SLONG _slL2Row, _slDDL2oDU, _slDDL2oDV, _slDDL2oDUoDV, _slDL2oDURow, _slDL2oDV;
-static SLONG _slLightMax, _slHotSpot, _slLightStep;
-static ULONG *_pulLayer;
+static int32_t _slModulo;
+static uint32_t _ulLightFlags, _ulPolyFlags;
+static int32_t _slL2Row, _slDDL2oDU, _slDDL2oDV, _slDDL2oDUoDV, _slDL2oDURow, _slDL2oDV;
+static int32_t _slLightMax, _slHotSpot, _slLightStep;
+static uint32_t *_pulLayer;
 
 
 // add one layer point light without diffusion and mask
@@ -261,7 +261,7 @@ void CLayerMixer::AddAmbientPoint(void)
   // prepare some local variables
   __int64 mmDDL2oDU = _slDDL2oDU;
   __int64 mmDDL2oDV = _slDDL2oDV;
-  ULONG ulLightRGB = ByteSwap(lm_colLight);
+  uint32_t ulLightRGB = ByteSwap(lm_colLight);
   _slLightMax<<=7;
   _slLightStep>>=1;
 
@@ -339,22 +339,22 @@ skipPixel:
 }
 
 // add one layer point light without diffusion and with mask
-void CLayerMixer::AddAmbientMaskPoint( UBYTE *pubMask, UBYTE ubMask)
+void CLayerMixer::AddAmbientMaskPoint( uint8_t *pubMask, uint8_t ubMask)
 {
   for( PIX pixV=0; pixV<_iRowCt; pixV++)
   {
-    SLONG slL2Point = _slL2Row;
-    SLONG slDL2oDU  = _slDL2oDURow;
+    int32_t slL2Point = _slL2Row;
+    int32_t slDL2oDU  = _slDL2oDURow;
     for( PIX pixU=0; pixU<_iPixCt; pixU++)
     {
       // if the point is not masked
       if( *pubPoint&ubMask && (slL2Point<FTOX)) {
-        SLONG slL = (slL2Point>>SHIFTX)&(SQRTTABLESIZE-1);  // and is just for degenerate cases
-        SLONG slIntensity = _slLightMax;
+        int32_t slL = (slL2Point>>SHIFTX)&(SQRTTABLESIZE-1);  // and is just for degenerate cases
+        int32_t slIntensity = _slLightMax;
         slL = aubSqrt[slL];
         if( slL>_slHotSpot) slIntensity = ((255-slL)*_slLightStep)>>8;
         // add the intensity to the pixel
-        AddToCluster( (UBYTE*)_pulLayer, slIntensity/255.0f);
+        AddToCluster( (uint8_t*)_pulLayer, slIntensity/255.0f);
       } 
       // go to the next pixel
       _pulLayer++;
@@ -378,14 +378,14 @@ void CLayerMixer::AddAmbientMaskPoint( UBYTE *pubMask, UBYTE ubMask)
 void CLayerMixer::AddDiffusionPoint(void)
 {
   // adjust params for diffusion lighting
-  SLONG slMax1oL = MAX_SLONG;
+  int32_t slMax1oL = MAX_int32_t;
   _slLightStep = FloatToInt(_slLightStep * _fMinLightDistance * _f1oFallOff);
   if( _slLightStep!=0) slMax1oL = (256<<8) / _slLightStep +256;
 
   // prepare some local variables
   __int64 mmDDL2oDU = _slDDL2oDU;
   __int64 mmDDL2oDV = _slDDL2oDV;
-  ULONG ulLightRGB = ByteSwap(lm_colLight);
+  uint32_t ulLightRGB = ByteSwap(lm_colLight);
   _slLightMax<<=7;
   _slLightStep>>=1;
 
@@ -462,28 +462,28 @@ skipPixel:
 }
 
 // add one layer point light with diffusion and mask
-void CLayerMixer::AddDiffusionMaskPoint( UBYTE *pubMask, UBYTE ubMask)
+void CLayerMixer::AddDiffusionMaskPoint( uint8_t *pubMask, uint8_t ubMask)
 {
   // adjust params for diffusion lighting
-  SLONG slMax1oL = MAX_SLONG;
+  int32_t slMax1oL = MAX_int32_t;
   _slLightStep = FloatToInt(_slLightStep * _fMinLightDistance * _f1oFallOff);
   if( _slLightStep!=0) slMax1oL = (256<<8) / _slLightStep +256;
 
   // for each pixel in the shadow map
   for( PIX pixV=0; pixV<_iRowCt; pixV++)
   {
-    SLONG slL2Point = _slL2Row;
-    SLONG slDL2oDU  = _slDL2oDURow;
+    int32_t slL2Point = _slL2Row;
+    int32_t slDL2oDU  = _slDL2oDURow;
     for( PIX pixU=0; pixU<_iPixCt; pixU++)
     {
       // if the point is not masked
       if( *pubMask&ubMask && (slL2Point<FTOX)) {
-        SLONG sl1oL = (slL2Point>>SHIFTX)&(SQRTTABLESIZE-1);  // and is just for degenerate cases
+        int32_t sl1oL = (slL2Point>>SHIFTX)&(SQRTTABLESIZE-1);  // and is just for degenerate cases
         sl1oL = auw1oSqrt[sl1oL];
-        SLONG slIntensity = _slLightMax;
+        int32_t slIntensity = _slLightMax;
         if( sl1oL<slMax1oL) slIntensity = ((sl1oL-256)*_slLightStep)>>16;
         // add the intensity to the pixel
-        AddToCluster( (UBYTE*)_pulLayer, slIntensity/255.0f);
+        AddToCluster( (uint8_t*)_pulLayer, slIntensity/255.0f);
       } 
       // advance to next pixel
       _pulLayer++;
@@ -516,7 +516,7 @@ bool CLayerMixer::PrepareOneLayerPoint( CBrushShadowLayer *pbsl, bool bNoMask)
   if( (pixMinV+_iRowCt) > lm_pixPolygonSizeV)            _iRowCt = lm_pixPolygonSizeV-pixMinV;
   _slModulo = (lm_pixCanvasSizeU-_iPixCt) *BYTES_PER_TEXEL;
   _pulLayer = lm_pulShadowMap + (pixMinV*lm_pixCanvasSizeU)+pixMinU;
-  ASSERT( pixMinU>=0 && pixMinU<lm_pixCanvasSizeU && pixMinV>=0 && pixMinV<lm_pixCanvasSizeV);
+  assert( pixMinU>=0 && pixMinU<lm_pixCanvasSizeU && pixMinV>=0 && pixMinV<lm_pixCanvasSizeV);
 
   // get the light source properties of the layer
   lm_plsLight = pbsl->bsl_plsLightSource;
@@ -536,9 +536,9 @@ bool CLayerMixer::PrepareOneLayerPoint( CBrushShadowLayer *pbsl, bool bNoMask)
   // adjust for sector ambient
   if( _ulLightFlags&LSF_SUBSTRACTSECTORAMBIENT) {
     COLOR colAmbient = lm_pbpoPolygon->bpo_pbscSector->bsc_colAmbient;
-    IncrementByteWithClip( ((UBYTE*)&lm_colLight)[1], -((UBYTE*)&colAmbient)[1]);
-    IncrementByteWithClip( ((UBYTE*)&lm_colLight)[2], -((UBYTE*)&colAmbient)[2]);
-    IncrementByteWithClip( ((UBYTE*)&lm_colLight)[3], -((UBYTE*)&colAmbient)[3]);
+    IncrementByteWithClip( ((uint8_t*)&lm_colLight)[1], -((uint8_t*)&colAmbient)[1]);
+    IncrementByteWithClip( ((uint8_t*)&lm_colLight)[2], -((uint8_t*)&colAmbient)[2]);
+    IncrementByteWithClip( ((uint8_t*)&lm_colLight)[3], -((uint8_t*)&colAmbient)[3]);
     if( _ulPolyFlags&BPOF_HASDIRECTIONALAMBIENT)
     { // find directional layers for each shadow layer
       FOREACHINLIST( CBrushShadowLayer, bsl_lnInShadowMap, lm_pbsmShadowMap->bsm_lhLayers, itbsl)
@@ -549,9 +549,9 @@ bool CLayerMixer::PrepareOneLayerPoint( CBrushShadowLayer *pbsl, bool bNoMask)
           colAmbient = bsl.bsl_plsLightSource->ls_colAmbient & 0xFFFFFF00;
           if( IsBlack(colAmbient)) continue;
           // substract ambient
-          IncrementByteWithClip( ((UBYTE*)&lm_colLight)[1], -((UBYTE*)&colAmbient)[1]);
-          IncrementByteWithClip( ((UBYTE*)&lm_colLight)[2], -((UBYTE*)&colAmbient)[2]);
-          IncrementByteWithClip( ((UBYTE*)&lm_colLight)[3], -((UBYTE*)&colAmbient)[3]);
+          IncrementByteWithClip( ((uint8_t*)&lm_colLight)[1], -((uint8_t*)&colAmbient)[1]);
+          IncrementByteWithClip( ((uint8_t*)&lm_colLight)[2], -((uint8_t*)&colAmbient)[2]);
+          IncrementByteWithClip( ((uint8_t*)&lm_colLight)[3], -((uint8_t*)&colAmbient)[3]);
         }
       }
     }
@@ -559,13 +559,13 @@ bool CLayerMixer::PrepareOneLayerPoint( CBrushShadowLayer *pbsl, bool bNoMask)
 
   // prepare intermediate light interpolants
   FLOAT3D v00 = (lm_vO+lm_vStepU*pixMinU + lm_vStepV*pixMinV) - *_vLight;
-  FLOAT fFactor = FTOX * _f1oFallOff*_f1oFallOff;
-  FLOAT fL2Row  = v00%v00;
-  FLOAT fDDL2oDU    = lm_vStepU%lm_vStepU;
-  FLOAT fDDL2oDV    = lm_vStepV%lm_vStepV;
-  FLOAT fDDL2oDUoDV = lm_vStepU%lm_vStepV;
-  FLOAT fDL2oDURow  = fDDL2oDU + 2*(lm_vStepU%v00);
-  FLOAT fDL2oDV     = fDDL2oDV + 2*(lm_vStepV%v00);
+  float fFactor = FTOX * _f1oFallOff*_f1oFallOff;
+  float fL2Row  = v00%v00;
+  float fDDL2oDU    = lm_vStepU%lm_vStepU;
+  float fDDL2oDV    = lm_vStepV%lm_vStepV;
+  float fDDL2oDUoDV = lm_vStepU%lm_vStepV;
+  float fDL2oDURow  = fDDL2oDU + 2*(lm_vStepU%v00);
+  float fDL2oDV     = fDDL2oDV + 2*(lm_vStepV%v00);
   //_v00 = v00;
 
   fDDL2oDU     *= 2;
@@ -596,7 +596,7 @@ bool CLayerMixer::PrepareOneLayerPoint( CBrushShadowLayer *pbsl, bool bNoMask)
 
 
 // add one layer to the shadow map (pubMask=NULL for no mask)
-void CLayerMixer::AddOneLayerPoint( CBrushShadowLayer *pbsl, UBYTE *pubMask, UBYTE ubMask)
+void CLayerMixer::AddOneLayerPoint( CBrushShadowLayer *pbsl, uint8_t *pubMask, uint8_t ubMask)
 {
   // try to prepare layer for this point light
   _pfWorldEditingProfile.StartTimer( CWorldEditingProfile::PTI_ADDONELAYERPOINT);
@@ -637,25 +637,25 @@ void CLayerMixer::AddOneLayerPoint( CBrushShadowLayer *pbsl, UBYTE *pubMask, UBY
 void CLayerMixer::AddOneLayerGradient( CGradientParameters &gp)
 {
   // convert gradient parameters for plane
-  ASSERT( Abs(gp.gp_fH1-gp.gp_fH0)>0.0001f);
-  FLOAT f1oDH = 1.0f / (gp.gp_fH1-gp.gp_fH0);
-  FLOAT fGr00 = (lm_vO % gp.gp_vGradientDir - gp.gp_fH0) *f1oDH;
-  FLOAT fDGroDI = (lm_vStepU % gp.gp_vGradientDir) *f1oDH;
-  FLOAT fDGroDJ = (lm_vStepV % gp.gp_vGradientDir) *f1oDH;
+  assert( Abs(gp.gp_fH1-gp.gp_fH0)>0.0001f);
+  float f1oDH = 1.0f / (gp.gp_fH1-gp.gp_fH0);
+  float fGr00 = (lm_vO % gp.gp_vGradientDir - gp.gp_fH0) *f1oDH;
+  float fDGroDI = (lm_vStepU % gp.gp_vGradientDir) *f1oDH;
+  float fDGroDJ = (lm_vStepV % gp.gp_vGradientDir) *f1oDH;
   fDGroDI += fDGroDI/lm_pixPolygonSizeU;
   fDGroDJ += fDGroDJ/lm_pixPolygonSizeV;
-  SLONG fixDGroDI = FloatToInt(fDGroDI*32767.0f); // 16:15
-  SLONG fixDGroDJ = FloatToInt(fDGroDJ*32767.0f); // 16:15
+  int32_t fixDGroDI = FloatToInt(fDGroDI*32767.0f); // 16:15
+  int32_t fixDGroDJ = FloatToInt(fDGroDJ*32767.0f); // 16:15
   COLOR col0 = gp.gp_col0;
   COLOR col1 = gp.gp_col1;
   _pulLayer  = lm_pulShadowMap;
-  FLOAT fStart = Clamp( fGr00-(fDGroDJ+fDGroDI)*0.5f, 0.0f, 1.0f);
+  float fStart = Clamp( fGr00-(fDGroDJ+fDGroDI)*0.5f, 0.0f, 1.0f);
 
   // well, make gradient ...
-  SLONG slR0=0,slG0=0,slB0=0;
-  SLONG slR1=0,slG1=0,slB1=0;
-  ColorToRGB( col0, (UBYTE&)slR0,(UBYTE&)slG0,(UBYTE&)slB0);
-  ColorToRGB( col1, (UBYTE&)slR1,(UBYTE&)slG1,(UBYTE&)slB1);
+  int32_t slR0=0,slG0=0,slB0=0;
+  int32_t slR1=0,slG1=0,slB1=0;
+  ColorToRGB( col0, (uint8_t&)slR0,(uint8_t&)slG0,(uint8_t&)slB0);
+  ColorToRGB( col1, (uint8_t&)slR1,(uint8_t&)slG1,(uint8_t&)slB1);
   if( gp.gp_bDark) {
     slR0 = -slR0;  slG0 = -slG0;  slB0 = -slB0;
     slR1 = -slR1;  slG1 = -slG1;  slB1 = -slB1;
@@ -673,23 +673,23 @@ void CLayerMixer::AddOneLayerGradient( CGradientParameters &gp)
   SWORD fixDBoDJ = ((slB1-slB0)*fixDGroDJ)>>8;
 
   // loop it, baby
-  FLOAT fGrRow = fGr00 - (fDGroDJ+fDGroDI)*0.5f;
+  float fGrRow = fGr00 - (fDGroDJ+fDGroDI)*0.5f;
   PIX   pixOffset = 0;
   PIX   pixModulo = lm_pixCanvasSizeU-lm_pixPolygonSizeU;
   for( INDEX j=0; j<lm_pixPolygonSizeV; j++)
   { // prepare row
-    FLOAT fGrCol  = fGrRow;
+    float fGrCol  = fGrRow;
     SWORD fixRcol = fixRrow;
     SWORD fixGcol = fixGrow;
     SWORD fixBcol = fixBrow;
     for( INDEX i=0; i<lm_pixPolygonSizeU; i++)
     { // loop pixels
-      SLONG slR = Clamp( fixRcol>>6, -255, +255);
-      SLONG slG = Clamp( fixGcol>>6, -255, +255);
-      SLONG slB = Clamp( fixBcol>>6, -255, +255);
-      IncrementByteWithClip( ((UBYTE*)&_pulLayer[pixOffset])[0], slR);
-      IncrementByteWithClip( ((UBYTE*)&_pulLayer[pixOffset])[1], slG);
-      IncrementByteWithClip( ((UBYTE*)&_pulLayer[pixOffset])[2], slB);
+      int32_t slR = Clamp( fixRcol>>6, -255, +255);
+      int32_t slG = Clamp( fixGcol>>6, -255, +255);
+      int32_t slB = Clamp( fixBcol>>6, -255, +255);
+      IncrementByteWithClip( ((uint8_t*)&_pulLayer[pixOffset])[0], slR);
+      IncrementByteWithClip( ((uint8_t*)&_pulLayer[pixOffset])[1], slG);
+      IncrementByteWithClip( ((uint8_t*)&_pulLayer[pixOffset])[2], slB);
       // advance to next pixel
       fGrCol += fDGroDI;
       pixOffset++;
@@ -737,7 +737,7 @@ void CLayerMixer::AddDirectional(void)
   for( PIX pixV=0; pixV<_iRowCt; pixV++) {
     for( PIX pixU=0; pixU<_iPixCt; pixU++) {
       // add the intensity to the pixel
-      AddToCluster( (UBYTE*)_pulLayer);
+      AddToCluster( (uint8_t*)_pulLayer);
       _pulLayer++; // go to the next pixel
     } // go to the next row
     _pulLayer += slModulo;
@@ -746,7 +746,7 @@ void CLayerMixer::AddDirectional(void)
 }
 
 // apply directional light thru mask to layer
-void CLayerMixer::AddMaskDirectional( UBYTE *pubMask, UBYTE ubMask)
+void CLayerMixer::AddMaskDirectional( uint8_t *pubMask, uint8_t ubMask)
 {
   // for each pixel in the shadow map
   for( PIX pixV=0; pixV<_iRowCt; pixV++) {
@@ -754,7 +754,7 @@ void CLayerMixer::AddMaskDirectional( UBYTE *pubMask, UBYTE ubMask)
       // if the point is not masked
       if( *pubMask&ubMask) {
         // add the intensity to the pixel
-        AddToCluster( (UBYTE*)_pulLayer);
+        AddToCluster( (uint8_t*)_pulLayer);
       } // go to the next pixel
       _pulLayer++;
       ubMask<<=1;
@@ -770,7 +770,7 @@ void CLayerMixer::AddMaskDirectional( UBYTE *pubMask, UBYTE ubMask)
 
 // apply directional light to layer
 // (pubMask=NULL for no mask, ubMask = 0xFF for full mask)
-void CLayerMixer::AddOneLayerDirectional( CBrushShadowLayer *pbsl, UBYTE *pubMask, UBYTE ubMask)
+void CLayerMixer::AddOneLayerDirectional( CBrushShadowLayer *pbsl, uint8_t *pubMask, uint8_t ubMask)
 {
   // only if there is color light (ambient is added at initial fill)
   if( !(lm_pbpoPolygon->bpo_ulFlags&BPOF_HASDIRECTIONALLIGHT)) return;
@@ -781,7 +781,7 @@ void CLayerMixer::AddOneLayerDirectional( CBrushShadowLayer *pbsl, UBYTE *pubMas
   _iRowCt = pbsl->bsl_pixSizeV >>lm_iMipShift;
   PIX pixMinU = pbsl->bsl_pixMinU >>lm_iMipShift;
   PIX pixMinV = pbsl->bsl_pixMinV >>lm_iMipShift;
-  ASSERT( pixMinU==0 && pixMinV==0);
+  assert( pixMinU==0 && pixMinV==0);
   // clamp influence to polygon size
   if( _iPixCt > lm_pixPolygonSizeU && pubMask==NULL) _iPixCt = lm_pixPolygonSizeU;
   if( _iRowCt > lm_pixPolygonSizeV)                  _iRowCt = lm_pixPolygonSizeV;
@@ -801,7 +801,7 @@ void CLayerMixer::AddOneLayerDirectional( CBrushShadowLayer *pbsl, UBYTE *pubMas
   AnglesToDirectionVector( lm_plsLight->ls_penEntity->GetPlacement().pl_OrientationAngle,
                            lm_vLightDirection);
   // calculate intensity
-  FLOAT fIntensity = 1.0f;
+  float fIntensity = 1.0f;
   if( !(lm_pbpoPolygon->bpo_ulFlags&BPOF_NOPLANEDIFFUSION)) {
     fIntensity = -((lm_pbpoPolygon->bpo_pbplPlane->bpl_plAbsolute)%lm_vLightDirection);
     fIntensity = ClampDn( fIntensity, 0.0f);
@@ -809,7 +809,7 @@ void CLayerMixer::AddOneLayerDirectional( CBrushShadowLayer *pbsl, UBYTE *pubMas
   // calculate light color and ambient
   lm_colLight = lm_plsLight->GetLightColor();
   pbsl->bsl_colLastAnim = lm_colLight;
-  ULONG ulIntensity = NormFloatToByte(fIntensity);
+  uint32_t ulIntensity = NormFloatToByte(fIntensity);
   ulIntensity = (ulIntensity<<CT_RSHIFT)|(ulIntensity<<CT_GSHIFT)|(ulIntensity<<CT_BSHIFT);
   lm_colLight = MulColors(   lm_colLight, ulIntensity);
   lm_colLight = AdjustColor( lm_colLight, _slShdHueShift, _slShdSaturation);
@@ -857,7 +857,7 @@ void CLayerMixer::MixOneMipmap(CBrushShadowMap *pbsm, INDEX iMipmap)
       {FOREACHINLIST( CBrushShadowLayer, bsl_lnInShadowMap, lm_pbsmShadowMap->bsm_lhLayers, itbsl) {
         CBrushShadowLayer &bsl = *itbsl;
         CLightSource &ls = *bsl.bsl_plsLightSource;
-        ASSERT( &ls!=NULL); if( &ls==NULL) continue; // safety check
+        assert( &ls!=NULL); if( &ls==NULL) continue; // safety check
         if( !(ls.ls_ulFlags&LSF_DIRECTIONAL)) continue;  // skip non-directional layers
         COLOR col = AdjustColor( ls.GetLightAmbient(), _slShdHueShift, _slShdSaturation);
         colAmbient = AddColors( colAmbient, col);
@@ -879,7 +879,7 @@ void CLayerMixer::MixOneMipmap(CBrushShadowMap *pbsm, INDEX iMipmap)
   // find gradient layer
   CGradientParameters gpGradient;
   bool  bHasGradient   = false;
-  ULONG ulGradientType = lm_pbpoPolygon->bpo_bppProperties.bpp_ubGradientType;
+  uint32_t ulGradientType = lm_pbpoPolygon->bpo_bppProperties.bpp_ubGradientType;
   if( ulGradientType>0) {
     CEntity *pen = lm_pbpoPolygon->bpo_pbscSector->bsc_pbmBrushMip->bm_pbrBrush->br_penEntity;
     if( pen!=NULL) bHasGradient = pen->GetGradient( ulGradientType, gpGradient);
@@ -893,7 +893,7 @@ void CLayerMixer::MixOneMipmap(CBrushShadowMap *pbsm, INDEX iMipmap)
   {
     CBrushShadowLayer &bsl = *itbsl;
     CLightSource &ls = *bsl.bsl_plsLightSource;
-    ASSERT( &ls!=NULL); if( &ls==NULL) continue; // safety check
+    assert( &ls!=NULL); if( &ls==NULL) continue; // safety check
 
     // skip if should not be applied
     if( (bDynamicOnly && !(ls.ls_ulFlags&LSF_NONPERSISTENT)) || ls.ls_ulFlags&LSF_DYNAMIC) continue;
@@ -904,8 +904,8 @@ void CLayerMixer::MixOneMipmap(CBrushShadowMap *pbsm, INDEX iMipmap)
     // if the layer is calculated
     if( bsl.bsl_pubLayer!=NULL)
     {
-      UBYTE *pub;
-      UBYTE ubMask;
+      uint8_t *pub;
+      uint8_t ubMask;
       FindLayerMipmap( itbsl, pub, ubMask);
       // add the layer to the shadow map with masking
       if( ls.ls_ulFlags&LSF_DIRECTIONAL) {
@@ -997,7 +997,7 @@ void CLayerMixer::MixOneMipmapDynamic( CBrushShadowMap *pbsm, INDEX iMipmap)
   { // the layer's light source must be valid
     CBrushShadowLayer &bsl = *itbsl;
     CLightSource &ls = *bsl.bsl_plsLightSource;
-    ASSERT( &ls!=NULL);
+    assert( &ls!=NULL);
     if( !(ls.ls_ulFlags&LSF_DYNAMIC)) continue;
     COLOR colLight = ls.GetLightColor() & ~CT_AMASK;
     if( IsBlack(colLight)) continue;
@@ -1018,7 +1018,7 @@ CLayerMixer::CLayerMixer( CBrushShadowMap *pbsm, INDEX iFirstMip, INDEX iLastMip
     pbsm->sm_ulFlags &= ~SMF_DYNAMICBLACK;
     {FORDELETELIST( CBrushShadowLayer, bsl_lnInShadowMap, pbsm->bsm_lhLayers, itbsl) {
       CLightSource &ls = *itbsl->bsl_plsLightSource;
-      ASSERT( &ls!=NULL);
+      assert( &ls!=NULL);
       if( !(ls.ls_ulFlags&LSF_DYNAMIC)) continue;
       COLOR colLight = ls.GetLightColor() & ~CT_AMASK;
       itbsl->bsl_colLastAnim = colLight;

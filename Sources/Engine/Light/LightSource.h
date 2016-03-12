@@ -44,15 +44,15 @@ public:
   CListHead ls_lhLayers;        // list of shadow map layers of this light source
   class CEntity *ls_penEntity;  // the entity of this light source
 
-  ULONG ls_ulFlags;                 // various flags
+  uint32_t ls_ulFlags;                 // various flags
 
   RANGE ls_rHotSpot;                // distance before intensity starts to fall off
   RANGE ls_rFallOff;                // distance before intensity reaches zero
 
   COLOR ls_colColor;                // light color
   COLOR ls_colAmbient;              // ambient color (for directional lights only)
-  UBYTE ls_ubLightAnimationObject;  // light animation - 0 for non animating lights
-  UBYTE ls_ubPolygonalMask;         // mask for casting rays only through some polygons
+  uint8_t ls_ubLightAnimationObject;  // light animation - 0 for non animating lights
+  uint8_t ls_ubPolygonalMask;         // mask for casting rays only through some polygons
 
   float ls_fNearClipDistance;       // clip plane distance near light
   float ls_fFarClipDistance;        // clip plane distance near polygon
@@ -91,15 +91,15 @@ public:
   void SetLightSource(const CLightSource &lsOriginal);
   // get color of light acounting for possible animation
   COLOR GetLightColor(void) const;
-  void  GetLightColor( UBYTE &ubR, UBYTE &ubG, UBYTE &ubB) const;
+  void  GetLightColor( uint8_t &ubR, uint8_t &ubG, uint8_t &ubB) const;
   COLOR GetLightAmbient(void) const;
-  void  GetLightAmbient( UBYTE &ubAR, UBYTE &ubAG, UBYTE &ubAB) const;
+  void  GetLightAmbient( uint8_t &ubAR, uint8_t &ubAG, uint8_t &ubAB) const;
   inline void GetLightColorAndAmbient( COLOR &colLight, COLOR &colAmbient) const {
     colLight   = GetLightColor();
     colAmbient = GetLightAmbient();
   }
-  inline void GetLightColorAndAmbient( UBYTE &ubR,  UBYTE &ubG,  UBYTE &ubB,
-                                       UBYTE &ubAR, UBYTE &ubAG, UBYTE &ubAB) const {
+  inline void GetLightColorAndAmbient( uint8_t &ubR,  uint8_t &ubG,  uint8_t &ubB,
+                                       uint8_t &ubAR, uint8_t &ubAG, uint8_t &ubAB) const {
     GetLightColor(   ubR,  ubG,  ubB);
     GetLightAmbient( ubAR, ubAG, ubAB);
   }

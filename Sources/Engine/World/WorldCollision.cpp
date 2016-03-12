@@ -195,26 +195,26 @@ inline void CClipMove::ClipMovingPointToSphere(
   const FLOAT3D &vStart,
   const FLOAT3D &vEnd,
   const FLOAT3D &vSphereCenter,
-  const FLOAT fSphereRadius)
+  const float fSphereRadius)
 {
   const FLOAT3D vSphereCenterToStart = vStart - vSphereCenter;
   const FLOAT3D vStartToEnd          = vEnd - vStart;
   // calculate discriminant for intersection parameters
-  const FLOAT fP = ((vStartToEnd%vSphereCenterToStart)/(vStartToEnd%vStartToEnd));
-  const FLOAT fQ = (((vSphereCenterToStart%vSphereCenterToStart)
+  const float fP = ((vStartToEnd%vSphereCenterToStart)/(vStartToEnd%vStartToEnd));
+  const float fQ = (((vSphereCenterToStart%vSphereCenterToStart)
     - (fSphereRadius*fSphereRadius))/(vStartToEnd%vStartToEnd));
-  const FLOAT fD = fP*fP-fQ;
+  const float fD = fP*fP-fQ;
   // if it is less than zero
   if (fD<0) {
     // no collision will occur
     return;
   }
   // calculate intersection parameters
-  const FLOAT fSqrtD = sqrt(fD);
-  const FLOAT fLambda1 = -fP+fSqrtD;
-  const FLOAT fLambda2 = -fP-fSqrtD;
+  const float fSqrtD = sqrt(fD);
+  const float fLambda1 = -fP+fSqrtD;
+  const float fLambda2 = -fP-fSqrtD;
   // use lower one
-  const FLOAT fMinLambda = Min(fLambda1, fLambda2);
+  const float fMinLambda = Min(fLambda1, fLambda2);
   // if it is betwen zero and last collision found
   if (0.0f<=fMinLambda && fMinLambda<cm_fMovementFraction) {
     _pfPhysicsProfile.IncrementCounter(CPhysicsProfile::PCI_SPHERETOSPHEREHITS);
@@ -258,21 +258,21 @@ inline void CClipMove::ClipMovingPointToCylinder(
   const FLOAT3D vC = vCylinderBottomToStart - vCylinderDirection*
     (vCylinderDirection%vCylinderBottomToStart);
 
-  const FLOAT fP = (vB%vC)/(vB%vB);
-  const FLOAT fQ = (vC%vC-fCylinderRadius*fCylinderRadius)/(vB%vB);
+  const float fP = (vB%vC)/(vB%vB);
+  const float fQ = (vC%vC-fCylinderRadius*fCylinderRadius)/(vB%vB);
 
-  const FLOAT fD = fP*fP-fQ;
+  const float fD = fP*fP-fQ;
   // if it is less than zero
   if (fD<0) {
     // no collision will occur
     return;
   }
   // calculate intersection parameters
-  const FLOAT fSqrtD = sqrt(fD);
-  const FLOAT fLambda1 = -fP+fSqrtD;
-  const FLOAT fLambda2 = -fP-fSqrtD;
+  const float fSqrtD = sqrt(fD);
+  const float fLambda1 = -fP+fSqrtD;
+  const float fLambda2 = -fP-fSqrtD;
   // use lower one
-  const FLOAT fMinLambda = Min(fLambda1, fLambda2);
+  const float fMinLambda = Min(fLambda1, fLambda2);
   // if it is betwen zero and last collision found
   if (0.0f<=fMinLambda && fMinLambda<cm_fMovementFraction) {
     // calculate the collision point
@@ -280,7 +280,7 @@ inline void CClipMove::ClipMovingPointToCylinder(
     // create plane at cylinder bottom
     FLOATplane3D plCylinderBottom(vCylinderBottomToTop, vCylinderBottomCenter);
     // find distance of the collision point from the bottom plane
-    FLOAT fCollisionToBottomPlaneDistance = plCylinderBottom.PointDistance(vCollisionPoint);
+    float fCollisionToBottomPlaneDistance = plCylinderBottom.PointDistance(vCollisionPoint);
     // if the point is between bottom and top of cylinder
     if (0<=fCollisionToBottomPlaneDistance
       &&fCollisionToBottomPlaneDistance<fCylinderBottomToTopLength) {

@@ -22,12 +22,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 class CGradientParameters {
 public:
   FLOAT3D gp_vGradientDir;   // gradient direction in absolute space
-  FLOAT gp_fH0; // position of color 0
-  FLOAT gp_fH1; // position of color 1
-  BOOL gp_bDark; // if dark light
+  float gp_fH0;              // position of color 0
+  float gp_fH1;              // position of color 1
+  bool gp_bDark;             // if dark light
 
-  COLOR gp_col0;      // color 0
-  COLOR gp_col1;      // color 1
+  COLOR gp_col0;             // color 0
+  COLOR gp_col1;             // color 1
 };
 
 
