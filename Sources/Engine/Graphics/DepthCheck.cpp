@@ -28,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 extern INDEX gap_iOptimizeDepthReads;
 #ifdef SE1_D3D
-extern COLOR UnpackColor_D3D( UBYTE *pd3dColor, D3DFORMAT d3dFormat, SLONG &slColorSize);
+extern COLOR UnpackColor_D3D( uint8_t *pd3dColor, D3DFORMAT d3dFormat, SLONG &slColorSize);
 #endif // SE1_D3D
 
 static INDEX _iCheckIteration = 0;
@@ -43,7 +43,7 @@ struct DepthInfo {
   FLOAT di_fOoK;              // last requested depth
   INDEX di_iSwapLastRequest;  // index of swap when last requested
   INDEX di_iMirrorLevel;      // level of mirror recursion in which flare is
-  BOOL  di_bVisible;          // whether the point was visible
+  bool  di_bVisible;          // whether the point was visible
 };
 CStaticStackArray<DepthInfo> _adiDelayed;  // active delayed points
 // don't ask, these are  for D3D
@@ -102,7 +102,7 @@ static void UpdateDepthPointsVisibility( const CDrawPort *pdp, const INDEX iMirr
     D3DSURFACE_DESC surfDesc;
     LPDIRECT3DSURFACE8 pBackBuffer;
     // fetch back buffer (different for full screen and windowed mode)
-    const BOOL bFullScreen = _pGfx->gl_ulFlags & GLF_FULLSCREEN;
+    const bool bFullScreen = _pGfx->gl_ulFlags & GLF_FULLSCREEN;
     if( bFullScreen) {
       hr = _pGfx->gl_pd3dDevice->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer);
     } else {
@@ -131,7 +131,7 @@ static void UpdateDepthPointsVisibility( const CDrawPort *pdp, const INDEX iMirr
       hr = pBackBuffer->LockRect( &rectLocked, &rectToLock, D3DLOCK_READONLY);
       if( hr!=D3D_OK) continue; // skip if lock didn't make it
       // read, convert and store original color
-      _acolDelayed[idi] = UnpackColor_D3D( (UBYTE*)rectLocked.pBits, d3dfBack, slColSize) | CT_OPAQUE;
+      _acolDelayed[idi] = UnpackColor_D3D( (uint8_t*)rectLocked.pBits, d3dfBack, slColSize) | CT_OPAQUE;
       pBackBuffer->UnlockRect();
     }
 
@@ -154,7 +154,7 @@ static void UpdateDepthPointsVisibility( const CDrawPort *pdp, const INDEX iMirr
       col = _acolDelayed[idi];
       // skip if not in required mirror level or was already checked in this iteration, or wasn't fetched at all
       if( iMirrorLevel!=di.di_iMirrorLevel || _iCheckIteration!=di.di_iSwapLastRequest || col==0) continue;
-      const ULONG d3dCol = rgba2argb(col^0x20103000);
+      const uint32_t d3dCol = rgba2argb(col^0x20103000);
       const PIX pixI = di.di_pixI - pdp->dp_MinI; // convert raster loc to drawport loc
       const PIX pixJ = di.di_pixJ - pdp->dp_MinJ;
       // batch it and advance to next triangle
@@ -180,7 +180,7 @@ static void UpdateDepthPointsVisibility( const CDrawPort *pdp, const INDEX iMirr
       hr = pBackBuffer->LockRect( &rectLocked, &rectToLock, D3DLOCK_READONLY);
       if( hr!=D3D_OK) continue; // skip if lock didn't make it
       // read new color
-      const COLOR colNew = UnpackColor_D3D( (UBYTE*)rectLocked.pBits, d3dfBack, slColSize) | CT_OPAQUE;
+      const COLOR colNew = UnpackColor_D3D( (uint8_t*)rectLocked.pBits, d3dfBack, slColSize) | CT_OPAQUE;
       pBackBuffer->UnlockRect();
       // if we managed to write adjusted color, point is visible!
       di.di_bVisible = (col!=colNew);
@@ -195,10 +195,8 @@ static void UpdateDepthPointsVisibility( const CDrawPort *pdp, const INDEX iMirr
 #endif // SE1_D3D
 }
 
-
-
 // check point against depth buffer
-extern BOOL CheckDepthPoint( const CDrawPort *pdp, PIX pixI, PIX pixJ, FLOAT fOoK, INDEX iID, INDEX iMirrorLevel/*=0*/)
+extern bool CheckDepthPoint( const CDrawPort *pdp, PIX pixI, PIX pixJ, FLOAT fOoK, INDEX iID, INDEX iMirrorLevel/*=0*/)
 {
   // no raster?
   const CRaster *pra = pdp->dp_Raster;

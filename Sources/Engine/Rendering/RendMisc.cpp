@@ -25,13 +25,13 @@ CBrushSectorSelection *_pselbscVisTweaks = NULL;
  */
 CWorldRenderPrefs::CWorldRenderPrefs(void)
 {
-  wrp_bHiddenLinesOn = TRUE;
-  wrp_bEditorModelsOn = FALSE;
-  wrp_bFieldBrushesOn = FALSE;
-  wrp_bShowTargetsOn = FALSE;
-  wrp_bShowEntityNames = FALSE;
-  wrp_bBackgroundTextureOn = TRUE;
-  wrp_bShowVisTweaksOn = FALSE;
+  wrp_bHiddenLinesOn = true;
+  wrp_bEditorModelsOn = false;
+  wrp_bFieldBrushesOn = false;
+  wrp_bShowTargetsOn = false;
+  wrp_bShowEntityNames = false;
+  wrp_bBackgroundTextureOn = true;
+  wrp_bShowVisTweaksOn = false;
 
   wrp_ftVertices = FT_NONE;
   wrp_colVertices = C_RED;
@@ -45,9 +45,9 @@ CWorldRenderPrefs::CWorldRenderPrefs(void)
   wrp_shtShadows = SHT_FULL;
   wrp_lftLensFlares = LFT_REFLECTIONS_AND_GLARE;
 
-  wrp_abTextureLayers[0] = TRUE;
-  wrp_abTextureLayers[1] = TRUE;
-  wrp_abTextureLayers[2] = TRUE;
+  wrp_abTextureLayers[0] = true;
+  wrp_abTextureLayers[1] = true;
+  wrp_abTextureLayers[2] = true;
 
   wrp_fMinimumRenderRange = 5.0f;
 
@@ -56,18 +56,18 @@ CWorldRenderPrefs::CWorldRenderPrefs(void)
 
   wrp_stSelection = ST_NONE;
 
-  wrp_bAutoMipBrushingOn = TRUE;
+  wrp_bAutoMipBrushingOn = true;
   wrp_fManualMipBrushingFactor = 0.0f;
-  wrp_bFogOn = TRUE;
-  wrp_bHazeOn = TRUE;
-  wrp_bMirrorsOn = TRUE;
+  wrp_bFogOn = true;
+  wrp_bHazeOn = true;
+  wrp_bMirrorsOn = true;
 
   wrp_pmoSelectedEntity = NULL;
   wrp_pmoSelectedPortal = NULL;
   wrp_pmoEmptyBrush = NULL;
 
   wrp_fFarClipPlane=-1.0f;
-  wrp_bApplyFarClipPlaneInIsometricProjection=FALSE;
+  wrp_bApplyFarClipPlaneInIsometricProjection=false;
 }
 
 // Get mip brushing factor relevant for given distance mip factor
@@ -126,7 +126,7 @@ static inline PIX PIXCoord(FIX16_16 x) { return (PIX)Ceil(x); };
 /*
  * Calculate edge line type depending on whether its polygon is visible or not.
  */
-static inline ULONG EdgeLineType(BOOL bPolygonVisible)
+static inline ULONG EdgeLineType(bool bPolygonVisible)
 {
   // if polygon is visible
   if (bPolygonVisible) {
@@ -247,33 +247,31 @@ inline COLOR CRenderer::ColorForVertices(COLOR colorPolygon, COLOR colorSector)
 inline COLOR CRenderer::ColorForEdges(COLOR colorPolygon, COLOR colorSector)
 {
   // check edges fill type
-  switch(_wrpWorldRenderPrefs.wrp_ftEdges) {
-  // if it is fixed ink
-  case CWorldRenderPrefs::FT_INKCOLOR:
-    // use the edge ink
-    return _wrpWorldRenderPrefs.wrp_colEdges;
-    break;
-  // if it is polygon
-  case CWorldRenderPrefs::FT_POLYGONCOLOR:
-    // use the polygon color
-    return colorPolygon;
-    break;
-  // if it is sector
-  case CWorldRenderPrefs::FT_SECTORCOLOR:
-    // use the sector color
-    return colorSector;
-    break;
-  // if it is none
-  case CWorldRenderPrefs::FT_NONE:
-    // return any color, doesn't matter
-    return C_BLACK;
-    break;
-  // in any other way
-  default:
-    // error
-    ASSERTALWAYS("Invalid fill type for edges");
-    return C_BLACK;
+  switch(_wrpWorldRenderPrefs.wrp_ftEdges)
+  {
+     // if it is fixed ink
+     case CWorldRenderPrefs::FT_INKCOLOR:
+        // use the edge ink
+        return _wrpWorldRenderPrefs.wrp_colEdges;
+        // if it is polygon
+     case CWorldRenderPrefs::FT_POLYGONCOLOR:
+        // use the polygon color
+        return colorPolygon;
+        // if it is sector
+     case CWorldRenderPrefs::FT_SECTORCOLOR:
+        // use the sector color
+        return colorSector;
+        // if it is none
+     case CWorldRenderPrefs::FT_NONE:
+        // return any color, doesn't matter
+        return C_BLACK;
+        // in any other way
+     default:
+        // error
+        ASSERTALWAYS("Invalid fill type for edges");
   };
+
+  return C_BLACK;
 }
 
 /*
@@ -281,32 +279,32 @@ inline COLOR CRenderer::ColorForEdges(COLOR colorPolygon, COLOR colorSector)
  */
 inline COLOR CRenderer::ColorForPolygons(COLOR colorPolygon, COLOR colorSector)
 {
-  // check polygons fill type
-  switch(_wrpWorldRenderPrefs.wrp_ftPolygons) {
-  // if it is fixed ink
-  case CWorldRenderPrefs::FT_INKCOLOR:
-    // use the polygon ink
-    return _wrpWorldRenderPrefs.wrp_colPolygons;
-    break;
-  // if it is sector
-  case CWorldRenderPrefs::FT_SECTORCOLOR:
-    // use the sector color
-    return colorSector;
-    break;
-  // if it is polygon
-  case CWorldRenderPrefs::FT_POLYGONCOLOR:
-  // or in any other way
-  default:
-    // use the polygon color
-    return colorPolygon;
-    break;
-  };
+   // check polygons fill type
+   switch(_wrpWorldRenderPrefs.wrp_ftPolygons)
+   {
+      // if it is fixed ink
+      case CWorldRenderPrefs::FT_INKCOLOR:
+         // use the polygon ink
+         return _wrpWorldRenderPrefs.wrp_colPolygons;
+         // if it is sector
+      case CWorldRenderPrefs::FT_SECTORCOLOR:
+         // use the sector color
+         return colorSector;
+         // if it is polygon
+      case CWorldRenderPrefs::FT_POLYGONCOLOR:
+         // or in any other way
+      default:
+         // use the polygon color
+         break;
+   };
+
+   return colorPolygon;
 }
 
 /*
  * Check if a polygon is selected.
  */
-inline BOOL PolygonIsSelected(CBrushPolygon &bpo,
+inline bool PolygonIsSelected(CBrushPolygon &bpo,
                               CBrush3D &br,
                               CBrushSector &bsc)
 {
@@ -322,10 +320,10 @@ inline BOOL PolygonIsSelected(CBrushPolygon &bpo,
     ||(_wrpWorldRenderPrefs.GetSelectionType() == CWorldRenderPrefs::ST_ENTITIES
          && (br.br_ulFlags&BRF_DRAWSELECTED))
     ) {
-      return TRUE;
+      return true;
     }
   }
-  return FALSE;
+  return false;
 }
 
 void CRenderer::ProjectClipAndDrawArrow(

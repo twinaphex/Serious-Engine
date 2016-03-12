@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Base/Memory.h>
 #include <Engine/Math/Functions.h>
 
-extern void FlipBitmap( UBYTE *pubSrc, UBYTE *pubDst, PIX pixWidth, PIX pixHeight, INDEX iFlipType, BOOL bAlphaChannel);
+extern void FlipBitmap( uint8_t *pubSrc, uint8_t *pubDst, PIX pixWidth, PIX pixHeight, INDEX iFlipType, BOOL bAlphaChannel);
 
 
 // Order of CroTeam true color pixel components
@@ -47,7 +47,7 @@ struct PCXHeader
   SBYTE PixelBits;
   SWORD Xmin, Ymin, Xmax, Ymax;
   SWORD Hres, Vres;
-  UBYTE Palette[16*3];
+  uint8_t Palette[16*3];
   SBYTE Reserved;
   SBYTE Planes;
   UWORD BytesPerLine;
@@ -59,16 +59,16 @@ struct PCXHeader
 // TARGA header structure
 struct TGAHeader
 {
-  UBYTE IdLenght;
-  UBYTE ColorMapType;
-  UBYTE ImageType;
-  UBYTE ColorMapSpec[5];
+  uint8_t IdLenght;
+  uint8_t ColorMapType;
+  uint8_t ImageType;
+  uint8_t ColorMapSpec[5];
   UWORD Xorigin;
   UWORD Yorigin;
   UWORD	Width;
   UWORD Height;
-  UBYTE BitsPerPixel;
-  UBYTE Descriptor;
+  uint8_t BitsPerPixel;
+  uint8_t Descriptor;
 };
 
 
@@ -98,8 +98,8 @@ void CImageInfo::Read_t( CTStream *inFile)   // throw char *
   *inFile >> (SLONG)ii_BitsPerPixel;
 
   // read image contents (all channels)
-  ULONG pic_size = ii_Width*ii_Height * ii_BitsPerPixel/8;
-  ii_Picture = (UBYTE*)AllocMemory( pic_size);
+  uint32_t pic_size = ii_Width*ii_Height * ii_BitsPerPixel/8;
+  ii_Picture = (uint8_t*)AllocMemory( pic_size);
   inFile->ReadFullChunk_t( CChunkID("IPIC"), ii_Picture, pic_size);
 }
 
@@ -115,78 +115,78 @@ void CImageInfo::Write_t( CTStream *outFile) const  // throw char *
   *outFile << (SLONG)ii_BitsPerPixel;
 
   // write image contents (all channels)
-  ULONG pic_size = ii_Width*ii_Height * ii_BitsPerPixel/8;
+  uint32_t pic_size = ii_Width*ii_Height * ii_BitsPerPixel/8;
   outFile->WriteFullChunk_t( CChunkID("IPIC"), ii_Picture, pic_size);
 }
 
 
 // initializes structure members and attaches pointer to image
-void CImageInfo::Attach( UBYTE *pPicture, PIX pixWidth, PIX pixHeight, SLONG slBitsPerPixel)
+void CImageInfo::Attach( uint8_t *pPicture, PIX pixWidth, PIX pixHeight, SLONG slBitsPerPixel)
 {
-  // parameters must be meaningful
-  ASSERT( (pPicture != NULL) && (pixWidth>0) && (pixHeight>0));
-  ASSERT( (slBitsPerPixel == 24) || (slBitsPerPixel == 32));
-  // do it ...
-  ii_Picture = pPicture;
-  ii_Width   = pixWidth;
-  ii_Height  = pixHeight;
-  ii_BitsPerPixel = slBitsPerPixel;
+   // parameters must be meaningful
+   ASSERT( (pPicture != NULL) && (pixWidth>0) && (pixHeight>0));
+   ASSERT( (slBitsPerPixel == 24) || (slBitsPerPixel == 32));
+   // do it ...
+   ii_Picture = pPicture;
+   ii_Width   = pixWidth;
+   ii_Height  = pixHeight;
+   ii_BitsPerPixel = slBitsPerPixel;
 }
 
 // clears the content of an image info structure but does not free allocated memory
 void CImageInfo::Detach(void)
 {
-  ii_Picture = NULL;
-  ii_Width   = 0;
-  ii_Height  = 0;
-  ii_BitsPerPixel = 0;
+   ii_Picture = NULL;
+   ii_Width   = 0;
+   ii_Height  = 0;
+   ii_BitsPerPixel = 0;
 }
 
 
 // clears the content of an image info structure and frees allocated memory (if any)
 void CImageInfo::Clear()
 {
-  // if allocated, release picture memory
-  if( ii_Picture != NULL) FreeMemory( ii_Picture);
-  Detach();
+   // if allocated, release picture memory
+   if( ii_Picture != NULL) FreeMemory( ii_Picture);
+   Detach();
 }
 
 
 // expand image edges
 void CImageInfo::ExpandEdges( INDEX ctPasses/*=8192*/)
 {
-  // do nothing if image is too small or doesn't have an alpha channel
-  if( ii_Width<3 || ii_Height<3 || ii_BitsPerPixel!=32) return;
+   // do nothing if image is too small or doesn't have an alpha channel
+   if( ii_Width<3 || ii_Height<3 || ii_BitsPerPixel!=32) return;
 
-  // allocate some memory for spare picture and wipe it clean
-  SLONG slSize = ii_Width*ii_Height*ii_BitsPerPixel/8;
-  ULONG *pulSrc = (ULONG*)ii_Picture;
-  ULONG *pulDst = (ULONG*)AllocMemory(slSize);
-  memcpy( pulDst, pulSrc, slSize);
+   // allocate some memory for spare picture and wipe it clean
+   SLONG slSize = ii_Width*ii_Height*ii_BitsPerPixel/8;
+   uint32_t *pulSrc = (uint32_t*)ii_Picture;
+   uint32_t *pulDst = (uint32_t*)AllocMemory(slSize);
+   memcpy( pulDst, pulSrc, slSize);
 
-  // loop while there are some more pixels to be processed or for specified number of passes
-  for( INDEX iPass=0; iPass<ctPasses; iPass++)
-  { 
-    BOOL bAllPixelsVisible = TRUE;
-    // loop thru rows
-    for( PIX pixV=1; pixV<ii_Height-1; pixV++)
-    { // loop thru pixels in row
-      for( PIX pixU=1; pixU<ii_Width-1; pixU++)
-      { // determine pixel location
-        const PIX pixOffset = pixV*ii_Width + pixU;
-        // do nothing if it is already visible
-        COLOR col = ByteSwap(pulSrc[pixOffset]);
-        if( ((col&CT_AMASK)>>CT_ASHIFT)>3) continue;
-        bAllPixelsVisible = FALSE;
-        // average all surrounding pixels that are visible
-        ULONG ulRa=0, ulGa=0, ulBa=0;
-        INDEX ctVisible=0;
-        for( INDEX j=-1; j<=1; j++) {
-          for( INDEX i=-1; i<=1; i++) {
-            const PIX pixSurrOffset = pixOffset + j*ii_Width + i;
-            col = ByteSwap(pulSrc[pixSurrOffset]);
-            if( ((col&CT_AMASK)>>CT_ASHIFT)<4) continue; // skip non-visible pixels
-            UBYTE ubR, ubG, ubB;
+   // loop while there are some more pixels to be processed or for specified number of passes
+   for( INDEX iPass=0; iPass<ctPasses; iPass++)
+   { 
+      BOOL bAllPixelsVisible = TRUE;
+      // loop thru rows
+      for( PIX pixV=1; pixV<ii_Height-1; pixV++)
+      { // loop thru pixels in row
+         for( PIX pixU=1; pixU<ii_Width-1; pixU++)
+         { // determine pixel location
+            const PIX pixOffset = pixV*ii_Width + pixU;
+            // do nothing if it is already visible
+            COLOR col = ByteSwap(pulSrc[pixOffset]);
+            if( ((col&CT_AMASK)>>CT_ASHIFT)>3) continue;
+            bAllPixelsVisible = FALSE;
+            // average all surrounding pixels that are visible
+            uint32_t ulRa=0, ulGa=0, ulBa=0;
+            INDEX ctVisible=0;
+            for( INDEX j=-1; j<=1; j++) {
+               for( INDEX i=-1; i<=1; i++) {
+                  const PIX pixSurrOffset = pixOffset + j*ii_Width + i;
+                  col = ByteSwap(pulSrc[pixSurrOffset]);
+                  if( ((col&CT_AMASK)>>CT_ASHIFT)<4) continue; // skip non-visible pixels
+                  uint8_t ubR, ubG, ubB;
             ColorToRGB( col, ubR,ubG,ubB);
             ulRa+=ubR;  ulGa+=ubG;  ulBa += ubB;
             ctVisible++;
@@ -266,7 +266,7 @@ INDEX CImageInfo::GetGfxFileInfo_t( const CTFileName &strFileName) // throw char
 void CImageInfo::LoadTGA_t( const CTFileName &strFileName) // throw char *
 {
   TGAHeader *pTGAHdr;
-  UBYTE *pTGABuffer, *pTGAImage;
+  uint8_t *pTGABuffer, *pTGAImage;
   SLONG slFileSize;
   CTFileStream TGAFile;
 
@@ -277,7 +277,7 @@ void CImageInfo::LoadTGA_t( const CTFileName &strFileName) // throw char *
   slFileSize = TGAFile.GetStreamSize();
 
   // load entire TGA file to memory, as is, and close it (no further usage)
-  pTGABuffer = (UBYTE*)AllocMemory( slFileSize);
+  pTGABuffer = (uint8_t*)AllocMemory( slFileSize);
   TGAFile.Read_t( pTGABuffer, slFileSize);
   TGAFile.Close();
 
@@ -299,14 +299,14 @@ void CImageInfo::LoadTGA_t( const CTFileName &strFileName) // throw char *
   if( slBytesPerPixel!=3 && slBytesPerPixel!=4) throw( TRANS("Unsupported BitsPerPixel in TGA format."));
 
   // allocate memory for image content
-  ii_Picture = (UBYTE*)AllocMemory( ii_Width*ii_Height *slBytesPerPixel);
-  UBYTE *pubSrc = pTGAImage;  // need 'walking' pointers
-  UBYTE *pubDst = ii_Picture;
+  ii_Picture = (uint8_t*)AllocMemory( ii_Width*ii_Height *slBytesPerPixel);
+  uint8_t *pubSrc = pTGAImage;  // need 'walking' pointers
+  uint8_t *pubDst = ii_Picture;
 
   // determine TGA image type
   if( pTGAHdr->ImageType==10) {
     // RLE encoded
-    UBYTE ubControl;
+    uint8_t ubControl;
     INDEX iBlockSize;
     BOOL  bRepeat;
     PIX pixCurrentSize=0;
@@ -367,7 +367,7 @@ void CImageInfo::LoadTGA_t( const CTFileName &strFileName) // throw char *
 void CImageInfo::SaveTGA_t( const CTFileName &strFileName) const // throw char *
 {
   TGAHeader *pTGAHdr;
-  UBYTE *pTGABuffer, *pTGAImage;
+  uint8_t *pTGABuffer, *pTGAImage;
   SLONG slFileSize;
   PIX pixBitmapSize = ii_Width*ii_Height;
   CTFileStream TGAFile;
@@ -379,7 +379,7 @@ void CImageInfo::SaveTGA_t( const CTFileName &strFileName) const // throw char *
 
   // determine TGA file size and allocate memory
   slFileSize = sizeof(struct TGAHeader) + pixBitmapSize *slBytesPerPixel;
-  pTGABuffer = (UBYTE*)AllocMemory( slFileSize);
+  pTGABuffer = (uint8_t*)AllocMemory( slFileSize);
   pTGAHdr    = (struct TGAHeader*)pTGABuffer;
   pTGAImage  = pTGABuffer + sizeof(struct TGAHeader);
 
@@ -387,7 +387,7 @@ void CImageInfo::SaveTGA_t( const CTFileName &strFileName) const // throw char *
   memset( pTGABuffer, 0x0, sizeof(struct TGAHeader));
   pTGAHdr->Width        = (UWORD)ii_Width;
   pTGAHdr->Height       = (UWORD)ii_Height;
-  pTGAHdr->BitsPerPixel = (UBYTE)ii_BitsPerPixel;
+  pTGAHdr->BitsPerPixel = (uint8_t)ii_BitsPerPixel;
   pTGAHdr->ImageType    = 2;
 
   // flip image vertically
@@ -395,7 +395,7 @@ void CImageInfo::SaveTGA_t( const CTFileName &strFileName) const // throw char *
   FlipBitmap( ii_Picture, pTGAImage, ii_Width, ii_Height, 1, bAlphaChannel);
 
   // convert CroTeam's pixel format to TGA format
-  UBYTE *pubTmp = pTGAImage;  // need 'walking' pointer
+  uint8_t *pubTmp = pTGAImage;  // need 'walking' pointer
   for( INDEX iPix=0; iPix<pixBitmapSize; iPix++)
   { // flip bytes
     Swap( pubTmp[0], pubTmp[2]);  // R & B channels
@@ -420,8 +420,8 @@ void CImageInfo::SaveTGA_t( const CTFileName &strFileName) const // throw char *
 void CImageInfo::LoadPCX_t( const CTFileName &strFileName) // throw char *
 {
   PCXHeader *pPCXHdr;
-  UBYTE *pPCXBuffer, *pPCXImage, *pPCXDecodedImage, *pTmp;
-  UBYTE data, counter;
+  uint8_t *pPCXBuffer, *pPCXImage, *pPCXDecodedImage, *pTmp;
+  uint8_t data, counter;
   SLONG pic_size, PCX_size, slFileSize;
   CTFileStream PCXFile;
 
@@ -432,7 +432,7 @@ void CImageInfo::LoadPCX_t( const CTFileName &strFileName) // throw char *
   slFileSize = PCXFile.GetStreamSize();
 
   // load entire PCX file to memory, as is, and close it (no further usage)
-  pPCXBuffer = (UBYTE*)AllocMemory( slFileSize);
+  pPCXBuffer = (uint8_t*)AllocMemory( slFileSize);
   PCXFile.Read_t( pPCXBuffer, slFileSize);
   PCXFile.Close();
 
@@ -448,11 +448,11 @@ void CImageInfo::LoadPCX_t( const CTFileName &strFileName) // throw char *
   pic_size = ii_Width * ii_Height * ii_BitsPerPixel/8;
 
   // allocate memory for image content
-  ii_Picture = (UBYTE*)AllocMemory( pic_size);
+  ii_Picture = (uint8_t*)AllocMemory( pic_size);
 
   // allocate memory for decoded PCX file that hasn't been converted to CT RAW Image format
   PCX_size = (SLONG)(pPCXHdr->BytesPerLine * ii_Height * ii_BitsPerPixel/8);
-  pPCXDecodedImage = (UBYTE*)AllocMemory( PCX_size);
+  pPCXDecodedImage = (uint8_t*)AllocMemory( PCX_size);
   pTmp = pPCXDecodedImage;  // save pointer for latter usage
 
   // decode PCX file

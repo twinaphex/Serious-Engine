@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
  *  Raster functions
  */
 
-CRaster::CRaster(PIX ulWidth, PIX ulHeight, ULONG ulFlags) : ra_MainDrawPort()
+CRaster::CRaster(PIX ulWidth, PIX ulHeight, uint32_t ulFlags) : ra_MainDrawPort()
 {
   // remember width and height
   ra_Width  = ulWidth;
@@ -77,7 +77,7 @@ void CRaster::RecalculateDrawPortsDimensions(void)
 /*
  * Lock for drawing.
  */
-BOOL CRaster::Lock()
+bool CRaster::Lock()
 {
   ASSERT( this!=NULL);
   ASSERT( ra_LockCount>=0);
@@ -86,27 +86,27 @@ BOOL CRaster::Lock()
   if( ra_Width<1 || ra_Height<1) {
     // do not allow locking
     ASSERTALWAYS( "Raster size to small to be locked!");
-    return FALSE;
+    return false;
   }
 
   // if allready locked
   if( ra_LockCount>0) {
     // just increment counter
     ra_LockCount++;
-    return TRUE;
+    return true;
   }
   // if not already locked
   else {
     // try to lock with driver
-    BOOL bLocked = _pGfx->LockRaster(this);
+    bool bLocked = _pGfx->LockRaster(this);
     // if succeeded in locking
     if( bLocked) {
       // set the counter to 1
       ra_LockCount = 1;
-      return TRUE;
+      return true;
     }
     // lock not ok
-    return FALSE;
+    return false;
   }
 }
 

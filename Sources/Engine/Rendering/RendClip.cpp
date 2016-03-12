@@ -22,7 +22,7 @@ __forceinline ULONG CRenderer::GetPolygonVisibility(const CBrushPolygon &bpo)
   // get transformed polygon's plane
   CWorkingPlane *pwplPolygonPlane = bpo.bpo_pbplPlane->bpl_pwplWorking;
   CWorkingPlane wplReverse;
-  BOOL bInvertPolygon = FALSE;
+  bool bInvertPolygon = FALSE;
 
   // if the polygon should be inverted or double sided
   if((re_bRenderingShadows
@@ -62,7 +62,7 @@ __forceinline ULONG CRenderer::GetPolygonVisibility(const CBrushPolygon &bpo)
   }
 
   ULONG ulDirection = PDF_POLYGONVISIBLE;
-  BOOL bProjectionInverted = re_prProjection->pr_bInverted;
+  bool bProjectionInverted = re_prProjection->pr_bInverted;
   if (bProjectionInverted && !bInvertPolygon) {
     ulDirection |= PDF_FLIPEDGESPRE;
   } else if (!bProjectionInverted && bInvertPolygon){
@@ -75,7 +75,7 @@ __forceinline ULONG CRenderer::GetPolygonVisibility(const CBrushPolygon &bpo)
 
 
 // check if polygon is outside viewfrustum
-__forceinline BOOL CRenderer::IsPolygonCulled(const CBrushPolygon &bpo)
+__forceinline bool CRenderer::IsPolygonCulled(const CBrushPolygon &bpo)
 {
   CBrushSector  &bsc = *bpo.bpo_pbscSector;
   // setup initial mask
@@ -235,12 +235,12 @@ void CRenderer::MakeDetailScreenPolygons(void)
 }
 
 // make initial edges for a polygon
-void CRenderer::MakeInitialPolygonEdges(CBrushPolygon &bpo, CScreenPolygon &spo, BOOL ulDirection)
+void CRenderer::MakeInitialPolygonEdges(CBrushPolygon &bpo, CScreenPolygon &spo, bool ulDirection)
 {
   // get number of edges
   INDEX ctEdges = bpo.bpo_abpePolygonEdges.Count();
   spo.spo_ubDirectionFlags = ulDirection&PDF_FLIPEDGESPOST;
-  BOOL bInvert = (ulDirection&PDF_FLIPEDGESPRE)!=0;
+  bool bInvert = (ulDirection&PDF_FLIPEDGESPRE)!=0;
   
   // remember edge vertex start and count
   spo.spo_ctEdgeVx = ctEdges*2;
@@ -350,7 +350,7 @@ void CRenderer::ClipToAllPlanes(CAnyProjection3D &pr)
 }
 
 // make outcodes for current clip plane for all active vertices
-__forceinline BOOL CRenderer::MakeOutcodes(void)
+__forceinline bool CRenderer::MakeOutcodes(void)
 {
   SLONG slMask = 0;
   // for each active view vertex

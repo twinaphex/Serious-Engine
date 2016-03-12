@@ -55,7 +55,7 @@ struct ShaderParams
   CStaticArray<INDEX> sp_aiTexCoordsIndex;
   CStaticArray<COLOR> sp_acolColors;
   CStaticArray<FLOAT> sp_afFloats;
-  ULONG               sp_ulFlags;
+  uint32_t               sp_ulFlags;
 };
 
 class ENGINE_API CShader : public CSerial
@@ -107,7 +107,7 @@ ENGINE_API void shaSetColorArray(COLOR *paColors, INDEX ctColors);
 // Set array of floats for shader
 ENGINE_API void shaSetFloatArray(FLOAT *paFloats, INDEX ctFloats);
 // Set shading flags
-ENGINE_API void shaSetFlags(ULONG ulFlags);
+ENGINE_API void shaSetFlags(uint32_t ulFlags);
 // Set base color of model 
 ENGINE_API void shaSetModelColor(COLOR &colModel);
 // Set light direction
@@ -145,7 +145,7 @@ ENGINE_API CTextureObject *shaGetTexture( INDEX iTextureIndex);
 // Get base color from array of colors
 ENGINE_API COLOR &shaGetColor(INDEX iColorIndex);
 // Get shading flags
-ENGINE_API ULONG &shaGetFlags();
+ENGINE_API uint32_t &shaGetFlags();
 // Get base color of model
 ENGINE_API COLOR &shaGetModelColor(void);
 // Get light direction
@@ -213,7 +213,7 @@ ENGINE_API void shaSetHazeUVMap(GFXTexCoord *paHazeUVMap);
 ENGINE_API void shaSetHazeColorArray(GFXColor *paHazeColors);
 
 // Is overbrightning enabled
-ENGINE_API BOOL shaOverBrightningEnabled(void);
+ENGINE_API bool shaOverBrightningEnabled(void);
 
 #if (defined _MSC_VER)
  #define DECLSPEC_DLLEXPORT _declspec (dllexport)

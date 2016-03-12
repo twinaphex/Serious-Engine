@@ -34,7 +34,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 // we need array for OpenGL mipmaps that are lower than N*1 or 1*N
-static ULONG _aulLastMipmaps[(INDEX)(1024*1.334)];
+static uint32_t _aulLastMipmaps[(INDEX)(1024*1.334)];
 static CTexParams *_tpCurrent;
 extern INDEX GFX_iActiveTexUnit;
 
@@ -71,9 +71,12 @@ extern void MimicTexParams_OGL( CTexParams &tpLocal)
     GLenum eMagFilter, eMinFilter;
     UnpackFilter_OGL( _tpGlobal[0].tp_iFilter, eMagFilter, eMinFilter);
     // adjust minimize filter in case of a single mipmap
-    if( tpLocal.tp_bSingleMipmap) {
-           if( eMinFilter==GL_NEAREST_MIPMAP_NEAREST || eMinFilter==GL_NEAREST_MIPMAP_LINEAR) eMinFilter = GL_NEAREST;
-      else if( eMinFilter==GL_LINEAR_MIPMAP_NEAREST  || eMinFilter==GL_LINEAR_MIPMAP_LINEAR)  eMinFilter = GL_LINEAR;
+    if( tpLocal.tp_bSingleMipmap)
+    {
+           if( eMinFilter==GL_NEAREST_MIPMAP_NEAREST || eMinFilter==GL_NEAREST_MIPMAP_LINEAR)
+              eMinFilter = GL_NEAREST;
+           else if( eMinFilter==GL_LINEAR_MIPMAP_NEAREST  || eMinFilter==GL_LINEAR_MIPMAP_LINEAR)
+              eMinFilter = GL_LINEAR;
     }
     // update texture filter
     pglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, eMagFilter);
@@ -118,7 +121,7 @@ extern void MimicTexParams_OGL( CTexParams &tpLocal)
 
 // upload context for current texture to accelerator's memory
 // (returns format in which texture was really uploaded)
-extern void UploadTexture_OGL( ULONG *pulTexture, PIX pixSizeU, PIX pixSizeV,
+extern void UploadTexture_OGL( uint32_t *pulTexture, PIX pixSizeU, PIX pixSizeV,
                                GLenum eInternalFormat, BOOL bUseSubImage)
 {
   // safeties
@@ -156,8 +159,8 @@ extern void UploadTexture_OGL( ULONG *pulTexture, PIX pixSizeU, PIX pixSizeV,
   { // prepare variables
     PIX pixSize = Max(pixSizeU,pixSizeV);
     ASSERT( pixSize<=2048);
-    ULONG *pulSrc = pulTexture+pixOffset-pixSize*2;
-    ULONG *pulDst = _aulLastMipmaps;
+    uint32_t *pulSrc = pulTexture+pixOffset-pixSize*2;
+    uint32_t *pulDst = _aulLastMipmaps;
     // loop thru mipmaps
     while( pixSizeU>0 || pixSizeV>0)
     { // make next mipmap
@@ -216,24 +219,27 @@ extern void UploadTexture_OGL( ULONG *pulTexture, PIX pixSizeU, PIX pixSizeV,
 // returns bytes/pixels ratio for uploaded texture
 extern INDEX GetFormatPixRatio_OGL( GLenum eFormat)
 {
-  switch( eFormat) {
-  case GL_RGBA:
-  case GL_RGBA8:
-    return 4;
-  case GL_RGB:
-  case GL_RGB8:
-    return 3;
-  case GL_RGB5:
-  case GL_RGB5_A1:
-  case GL_RGB4:
-  case GL_RGBA4:
-  case GL_LUMINANCE_ALPHA:
-  case GL_LUMINANCE8_ALPHA8:
-    return 2;
-  // compressed formats and single-channel formats
-  default:
-    return 1;
-  }
+   switch( eFormat)
+   {
+      case GL_RGBA:
+      case GL_RGBA8:
+         return 4;
+      case GL_RGB:
+      case GL_RGB8:
+         return 3;
+      case GL_RGB5:
+      case GL_RGB5_A1:
+      case GL_RGB4:
+      case GL_RGBA4:
+      case GL_LUMINANCE_ALPHA:
+      case GL_LUMINANCE8_ALPHA8:
+         return 2;
+         // compressed formats and single-channel formats
+      default:
+         break;
+   }
+
+   return 1;
 }
 
 
@@ -251,19 +257,22 @@ extern INDEX GetTexturePixRatio_OGL( GLuint uiBindNo)
 // return allowed dithering method
 extern INDEX AdjustDitheringType_OGL( GLenum eFormat, INDEX iDitheringType)
 {
-  switch( eFormat) {
-  // these formats don't need dithering
-  case GL_RGB8:
-  case GL_RGBA8:
-  case GL_LUMINANCE8:
-  case GL_LUMINANCE8_ALPHA8:
-    return NONE;
-  // these formats need reduced dithering
-  case GL_RGB5:
-  case GL_RGB5_A1:
-    if( iDitheringType>7) return iDitheringType-3;
-  // other formats need dithering as it is
-  default:
-    return iDitheringType;
-  }
+   switch( eFormat)
+   {
+      // these formats don't need dithering
+      case GL_RGB8:
+      case GL_RGBA8:
+      case GL_LUMINANCE8:
+      case GL_LUMINANCE8_ALPHA8:
+         return NONE;
+         // these formats need reduced dithering
+      case GL_RGB5:
+      case GL_RGB5_A1:
+         if( iDitheringType>7)
+            return iDitheringType-3;
+         // other formats need dithering as it is
+      default:
+         break;
+   }
+   return iDitheringType;
 }

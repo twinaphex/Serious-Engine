@@ -58,8 +58,8 @@ struct Animation
 {
   int an_iID;
   INDEX an_iFrames;
-  FLOAT an_fSecPerFrame;
-  FLOAT an_fTreshold;
+  float an_fSecPerFrame;
+  float an_fTreshold;
   BOOL an_bCompresed;// are quaternions in animation compresed
   CStaticArray<struct MorphEnvelope> an_ameMorphs;
   CStaticArray<struct BoneEnvelope> an_abeBones;
@@ -70,7 +70,7 @@ struct Animation
 struct MorphEnvelope
 {
   int me_iMorphMapID;
-  CStaticArray<FLOAT> me_aFactors;
+  CStaticArray<float> me_aFactors;
 };
 
 struct BoneEnvelope
@@ -80,7 +80,7 @@ struct BoneEnvelope
   CStaticArray<struct AnimPos> be_apPos;// array of compresed bone positions
   CStaticArray<struct AnimRot> be_arRot;// array if compresed bone rotations
   CStaticArray<struct AnimRotOpt> be_arRotOpt;// array if optimized compresed bone rotations
-  FLOAT be_OffSetLen;
+  float be_OffSetLen;
 };
 
 class ENGINE_API CAnimSet : public CSerial
@@ -89,7 +89,7 @@ public:
   CAnimSet();
   ~CAnimSet();
   void Optimize();
-  void OptimizeAnimation(Animation &an, FLOAT fTreshold);
+  void OptimizeAnimation(Animation &an, float fTreshold);
   void AddAnimation(Animation *pan);
   void RemoveAnimation(Animation *pan);
     

@@ -40,9 +40,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define W  word ptr
 #define B  byte ptr
 
-#define ASMOPT 1
-
-
 extern INDEX shd_bFineQuality;
 extern INDEX shd_iFiltering;
 extern INDEX shd_iDithering;
@@ -59,7 +56,7 @@ class CLayerMixer
 public:
   CBrushShadowMap *lm_pbsmShadowMap;   // shadow map whose layers are mixed
   CBrushPolygon   *lm_pbpoPolygon;     // polygon of the shadow map
-  BOOL lm_bDynamic;    // set while doing dynamic light mixing
+  bool lm_bDynamic;                    // set while doing dynamic light mixing
 
   // dimensions of currently processed shadow map
   MEX   lm_mexOffsetU;   // offsets in mex
@@ -85,7 +82,7 @@ public:
   COLOR lm_colAmbient;
 
   // constructor
-  CLayerMixer( CBrushShadowMap *pbsm, INDEX iFirstMip, INDEX iLastMip, BOOL bDynamic);
+  CLayerMixer( CBrushShadowMap *pbsm, INDEX iFirstMip, INDEX iLastMip, bool bDynamic);
 
   // remember general data
   void CalculateData( CBrushShadowMap *pbsm, INDEX iMipmap);
@@ -102,7 +99,7 @@ public:
   void AddAmbientMaskPoint( UBYTE *pubMask, UBYTE ubMask);
   void AddDiffusionPoint(void);
   void AddDiffusionMaskPoint( UBYTE *pubMask, UBYTE ubMask);
-  BOOL PrepareOneLayerPoint( CBrushShadowLayer *pbsl, BOOL bNoMask);
+  bool PrepareOneLayerPoint( CBrushShadowLayer *pbsl, bool bNoMask);
   void AddOneLayerPoint( CBrushShadowLayer *pbsl, UBYTE *pub, UBYTE ubMask=0);
 
   // add one directional layer to the shadow map
@@ -344,96 +341,6 @@ skipPixel:
 // add one layer point light without diffusion and with mask
 void CLayerMixer::AddAmbientMaskPoint( UBYTE *pubMask, UBYTE ubMask)
 {
-
-#if ASMOPT == 1
-
-  // prepare some local variables
-  __int64 mmDDL2oDU = _slDDL2oDU;
-  __int64 mmDDL2oDV = _slDDL2oDV;
-  ULONG ulLightRGB = ByteSwap(lm_colLight);
-  _slLightMax<<=7;
-  _slLightStep>>=1;
-
-  __asm {
-    // prepare interpolants
-    movd    mm0,D [_slL2Row]
-    movd    mm1,D [_slDL2oDURow]
-    psllq   mm1,32
-    por     mm1,mm0         // MM1 = slDL2oDURow | slL2Row
-    movd    mm0,D [_slDL2oDV]
-    movd    mm2,D [_slDDL2oDUoDV]
-    psllq   mm2,32
-    por     mm2,mm0         // MM2 = slDDL2oDUoDV | slDL2oDV
-    // prepare color
-    pxor    mm0,mm0         // MM0 = 0 | 0 (for unpacking purposes)
-    movd    mm7,D [ulLightRGB]
-    punpcklbw mm7,mm0
-    psllw   mm7,1
-    // loop thru rows
-    mov     esi,D [pubMask]
-    mov     edi,D [_pulLayer]
-    movzx   edx,B [ubMask]
-    mov     ebx,D [_iRowCt]
-rowLoop:
-    push    ebx
-    movd    ebx,mm1         // EBX = slL2Point
-    movq    mm3,mm1
-    psrlq   mm3,32          // MM3 = 0 | slDL2oDU
-    // loop thru pixels in current row
-    mov     ecx,D [_iPixCt]
-pixLoop:
-    // check if pixel need to be drawn; i.e. draw if( [esi] & ubMask && (slL2Point<FTOX))
-    cmp     ebx,FTOX
-    jge     skipPixel
-    test    dl,B [esi]
-    je      skipPixel
-    // calculate intensities and do actual drawing of shadow pixel ARGB
-    movd    mm4,ecx
-    mov     eax,ebx
-    sar     eax,SHIFTX
-    and     eax,(SQRTTABLESIZE-1)
-    movzx   eax,B aubSqrt[eax]
-    mov     ecx,D [_slLightMax]
-    cmp     eax,D [_slHotSpot]
-    jle     skipInterpolation
-    mov     ecx,255
-    sub     ecx,eax
-    imul    ecx,D [_slLightStep]
-skipInterpolation:
-    // mix underlaying pixels with the calculated one
-    movd    mm6,ecx 
-    punpcklwd mm6,mm6
-    punpckldq mm6,mm6
-    pmulhw  mm6,mm7
-    // add light pixel to underlying pixel
-    movd    mm5,D [edi]
-    punpcklbw mm5,mm0
-    paddw   mm5,mm6
-    packuswb mm5,mm0
-    movd    D [edi],mm5
-    movd    ecx,mm4
-skipPixel:
-    // advance to next pixel
-    add     edi,4
-    movd    eax,mm3
-    add     ebx,eax
-    paddd   mm3,Q [mmDDL2oDU]
-    rol     dl,1
-    adc     esi,0
-    dec     ecx
-    jnz     pixLoop
-    // advance to the next row
-    pop     ebx
-    add     edi,D [_slModulo]
-    paddd   mm1,mm2
-    paddd   mm2,Q [mmDDL2oDV]
-    dec     ebx
-    jnz     rowLoop
-    emms
-  }
-
-#else
-
   for( PIX pixV=0; pixV<_iRowCt; pixV++)
   {
     SLONG slL2Point = _slL2Row;
@@ -465,9 +372,6 @@ skipPixel:
     _slDL2oDV    += _slDDL2oDV;
     _slDL2oDURow += _slDDL2oDUoDV;
   }
-
-#endif
-
 }
 
 // add one layer point light with diffusion and without mask
@@ -565,95 +469,6 @@ void CLayerMixer::AddDiffusionMaskPoint( UBYTE *pubMask, UBYTE ubMask)
   _slLightStep = FloatToInt(_slLightStep * _fMinLightDistance * _f1oFallOff);
   if( _slLightStep!=0) slMax1oL = (256<<8) / _slLightStep +256;
 
-#if ASMOPT == 1
-
-  // prepare some local variables
-  __int64 mmDDL2oDU = _slDDL2oDU;
-  __int64 mmDDL2oDV = _slDDL2oDV;
-  ULONG ulLightRGB = ByteSwap(lm_colLight);
-  _slLightMax<<=7;
-  _slLightStep>>=1;
-
-  __asm {
-    // prepare interpolants
-    movd    mm0,D [_slL2Row]
-    movd    mm1,D [_slDL2oDURow]
-    psllq   mm1,32
-    por     mm1,mm0         // MM1 = slDL2oDURow | slL2Row
-    movd    mm0,D [_slDL2oDV]
-    movd    mm2,D [_slDDL2oDUoDV]
-    psllq   mm2,32
-    por     mm2,mm0         // MM2 = slDDL2oDUoDV | slDL2oDV
-    // prepare color
-    pxor    mm0,mm0         // MM0 = 0 | 0 (for unpacking purposes)
-    movd    mm7,D [ulLightRGB]
-    punpcklbw mm7,mm0
-    psllw   mm7,1
-    // loop thru rows
-    mov     esi,D [pubMask]
-    mov     edi,D [_pulLayer]
-    movzx   edx,B [ubMask]
-    mov     ebx,D [_iRowCt]
-rowLoop:
-    push    ebx
-    movd    ebx,mm1         // EBX = slL2Point
-    movq    mm3,mm1
-    psrlq   mm3,32          // MM3 = 0 | slDL2oDU
-    // loop thru pixels in current row
-    mov     ecx,D [_iPixCt]
-pixLoop:
-    // check if pixel need to be drawn; i.e. draw if( [esi] & ubMask && (slL2Point<FTOX))
-    cmp     ebx,FTOX
-    jge     skipPixel
-    test    dl,B [esi]
-    je      skipPixel
-    // calculate intensities and do actual drawing of shadow pixel ARGB
-    movd    mm4,ecx
-    mov     eax,ebx
-    sar     eax,SHIFTX
-    and     eax,(SQRTTABLESIZE-1)
-    movzx   eax,W auw1oSqrt[eax*2]
-    mov     ecx,D [_slLightMax]
-    cmp     eax,D [slMax1oL]
-    jge     skipInterpolation
-    lea     ecx,[eax-256]
-    imul    ecx,D [_slLightStep]
-skipInterpolation:
-    // mix underlaying pixels with the calculated one
-    movd    mm6,ecx 
-    punpcklwd mm6,mm6
-    punpckldq mm6,mm6
-    pmulhw  mm6,mm7
-    // add light pixel to underlying pixel
-    movd    mm5,D [edi]
-    punpcklbw mm5,mm0
-    paddw   mm5,mm6
-    packuswb mm5,mm0
-    movd    D [edi],mm5
-    movd    ecx,mm4
-skipPixel:
-    // advance to next pixel
-    add     edi,4
-    movd    eax,mm3
-    add     ebx,eax
-    paddd   mm3,Q [mmDDL2oDU]
-    rol     dl,1
-    adc     esi,0
-    dec     ecx
-    jnz     pixLoop
-    // advance to the next row
-    pop     ebx
-    add     edi,D [_slModulo]
-    paddd   mm1,mm2
-    paddd   mm2,Q [mmDDL2oDV]
-    dec     ebx
-    jnz     rowLoop
-    emms
-  }
-
-#else
-
-
   // for each pixel in the shadow map
   for( PIX pixV=0; pixV<_iRowCt; pixV++)
   {
@@ -686,13 +501,10 @@ skipPixel:
     _slDL2oDV    += _slDDL2oDV;
     _slDL2oDURow += _slDDL2oDUoDV;
   }
-
-#endif
-
 }
 
 // prepares point light that creates layer (returns TRUE if there is infulence)
-BOOL CLayerMixer::PrepareOneLayerPoint( CBrushShadowLayer *pbsl, BOOL bNoMask)
+bool CLayerMixer::PrepareOneLayerPoint( CBrushShadowLayer *pbsl, bool bNoMask)
 {
   // determine light infulence dimensions
   _iPixCt = pbsl->bsl_pixSizeU >>lm_iMipShift;
@@ -718,7 +530,8 @@ BOOL CLayerMixer::PrepareOneLayerPoint( CBrushShadowLayer *pbsl, BOOL bNoMask)
 
   // if there is no influence, do nothing
   if( (pbsl->bsl_pixSizeU>>lm_iMipShift)==0 || (pbsl->bsl_pixSizeV>>lm_iMipShift)==0
-    || _iPixCt<=0 || _iRowCt<=0) return FALSE;
+    || _iPixCt<=0 || _iRowCt<=0)
+     return false;
 
   // adjust for sector ambient
   if( _ulLightFlags&LSF_SUBSTRACTSECTORAMBIENT) {
@@ -755,35 +568,6 @@ BOOL CLayerMixer::PrepareOneLayerPoint( CBrushShadowLayer *pbsl, BOOL bNoMask)
   FLOAT fDL2oDV     = fDDL2oDV + 2*(lm_vStepV%v00);
   //_v00 = v00;
 
-#if ASMOPT == 1
-  __asm {
-    fld     D [fDDL2oDU]
-    fadd    D [fDDL2oDU]
-    fld     D [fDDL2oDV]
-    fadd    D [fDDL2oDV]
-    fld     D [fDDL2oDUoDV]
-    fadd    D [fDDL2oDUoDV]
-    // st0=2*fDDL2oDUoDV, st1=2*fDDL2oDV, st2=2*fDDL2oDU
-    fld     D [fL2Row]
-    fmul    D [fFactor]
-    fld     D [fDL2oDURow]
-    fmul    D [fFactor]
-    fld     D [fDL2oDV]
-    fmul    D [fFactor]
-    // st0=fDL2oDV*fFactor, st1=fDL2oDURow*fFactor, st2=fL2Row*fFactor,
-    // st3=2*fDDL2oDUoDV, st4=2*fDDL2oDV, st5=2*fDDL2oDU
-    fld     D [fFactor]
-    fmul    st(4),st(0)
-    fmul    st(5),st(0)
-    fmulp   st(6),st(0)
-    fistp   D [_slDL2oDV]
-    fistp   D [_slDL2oDURow]
-    fistp   D [_slL2Row]
-    fistp   D [_slDDL2oDUoDV]
-    fistp   D [_slDDL2oDV]
-    fistp   D [_slDDL2oDU]
-  }
-#else
   fDDL2oDU     *= 2;
   fDDL2oDV     *= 2;
   fDDL2oDUoDV  *= 2;
@@ -793,7 +577,6 @@ BOOL CLayerMixer::PrepareOneLayerPoint( CBrushShadowLayer *pbsl, BOOL bNoMask)
   _slDDL2oDUoDV = FloatToInt( fDDL2oDUoDV * fFactor);
   _slDL2oDURow  = FloatToInt( fDL2oDURow  * fFactor);
   _slDL2oDV     = FloatToInt( fDL2oDV     * fFactor);
-#endif
 
   // prepare final light interpolants
   _slLightMax  = 255;
@@ -808,7 +591,7 @@ BOOL CLayerMixer::PrepareOneLayerPoint( CBrushShadowLayer *pbsl, BOOL bNoMask)
   // saturate light color
   lm_colLight = AdjustColor( lm_colLight, _slShdHueShift, _slShdSaturation);
   // all done
-  return TRUE;
+  return true;
 }
 
 
@@ -823,7 +606,7 @@ void CLayerMixer::AddOneLayerPoint( CBrushShadowLayer *pbsl, UBYTE *pubMask, UBY
   }
 
   // determine diffusion presence and corresponding routine
-  BOOL bDiffusion = (_ulLightFlags&LSF_DIFFUSION) && !(_ulPolyFlags&BPOF_NOPLANEDIFFUSION);
+  bool bDiffusion = (_ulLightFlags&LSF_DIFFUSION) && !(_ulPolyFlags&BPOF_NOPLANEDIFFUSION);
   // masked or non-masked?
   if( pubMask==NULL) {
     // non-masked
@@ -867,124 +650,6 @@ void CLayerMixer::AddOneLayerGradient( CGradientParameters &gp)
   COLOR col1 = gp.gp_col1;
   _pulLayer  = lm_pulShadowMap;
   FLOAT fStart = Clamp( fGr00-(fDGroDJ+fDGroDI)*0.5f, 0.0f, 1.0f);
-
-#if ASMOPT == 1
-
-  __int64 mmRowAdv;
-  SLONG fixGRow  = (fGr00-(fDGroDJ+fDGroDI)*0.5f)*32767.0f; // 16:15
-  SLONG slModulo = (lm_pixCanvasSizeU-lm_pixPolygonSizeU) *BYTES_PER_TEXEL;
-  COLOR colStart = LerpColor( col0, col1, fStart);
-  INDEX ctCols = lm_pixPolygonSizeU;
-  INDEX ctRows = lm_pixPolygonSizeV;
-  BOOL  bDarkLight = gp.gp_bDark;
-  
-  __asm {
-    mov     eax,D [colStart]
-    mov     ebx,D [col0]
-    mov     edx,D [col1]
-    bswap   eax
-    bswap   ebx
-    bswap   edx
-    movd    mm1,eax
-    movd    mm2,ebx
-    movd    mm3,edx
-    punpcklbw mm1,mm1
-    punpcklbw mm2,mm2
-    punpcklbw mm3,mm3
-    psrlw   mm1,2
-    psrlw   mm2,1
-    psrlw   mm3,1
-    // eventually adjust for dark light
-    cmp     D [bDarkLight],0
-    je      skipDark
-    pcmpeqd mm0,mm0
-    pxor    mm1,mm0
-    pxor    mm2,mm0
-    pxor    mm3,mm0
-    psubw   mm1,mm0
-    psubw   mm2,mm0
-    psubw   mm3,mm0
-skipDark:
-    // keep colors
-    movq    mm0,mm2
-    movq    mm7,mm3
-    // find row and column advancers
-    psubw   mm3,mm2
-    movq    mm2,mm3
-    movd    mm5,D [fixDGroDI]
-    movd    mm6,D [fixDGroDJ]
-    punpcklwd mm5,mm5
-    punpcklwd mm6,mm6
-    punpckldq mm5,mm5
-    punpckldq mm6,mm6
-    pmulhw  mm2,mm5           // column color advancer (8:6)
-    pmulhw  mm3,mm6           // row color advancer    (8:6)
-    movq    Q [mmRowAdv],mm3 
-
-    // prepare starting variables
-    movq    mm5,mm0
-    movq    mm6,mm7
-    psraw   mm5,1   // starting color
-    psraw   mm6,1   // ending color
-    pxor    mm0,mm0
-    mov     esi,D [fixGRow]
-    mov     edi,D [_pulLayer]
-    mov     edx,D [ctRows]
-rowLoop:
-    mov     ebx,esi
-    movq    mm4,mm1
-    mov     ecx,D [ctCols]
-pixLoop:
-    // add or substract light pixel to underlying pixel
-    movq    mm7,mm4
-    psraw   mm7,6
-    movd    mm3,D [edi]
-    punpcklbw mm3,mm0
-    paddw   mm3,mm7
-    packuswb mm3,mm0
-    movd    D [edi],mm3
-
-    // advance to next pixel
-    add     ebx,D [fixDGroDI]
-    cmp     ebx,0x8000
-    ja      pixClamp
-    paddw   mm4,mm2
-    add     edi,4
-    dec     ecx
-    jnz     pixLoop
-    jmp     pixDone
-pixClamp:
-    movq    mm4,mm6
-    jg      pixNext
-    movq    mm4,mm5
-pixNext:
-    add     edi,4
-    dec     ecx
-    jnz     pixLoop
-pixDone:
-
-    // advance to next row
-    add     esi,D [fixDGroDJ]
-    cmp     esi,0x8000
-    ja      rowClamp
-    paddw   mm1,Q [mmRowAdv]
-    add     edi,D [slModulo]
-    dec     edx
-    jnz     rowLoop
-    jmp     rowDone
-rowClamp:
-    movq    mm1,mm6
-    jg      rowNext
-    movq    mm1,mm5
-rowNext:
-    add     edi,D [slModulo]
-    dec     edx
-    jnz     rowLoop
-rowDone:
-    emms
-  }
-
-#else
 
   // well, make gradient ...
   SLONG slR0=0,slG0=0,slB0=0;
@@ -1060,8 +725,6 @@ rowDone:
     }
   }
 
-#endif
-
 }
 
 
@@ -1069,45 +732,6 @@ rowDone:
 // apply directional light or ambient to layer
 void CLayerMixer::AddDirectional(void)
 {
-
-#if ASMOPT == 1
-
-  ULONG ulLight = ByteSwap( lm_colLight);
-  __asm {
-    // prepare pointers and variables
-    mov     edi,D [_pulLayer]
-    mov     ebx,D [_iRowCt]
-    movd    mm6,D [ulLight]
-    punpckldq mm6,mm6
-rowLoop: 
-    mov     ecx,D [_iPixCt]
-    shr     ecx,1
-    jz      pixRest
-pixLoop:
-    // mix underlaying pixels with the constant color pixel
-    movq    mm5,Q [edi]
-    paddusb mm5,mm6
-    movq    Q [edi],mm5
-    // advance to next pixel
-    add     edi,8
-    dec     ecx
-    jnz     pixLoop
-pixRest:
-    test    D [_iPixCt],1
-    jz      rowNext
-    movd    mm5,D [edi]
-    paddusb mm5,mm6
-    movd    D [edi],mm5
-    add     edi,4
-rowNext:
-    // advance to the next row
-    add     edi,D [_slModulo]
-    dec     ebx
-    jnz     rowLoop
-    emms
-  }
-
-#else
 
   // for each pixel in the shadow map
   for( PIX pixV=0; pixV<_iRowCt; pixV++) {
@@ -1119,50 +743,11 @@ rowNext:
     _pulLayer += slModulo;
   }
 
-#endif
-
 }
 
 // apply directional light thru mask to layer
 void CLayerMixer::AddMaskDirectional( UBYTE *pubMask, UBYTE ubMask)
 {
-
-#if ASMOPT == 1
-
-  // prepare some local variables
-  ULONG ulLight = ByteSwap( lm_colLight);
-  __asm {
-    // prepare pointers and variables
-    movzx   edx,B [ubMask]
-    mov     esi,D [pubMask]
-    mov     edi,D [_pulLayer]
-    mov     ebx,D [_iRowCt]
-    movd    mm6,D [ulLight]
-rowLoop:
-    mov     ecx,D [_iPixCt]
-pixLoop:
-    // mix underlaying pixels with the constant light color if not shaded
-    test    dl,B [esi]
-    jz      skipLight
-    movd    mm5,D [edi]
-    paddusb mm5,mm6
-    movd    D [edi],mm5
-skipLight:
-    // advance to next pixel
-    add     edi,4
-    rol     dl,1
-    adc     esi,0
-    dec     ecx
-    jnz     pixLoop
-    // advance to the next row
-    add     edi,D [_slModulo]
-    dec     ebx
-    jnz     rowLoop
-    emms
-  }
-
-#else
-
   // for each pixel in the shadow map
   for( PIX pixV=0; pixV<_iRowCt; pixV++) {
     for( PIX pixU=0; pixU<_iPixCt; pixU++) {
@@ -1180,9 +765,6 @@ skipLight:
     } // go to the next row
     _pulLayer += slModulo;
   }
-
-#endif
-
 }
 
 
@@ -1262,7 +844,7 @@ void CLayerMixer::MixOneMipmap(CBrushShadowMap *pbsm, INDEX iMipmap)
 {
   // remember general data
   CalculateData( pbsm, iMipmap);
-  const BOOL bDynamicOnly = lm_pbpoPolygon->bpo_ulFlags&BPOF_DYNAMICLIGHTSONLY;
+  const bool bDynamicOnly = lm_pbpoPolygon->bpo_ulFlags&BPOF_DYNAMICLIGHTSONLY;
 
   // fill with sector ambient
   _pfWorldEditingProfile.StartTimer(CWorldEditingProfile::PTI_AMBIENTFILL);
@@ -1296,7 +878,7 @@ void CLayerMixer::MixOneMipmap(CBrushShadowMap *pbsm, INDEX iMipmap)
 
   // find gradient layer
   CGradientParameters gpGradient;
-  BOOL  bHasGradient   = FALSE;
+  bool  bHasGradient   = false;
   ULONG ulGradientType = lm_pbpoPolygon->bpo_bppProperties.bpp_ubGradientType;
   if( ulGradientType>0) {
     CEntity *pen = lm_pbpoPolygon->bpo_pbscSector->bsc_pbmBrushMip->bm_pbrBrush->br_penEntity;
@@ -1355,7 +937,7 @@ void CLayerMixer::MixOneMipmap(CBrushShadowMap *pbsm, INDEX iMipmap)
   }
   // do eventual dithering of shadow layer
   const INDEX iDither = GetDither();
-  if( !(_pGfx->gl_ulFlags&GLF_32BITTEXTURES)) shd_bFineQuality = FALSE;
+  if( !(_pGfx->gl_ulFlags&GLF_32BITTEXTURES)) shd_bFineQuality = false;
   if( iDither && !(shd_bFineQuality)) {
     DitherBitmap( iDither, lm_pulShadowMap, lm_pulShadowMap,
                   lm_pixPolygonSizeU, lm_pixPolygonSizeV, lm_pixCanvasSizeU, lm_pixCanvasSizeV);
@@ -1427,12 +1009,12 @@ void CLayerMixer::MixOneMipmapDynamic( CBrushShadowMap *pbsm, INDEX iMipmap)
 
 
 // constructor
-CLayerMixer::CLayerMixer( CBrushShadowMap *pbsm, INDEX iFirstMip, INDEX iLastMip, BOOL bDynamic)
+CLayerMixer::CLayerMixer( CBrushShadowMap *pbsm, INDEX iFirstMip, INDEX iLastMip, bool bDynamic)
 {
   lm_bDynamic = bDynamic;
   if( bDynamic) {
     // check dynamic layers for complete blackness
-    BOOL bAllBlack = TRUE;
+    bool bAllBlack = true;
     pbsm->sm_ulFlags &= ~SMF_DYNAMICBLACK;
     {FORDELETELIST( CBrushShadowLayer, bsl_lnInShadowMap, pbsm->bsm_lhLayers, itbsl) {
       CLightSource &ls = *itbsl->bsl_plsLightSource;
@@ -1440,7 +1022,7 @@ CLayerMixer::CLayerMixer( CBrushShadowMap *pbsm, INDEX iFirstMip, INDEX iLastMip
       if( !(ls.ls_ulFlags&LSF_DYNAMIC)) continue;
       COLOR colLight = ls.GetLightColor() & ~CT_AMASK;
       itbsl->bsl_colLastAnim = colLight;
-      if( !IsBlack(colLight)) bAllBlack = FALSE; // must continue because of layer info update (light anim and such stuff)
+      if( !IsBlack(colLight)) bAllBlack = false; // must continue because of layer info update (light anim and such stuff)
     }}
     // skip mixing if dynamic layers were all black
     if( bAllBlack) {
@@ -1458,7 +1040,7 @@ CLayerMixer::CLayerMixer( CBrushShadowMap *pbsm, INDEX iFirstMip, INDEX iLastMip
 
 
 // mix all layers into cached shadow map
-void CBrushShadowMap::MixLayers( INDEX iFirstMip, INDEX iLastMip, BOOL bDynamic/*=FALSE*/)
+void CBrushShadowMap::MixLayers( INDEX iFirstMip, INDEX iLastMip, bool bDynamic/*=FALSE*/)
 {
   _sfStats.StartTimer( CStatForm::STI_SHADOWUPDATE);
   _pfWorldEditingProfile.StartTimer( CWorldEditingProfile::PTI_MIXLAYERS);

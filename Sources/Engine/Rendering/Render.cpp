@@ -59,7 +59,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/StaticStackArray.cpp>
 #include <Engine/Templates/DynamicStackArray.cpp>
 
-extern BOOL _bSomeDarkExists;
+extern bool _bSomeDarkExists;
 extern INDEX d3d_bAlternateDepthReads;
 
 // general coordinate stack referenced by the scene polygons
@@ -77,7 +77,7 @@ extern CStaticStackArray<GFXVertex3> _avtxScene;
 // the renderer structures used in rendering
 #define MAX_RENDERERS 2
 static CRenderer _areRenderers[MAX_RENDERERS];
-static BOOL _bMirrorDrawn = FALSE;
+static bool _bMirrorDrawn = FALSE;
 
 extern INDEX wld_bAlwaysAddAll;
 extern INDEX wld_bRenderEmptyBrushes;
@@ -87,14 +87,14 @@ extern INDEX gfx_bRenderModels;
 extern INDEX gfx_bRenderFog;
 extern INDEX gfx_bRenderPredicted;
 extern INDEX gfx_iLensFlareQuality;
-extern BOOL _bMultiPlayer;
+extern bool _bMultiPlayer;
 
 // variables for selection on rendering
 extern CBrushVertexSelection *_pselbvxtSelectOnRender = NULL;
 extern CStaticStackArray<PIX2D> *_pavpixSelectLasso = NULL;
 extern CEntitySelection *_pselenSelectOnRender = NULL;
 extern PIX2D _vpixSelectNearPoint = PIX2D(0,0);
-extern BOOL _bSelectAlternative   = FALSE;
+extern bool _bSelectAlternative   = FALSE;
 extern PIX _pixDeltaAroundVertex  = 10;
 
 // shading info for viewer of last rendered view
@@ -511,9 +511,9 @@ void CRenderer::RenderWireFrameTerrains(void)
   CAnyProjection3D *papr;
   papr = &re_prProjection;
 
-  BOOL bShowEdges = _wrpWorldRenderPrefs.wrp_ftEdges != CWorldRenderPrefs::FT_NONE;
-  BOOL bShowVertices = _wrpWorldRenderPrefs.wrp_ftVertices != CWorldRenderPrefs::FT_NONE;
-  // BOOL bForceRegenerate = _wrpWorldRenderPrefs.wrp_ftPolygons
+  bool bShowEdges = _wrpWorldRenderPrefs.wrp_ftEdges != CWorldRenderPrefs::FT_NONE;
+  bool bShowVertices = _wrpWorldRenderPrefs.wrp_ftVertices != CWorldRenderPrefs::FT_NONE;
+  // bool bForceRegenerate = _wrpWorldRenderPrefs.wrp_ftPolygons
 
   COLOR colEdges    = _wrpWorldRenderPrefs.wrp_colEdges;
   COLOR colVertices = 0xFF0000FF;
@@ -979,7 +979,7 @@ void RenderView(CWorld &woWorld, CEntity &enViewer,
   re.re_ubLightIllumination = 0;
 
   // render the view (with eventuall t-buffer effect)
-  extern void SetTBufferEffect( BOOL bEnable);
+  extern void SetTBufferEffect( bool bEnable);
   SetTBufferEffect(TRUE);
   re.Render();
   SetTBufferEffect(FALSE);

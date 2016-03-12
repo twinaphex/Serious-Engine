@@ -631,7 +631,7 @@ void CMesh::Write_t(CTStream *ostrFile)
         // write shader floats
         for(INDEX ifl=0;ifl<ctfl;ifl++)
         {
-          FLOAT fFloat = msrf.msrf_ShadingParams.sp_afFloats[ifl];
+          float fFloat = msrf.msrf_ShadingParams.sp_afFloats[ifl];
           (*ostrFile)<<fFloat;
         }
         // write shader flags
@@ -843,7 +843,7 @@ void CMesh::Read_t(CTStream *istrFile)
         }
         // read shader floats
         for(INDEX ifl=0;ifl<ctfl;ifl++) {
-          FLOAT fFloat;
+          float fFloat;
           (*istrFile)>>fFloat;
           pshpShaderParams->sp_afFloats[ifl] = fFloat;
         }
@@ -968,7 +968,7 @@ SLONG CMesh::GetUsedMemory(void)
       slMemoryUsed+=sizeof(INDEX) * msrf.msrf_ShadingParams.sp_aiTextureIDs.Count();
       slMemoryUsed+=sizeof(INDEX) * msrf.msrf_ShadingParams.sp_aiTexCoordsIndex.Count();
       slMemoryUsed+=sizeof(COLOR) * msrf.msrf_ShadingParams.sp_acolColors.Count();
-      slMemoryUsed+=sizeof(FLOAT) * msrf.msrf_ShadingParams.sp_afFloats.Count();
+      slMemoryUsed+=sizeof(float) * msrf.msrf_ShadingParams.sp_afFloats.Count();
     }
     // for each weight map
     INDEX ctwm = mlod.mlod_aWeightMaps.Count();

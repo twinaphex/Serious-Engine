@@ -55,7 +55,7 @@ static FLOAT3D     _vLightDir  = FLOAT3D(0,0,0); // Light direction
 static COLOR       _colConstant   = NULL; // current set color
 static COLOR       *_paColors    = NULL;  // array of colors to chose from
 static FLOAT       *_paFloats    = NULL;  // array of floats to chose from
-static ULONG       _ulFlags      = 0;
+static uint32_t       _ulFlags      = 0;
 
 // Vertex colors
 static CStaticStackArray<GFXColor> _acolVtxColors;        // array of color values for each vertex
@@ -107,7 +107,7 @@ void shaRender(void)
 
   // if there is valid UVMap
   if(_pCurrentUVMap!=NULL) {
-    gfxSetTexCoordArray(_pCurrentUVMap, FALSE);
+    gfxSetTexCoordArray(_pCurrentUVMap, false);
   }
 
   // if there is valid vertex color array
@@ -133,13 +133,13 @@ void shaDoFogPass(void)
   ASSERT(_paHazeUVMap==NULL);
 
   // Calculate fog and haze uvmap for this opaque surface
-  RM_DoFogAndHaze(TRUE);
+  RM_DoFogAndHaze(true);
   // if fog uvmap has been given
   if(_paFogUVMap!=NULL) {
     // setup texture/color arrays and rendering mode
     gfxSetTextureWrapping( GFX_CLAMP, GFX_CLAMP);
     gfxSetTexture( _fog_ulTexture, _fog_tpLocal);
-    gfxSetTexCoordArray(_paFogUVMap, FALSE);
+    gfxSetTexCoordArray(_paFogUVMap, false);
     gfxSetConstantColor(_fog_fp.fp_colColor);
     gfxBlendFunc( GFX_SRC_ALPHA, GFX_INV_SRC_ALPHA);
     gfxEnableBlend();
@@ -150,7 +150,7 @@ void shaDoFogPass(void)
   if(_paHazeUVMap!=NULL) {
     gfxSetTextureWrapping( GFX_CLAMP, GFX_CLAMP);
     gfxSetTexture( _haze_ulTexture, _haze_tpLocal);
-    gfxSetTexCoordArray(_paHazeUVMap, TRUE);
+    gfxSetTexCoordArray(_paHazeUVMap, true);
     gfxBlendFunc( GFX_SRC_ALPHA, GFX_INV_SRC_ALPHA);
     gfxEnableBlend();
     // set vertex color array for haze
@@ -173,7 +173,7 @@ void shaModifyColorForFog(void)
   }
 
   // Update this surface color array if fog or haze exists
-  RM_DoFogAndHaze(FALSE);
+  RM_DoFogAndHaze(false);
 }
 
 // Calculate lightning for given model
@@ -207,7 +207,7 @@ void shaCalculateLight(void)
 
   colModel.MultiplyRGBA(colModel,colSurface);
 
-  UBYTE ubColShift = 8;
+  uint8_t ubColShift = 8;
   SLONG slar = colAmbient.r;
   SLONG slag = colAmbient.g;
   SLONG slab = colAmbient.b;
@@ -256,7 +256,7 @@ void shaCalculateLightForSpecular(void)
   // colModel = MulColors(colModel.r,colSurface.abgr);
   colModel.MultiplyRGBA(colModel,colSurface);
 
-  UBYTE ubColShift = 8;
+  uint8_t ubColShift = 8;
   SLONG slar = colAmbient.r;
   SLONG slag = colAmbient.g;
   SLONG slab = colAmbient.b;
@@ -397,7 +397,7 @@ void shaSetFloatArray(FLOAT *paFloats, INDEX ctFloats)
 }
 
 // Set shading flags
-void shaSetFlags(ULONG ulFlags)
+void shaSetFlags(uint32_t ulFlags)
 {
   _ulFlags = ulFlags;
 }
@@ -534,7 +534,7 @@ COLOR &shaGetColor(INDEX iColorIndex)
 }
 
 // Get shading flags
-ULONG &shaGetFlags()
+uint32_t &shaGetFlags()
 {
   return _ulFlags;
 }
@@ -749,7 +749,7 @@ void shaSetHazeColorArray(GFXColor *paHazeColors)
   _pacolVtxHaze = paHazeColors;
 }
 
-BOOL shaOverBrightningEnabled(void)
+bool shaOverBrightningEnabled(void)
 {
   // determine multitexturing capability for overbrighting purposes
   extern INDEX mdl_bAllowOverbright;

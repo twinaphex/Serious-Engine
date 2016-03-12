@@ -37,9 +37,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define W  word ptr
 #define B  byte ptr
 
-#define ASMOPT 1
-
-
 extern INDEX gap_iTruformLevel;
 
 extern ULONG _fog_ulTexture;
@@ -1214,83 +1211,12 @@ extern void DrawElements_D3D( INDEX ctIndices, INDEX *pidx)
   const BOOL bSetRange = !(_pGfx->gl_ulFlags&GLF_D3D_USINGHWTNL) && (GFX_ctVertices>d3d_iVertexRangeTreshold);
   ASSERT( _iVtxPos>=0 && _iVtxPos<65536);
 
-#if ASMOPT == 1
-  const __int64 mmSignD = 0x0000800000008000;
-  const __int64 mmSignW = 0x8000800080008000;
-  __asm {
-    // adjust 32-bit and copy to 16-bit array
-    mov     esi,D [pidx]
-    mov     edi,D [puwLockedBuffer]
-    mov     ecx,D [ctIndices]
-    shr     ecx,2   // 4 by 4
-    jz      elemL2
-    movd    mm7,D [_iVtxPos]
-    punpcklwd mm7,mm7
-    punpckldq mm7,mm7   // MM7 = vtxPos | vtxPos || vtxPos | vtxPos
-    paddw   mm7,Q [mmSignW]
-elemCLoop:
-    movq    mm1,Q [esi+0]
-    movq    mm2,Q [esi+8]
-    psubd   mm1,Q [mmSignD]
-    psubd   mm2,Q [mmSignD]
-    packssdw mm1,mm2
-    paddw   mm1,mm7
-    movq    Q [edi],mm1
-    add     esi,4*4
-    add     edi,2*4
-    dec     ecx
-    jnz     elemCLoop
-    emms
-elemL2:
-    test    D [ctIndices],2
-    jz      elemL1
-    mov     eax,D [esi+0]
-    mov     edx,D [esi+4]
-    add     eax,D [_iVtxPos]
-    add     edx,D [_iVtxPos]
-    shl     edx,16
-    or      eax,edx
-    mov     D [edi],eax
-    add     esi,4*2
-    add     edi,2*2
-elemL1:
-    test    D [ctIndices],1
-    jz      elemRange
-    mov     eax,D [esi]
-    add     eax,D [_iVtxPos]
-    mov     W [edi],ax
-
-elemRange:
-    // find min/max index (if needed)
-    cmp     D [bSetRange],0
-    jz      elemEnd
-
-    mov     edi,D [iMinIndex]
-    mov     edx,D [iMaxIndex]
-    mov     esi,D [pidx]
-    mov     ecx,D [ctIndices]
-elemTLoop:
-    mov     eax,D [esi]
-    add     eax,D [_iVtxPos]
-    cmp     eax,edi
-    cmovl   edi,eax
-    cmp     eax,edx
-    cmovg   edx,eax
-    add     esi,4
-    dec     ecx
-    jnz     elemTLoop
-    mov     D [iMinIndex],edi 
-    mov     D [iMaxIndex],edx
-elemEnd:
-  }
-#else
   for( INDEX idx=0; idx<ctIndices; idx++) {
     const INDEX iAdj = pidx[idx] + _iVtxPos;
          if( iMinIndex>iAdj) iMinIndex = iAdj;
     else if( iMaxIndex<iAdj) iMaxIndex = iAdj;
     puwLockedBuffer[idx] = iAdj;
   }
-#endif
 
   // indices filled
   hr = _pGfx->gl_pd3dIdx->Unlock();

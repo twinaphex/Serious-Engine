@@ -52,9 +52,9 @@ static void CompressAxis(const FLOAT3D &vNormal, UWORD &ubH, UWORD &ubP)
 {
   ANGLE h, p;
 
-  const FLOAT &x = vNormal(1);
-  const FLOAT &y = vNormal(2);
-  const FLOAT &z = vNormal(3);
+  const float &x = vNormal(1);
+  const float &y = vNormal(2);
+  const float &z = vNormal(3);
 
   // calculate pitch
   p = ASin(y);
@@ -77,12 +77,12 @@ static void CompressAxis(const FLOAT3D &vNormal, UWORD &ubH, UWORD &ubP)
   ubP = UWORD(p*65535);
 }
 // try to remove 2. keyframe in rotation
-BOOL RemoveRotFrame(AnimRot &ar1,AnimRot &ar2,AnimRot &ar3,FLOAT fTreshold)
+BOOL RemoveRotFrame(AnimRot &ar1,AnimRot &ar2,AnimRot &ar3, float fTreshold)
 {
   ANGLE3D ang1,ang2,ang2i,ang3;
   FLOATmatrix3D m2i;
   // calculate slerp factor for ar2'
-  FLOAT fSlerpFactor = (FLOAT)(ar2.ar_iFrameNum - ar1.ar_iFrameNum)/(FLOAT)(ar3.ar_iFrameNum - ar1.ar_iFrameNum);
+  float fSlerpFactor = (float)(ar2.ar_iFrameNum - ar1.ar_iFrameNum)/(float)(ar3.ar_iFrameNum - ar1.ar_iFrameNum);
   // calculate ar2'
   FLOATquat3D q2i = Slerp<FLOAT>(fSlerpFactor,ar1.ar_qRot,ar3.ar_qRot);
   // read precalculated values
@@ -99,16 +99,16 @@ BOOL RemoveRotFrame(AnimRot &ar1,AnimRot &ar2,AnimRot &ar3,FLOAT fTreshold)
       // this is extrem
       if(Abs(ang2(i)) > 0.1f) return FALSE;
     }
-    FLOAT fErr = Abs(ang2(i)-ang2i(i)) / Abs(ang3(i) - ang1(i));
+    float fErr = Abs(ang2(i)-ang2i(i)) / Abs(ang3(i) - ang1(i));
     if(Abs(ang2(i)-ang2i(i)) < 0.1f) continue;
     if(fErr>fTreshold) return FALSE;
   }
   return TRUE;
 }
 // try to remove 2. keyrame in translation
-BOOL RemovePosFrame(AnimPos &ap1,AnimPos &ap2,AnimPos &ap3,FLOAT fTreshold)
+BOOL RemovePosFrame(AnimPos &ap1,AnimPos &ap2,AnimPos &ap3, float fTreshold)
 {
-  FLOAT fLerpFactor = (FLOAT)(ap2.ap_iFrameNum - ap1.ap_iFrameNum)/(FLOAT)(ap3.ap_iFrameNum - ap1.ap_iFrameNum);
+  float fLerpFactor = (float)(ap2.ap_iFrameNum - ap1.ap_iFrameNum)/(float)(ap3.ap_iFrameNum - ap1.ap_iFrameNum);
   FLOAT3D v2i = Lerp(ap1.ap_vPos,ap3.ap_vPos,fLerpFactor);
 
   FLOAT3D v1 = ap1.ap_vPos;
@@ -122,7 +122,7 @@ BOOL RemovePosFrame(AnimPos &ap1,AnimPos &ap2,AnimPos &ap3,FLOAT fTreshold)
       // extrem
       if(Abs(v2(i)) > 0.001f) return FALSE;
     }
-    FLOAT fErr = Abs(v2(i)-v2i(i)) / Abs(v3(i) - v1(i));
+    float fErr = Abs(v2(i)-v2i(i)) / Abs(v3(i) - v1(i));
     if(Abs(v2(i)-v2i(i)) < 0.001f) continue;
     if(fErr>fTreshold) return FALSE;
   }
@@ -152,7 +152,7 @@ void CAnimSet::Optimize()
   }
 }
 // optimize animation
-void CAnimSet::OptimizeAnimation(Animation &an, FLOAT fTreshold)
+void CAnimSet::OptimizeAnimation(Animation &an, float fTreshold)
 {
   INDEX ctfn = an.an_iFrames;
   INDEX ctbe = an.an_abeBones.Count();
@@ -299,7 +299,7 @@ void CAnimSet::OptimizeAnimation(Animation &an, FLOAT fTreshold)
     while(bMorphIsZero)
     {
       if(iwm>=ctwm) break;
-      FLOAT &fMorphFactor = me.me_aFactors[iwm];
+      float &fMorphFactor = me.me_aFactors[iwm];
       // check if morph factor is 0
       bMorphIsZero = fMorphFactor == 0;
       iwm++;
@@ -396,7 +396,7 @@ void CAnimSet::Write_t(CTStream *ostrFile)
       // write bone envelope ID
       (*ostrFile)<<pstrNameID;
       // write default pos(matrix12)
-      ostrFile->Write_t(&be.be_mDefaultPos[0],sizeof(FLOAT)*12);
+      ostrFile->Write_t(&be.be_mDefaultPos[0],sizeof(float)*12);
       // count positions
       INDEX ctp = be.be_apPos.Count();
       // write position count
@@ -439,7 +439,7 @@ void CAnimSet::Write_t(CTStream *ostrFile)
       // write morph factors count
       INDEX ctmf = me.me_aFactors.Count();
       (*ostrFile)<<ctmf;
-      ostrFile->Write_t(&me.me_aFactors[0],sizeof(FLOAT)*ctmf);
+      ostrFile->Write_t(&me.me_aFactors[0],sizeof(float)*ctmf);
     }
   }
 }
@@ -497,7 +497,7 @@ void CAnimSet::Read_t(CTStream *istrFile)
       // read bone envelope ID
       be.be_iBoneID = ska_GetIDFromStringTable(pstrNameID);
       // read default pos(matrix12)
-      istrFile->Read_t(&be.be_mDefaultPos[0],sizeof(FLOAT)*12);
+      istrFile->Read_t(&be.be_mDefaultPos[0],sizeof(float)*12);
 
       INDEX ctp;
       // read pos array
@@ -580,7 +580,7 @@ void CAnimSet::Read_t(CTStream *istrFile)
       // create morph factors array
       me.me_aFactors.New(ctmf);
       // read morph factors
-      istrFile->Read_t(&me.me_aFactors[0],sizeof(FLOAT)*ctmf);
+      istrFile->Read_t(&me.me_aFactors[0],sizeof(float)*ctmf);
     }
   }
 }
@@ -633,7 +633,7 @@ SLONG CAnimSet::GetUsedMemory(void)
     for(INDEX ime=0;ime<ctme;ime++) {
       MorphEnvelope &me = an.an_ameMorphs[ime];
       slMemoryUsed+=sizeof(me);
-      slMemoryUsed+=sizeof(FLOAT) * me.me_aFactors.Count() + 12;
+      slMemoryUsed+=sizeof(float) * me.me_aFactors.Count() + 12;
     }
   }
   return slMemoryUsed;

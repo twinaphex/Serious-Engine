@@ -40,9 +40,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define W  word ptr
 #define B  byte ptr
 
-#define ASMOPT 1
-
-
 extern BOOL CVA_bModels;
 extern BOOL GFX_bTruform;
 extern BOOL _bMultiPlayer;
@@ -650,72 +647,18 @@ static FLOAT   _fHazeAdd;
 // check vertex against fog
 static void GetFogMapInVertex( GFXVertex3 &vtx, GFXTexCoord &tex)
 {
-#if ASMOPT == 1
-  __asm {
-    mov     esi,D [vtx]
-    mov     edi,D [tex]
-    fld     D [esi]GFXVertex3.x
-    fmul    D [_vFViewerObj+0]
-    fld     D [esi]GFXVertex3.y
-    fmul    D [_vFViewerObj+4]
-    fld     D [esi]GFXVertex3.z
-    fmul    D [_vFViewerObj+8]
-    fxch    st(2)
-    faddp   st(1),st(0)
-    faddp   st(1),st(0) // fD
-    fld     D [esi]GFXVertex3.x
-    fmul    D [_vHDirObj+0]
-    fld     D [esi]GFXVertex3.y
-    fmul    D [_vHDirObj+4]
-    fld     D [esi]GFXVertex3.z
-    fmul    D [_vHDirObj+8]
-    fxch    st(2)
-    faddp   st(1),st(0)
-    faddp   st(1),st(0) // fH, fD
-    fxch    st(1)
-    fadd    D [_fFogAddZ]
-    fmul    D [_fog_fMulZ]
-    fxch    st(1)
-    fadd    D [_fFogAddH]
-    fmul    D [_fog_fMulH]
-    fxch    st(1)
-    fstp    D [edi+0]
-    fstp    D [edi+4]
-  }
-#else
   const FLOAT fD = vtx.x*_vFViewerObj(1) + vtx.y*_vFViewerObj(2) + vtx.z*_vFViewerObj(3);
   const FLOAT fH = vtx.x*_vHDirObj(1)    + vtx.y*_vHDirObj(2)    + vtx.z*_vHDirObj(3);
   tex.s = (fD+_fFogAddZ) * _fog_fMulZ;
   tex.t = (fH+_fFogAddH) * _fog_fMulH;
-#endif
-
 }
 
 
 // check vertex against haze
 static void GetHazeMapInVertex( GFXVertex3 &vtx, FLOAT &tx1)
 {
-#if ASMOPT == 1
-  __asm {
-    mov     esi,D [vtx]
-    mov     edi,D [tx1]
-    fld     D [esi]GFXVertex3.x
-    fmul    D [_vViewerObj+0]
-    fld     D [esi]GFXVertex3.y
-    fmul    D [_vViewerObj+4]
-    fld     D [esi]GFXVertex3.z
-    fmul    D [_vViewerObj+8]
-    fxch    st(2)
-    faddp   st(1),st(0)
-    faddp   st(1),st(0)
-    fadd    D [_fHazeAdd]
-    fmul    D [_haze_fMul]
-    fstp    D [edi]
-  }
-#else
   const FLOAT fD = vtx.x*_vViewerObj(1) + vtx.y*_vViewerObj(2) + vtx.z*_vViewerObj(3);
   tx1 = (fD+_fHazeAdd) * _haze_fMul;
-#endif
 }
 
 
@@ -1067,90 +1010,6 @@ static void UnpackFrame( CRenderModel &rm, BOOL bKeepNormals)
     const ModelFrameVertex16 *pFrame1 = rm.rm_pFrame16_1;
     if( pFrame0==pFrame1)
     {
-#if ASMOPT == 1
-      // for each vertex in mip
-      const SLONG fixLerpRatio = FloatToInt(fLerpRatio*256.0f); // fix 8:8
-      SLONG slTmp1, slTmp2, slTmp3;
-      __asm {
-        mov     edi,D [pvtxMipBase]
-        mov     ebx,D [pswMipCol]
-        xor     ecx,ecx
-vtxLoop16:
-        push    ecx
-        mov     esi,D [puwMipToMdl]
-        movzx   eax,W [esi+ecx*2]
-        mov     esi,D [pFrame0]
-        lea     esi,[esi+eax*8]
-        // store vertex
-        movsx   eax,W [esi]ModelFrameVertex16.mfv_SWPoint[0]
-        movsx   ecx,W [esi]ModelFrameVertex16.mfv_SWPoint[2]
-        movsx   edx,W [esi]ModelFrameVertex16.mfv_SWPoint[4]
-        mov     D [slTmp1],eax
-        mov     D [slTmp2],ecx
-        mov     D [slTmp3],edx
-        fild    D [slTmp1]
-        fsub    D [fOffsetX]
-        fmul    D [fStretchX]
-        fild    D [slTmp2]
-        fsub    D [fOffsetY]
-        fmul    D [fStretchY]
-        fild    D [slTmp3]
-        fsub    D [fOffsetZ]
-        fmul    D [fStretchZ]
-        fxch    st(2)
-        fstp    D [edi]GFXVertex3.x
-        fstp    D [edi]GFXVertex3.y
-        fstp    D [edi]GFXVertex3.z
-        // determine normal
-        movzx   eax,B [esi]ModelFrameVertex16.mfv_ubNormH
-        movzx   edx,B [esi]ModelFrameVertex16.mfv_ubNormP
-        mov     esi,D [pfSinTable]
-        fld     D [esi+eax*4 +0]
-        fmul    D [esi+edx*4 +64*4]
-        fld     D [esi+eax*4 +64*4]
-        fmul    D [esi+edx*4 +64*4]
-        fxch    st(1)
-        fstp    D [slTmp1]
-        fstp    D [slTmp3]
-        mov     eax,D [slTmp1]
-        mov     ecx,D [slTmp3]
-        xor     eax,0x80000000     
-        xor     ecx,0x80000000     
-        mov     D [slTmp1],eax
-        mov     D [slTmp3],ecx
-        // determine vertex shade
-        fld     D [slTmp1]
-        fmul    D [fLightObjX]
-        fld     D [esi+edx*4 +0]
-        fmul    D [fLightObjY]
-        fld     D [slTmp3]
-        fmul    D [fLightObjZ]
-        fxch    st(2)
-        faddp   st(1),st(0)
-        faddp   st(1),st(0)
-        fistp   D [ebx]
-        // store normal (if needed)
-        cmp     D [bKeepNormals],0
-        je      vtxNext16
-        mov     ecx,D [esp]
-        imul    ecx,3*4
-        add     ecx,D [pnorMipBase]
-        mov     eax,D [slTmp1]
-        mov     edx,D [esi+edx*4 +0]
-        mov     esi,D [slTmp3]
-        mov     D [ecx]GFXNormal.nx, eax
-        mov     D [ecx]GFXNormal.ny, edx
-        mov     D [ecx]GFXNormal.nz, esi
-        // advance to next vertex
-vtxNext16:
-        pop     ecx
-        add     edi,3*4
-        add     ebx,1*2
-        inc     ecx
-        cmp     ecx,D [_ctAllMipVx]
-        jl      vtxLoop16
-      }
-#else
       // for each vertex in mip
       for( INDEX iMipVx=0; iMipVx<_ctAllMipVx; iMipVx++) {
         // get destination for unpacking
@@ -1178,140 +1037,10 @@ vtxNext16:
           pnorMipBase[iMipVx].nz = fNZ;
         }
       }
-#endif
     }
     // if lerping
     else
     {
-#if ASMOPT == 1
-      // for each vertex in mip
-      const SLONG fixLerpRatio = FloatToInt(fLerpRatio*256.0f); // fix 8:8
-      SLONG slTmp1, slTmp2, slTmp3;
-      __asm {
-        mov     edi,D [pvtxMipBase]
-        mov     ebx,D [pswMipCol]
-        xor     ecx,ecx
-vtxLoop16L:
-        push    ecx
-        push    ebx
-        mov     esi,D [puwMipToMdl]
-        movzx   ebx,W [esi+ecx*2]
-        mov     esi,D [pFrame0]
-        mov     ecx,D [pFrame1]
-        // lerp vertex
-        movsx   eax,W [esi+ebx*8]ModelFrameVertex16.mfv_SWPoint[0]
-        movsx   edx,W [ecx+ebx*8]ModelFrameVertex16.mfv_SWPoint[0]
-        sub     edx,eax
-        imul    edx,D [fixLerpRatio]
-        sar     edx,8
-        add     eax,edx
-        mov     D [slTmp1],eax
-        movsx   eax,W [esi+ebx*8]ModelFrameVertex16.mfv_SWPoint[2]
-        movsx   edx,W [ecx+ebx*8]ModelFrameVertex16.mfv_SWPoint[2]
-        sub     edx,eax
-        imul    edx,D [fixLerpRatio]
-        sar     edx,8
-        add     eax,edx
-        mov     D [slTmp2],eax
-        movsx   eax,W [esi+ebx*8]ModelFrameVertex16.mfv_SWPoint[4]
-        movsx   edx,W [ecx+ebx*8]ModelFrameVertex16.mfv_SWPoint[4]
-        sub     edx,eax
-        imul    edx,D [fixLerpRatio]
-        sar     edx,8
-        add     eax,edx
-        mov     D [slTmp3],eax
-        // store vertex
-        fild    D [slTmp1]
-        fsub    D [fOffsetX]
-        fmul    D [fStretchX]
-        fild    D [slTmp2]
-        fsub    D [fOffsetY]
-        fmul    D [fStretchY]
-        fild    D [slTmp3]
-        fsub    D [fOffsetZ]
-        fmul    D [fStretchZ]
-        fxch    st(2)
-        fstp    D [edi]GFXVertex3.x
-        fstp    D [edi]GFXVertex3.y
-        fstp    D [edi]GFXVertex3.z
-        // load normals
-        movzx   eax,B [esi+ebx*8]ModelFrameVertex16.mfv_ubNormH
-        movzx   edx,B [esi+ebx*8]ModelFrameVertex16.mfv_ubNormP
-        mov     esi,D [pfSinTable]
-        fld     D [esi+eax*4 +0]
-        fmul    D [esi+edx*4 +64*4]
-        fld     D [esi+edx*4 +0]
-        fld     D [esi+eax*4 +64*4]
-        fmul    D [esi+edx*4 +64*4]  // fCosH0*fCosP0, fSinP0, fSinH0*fCosP0  
-        movzx   eax,B [ecx+ebx*8]ModelFrameVertex16.mfv_ubNormH
-        movzx   edx,B [ecx+ebx*8]ModelFrameVertex16.mfv_ubNormP
-        fld     D [esi+eax*4 +0]
-        fmul    D [esi+edx*4 +64*4]
-        fld     D [esi+edx*4 +0]
-        fld     D [esi+eax*4 +64*4]
-        fmul    D [esi+edx*4 +64*4]  // fCosH1*fCosP1, fSinP1, fSinH1*fCosP1,  fCosH0*fCosP0, fSinP0, fSinH0*fCosP0
-        // lerp normals
-        fxch    st(5)        // SH0CP0,        SP1,     SH1CP1,        CH0CP0, SP0,    CH1CP1
-        fsub    st(2),st(0)
-        fxch    st(4)        // SP0,           SP1,     SH1CP1-SH0CP0, CH0CP0, SH0CP0, CH1CP1
-        fsub    st(1),st(0)  // SP0,           SP1-SP0, SH1CP1-SH0CP0, CH0CP0, SH0CP0, CH1CP1
-        fxch    st(3)        // CH0CP0,        SP1-SP0, SH1CP1-SH0CP0, SP0,    SH0CP0, CH1CP1
-        fsub    st(5),st(0)  // CH0CP0,        SP1-SP0, SH1CP1-SH0CP0, SP0,    SH0CP0, CH1CP1-CH0CP0
-        fxch    st(2)        // SH1CP1-SH0CP0, SP1-SP0, CH0CP0,        SP0,    SH0CP0, CH1CP1-CH0CP0
-        fmul    D [fLerpRatio]
-        fxch    st(1)        // SP1-SP0,       lSH1CP1, CH0CP0,        SP0,    SH0CP0, CH1CP1-CH0CP0
-        fmul    D [fLerpRatio]
-        fxch    st(5)        // CH1CP1-CH0CP0, lSH1CP1, CH0CP0,        SP0,    SH0CP0, lSP1SP0
-        fmul    D [fLerpRatio]
-        fxch    st(1)        // lSH1CP1, lCH1CP1, CH0CP0,  SP0, SH0CP0, lSP1SP0
-        faddp   st(4),st(0)  // lCH1CP1, CH0CP0,  SP0,     fNX, lSP1SP0
-        fxch    st(2)        // SP0,     CH0CP0,  lCH1CP1, fNX, lSP1SP0
-        faddp   st(4),st(0)  // CH0CP0,  lCH1CP1, fNX,     fNY
-        faddp   st(1),st(0)  // -fNZ, -fNX,  fNY
-        fxch    st(2)        //  fNY, -fNX, -fNZ
-        fstp    D [slTmp2]
-        fstp    D [slTmp1]
-        fstp    D [slTmp3]
-        pop     ebx
-        mov     eax,D [slTmp1]
-        mov     ecx,D [slTmp3]
-        xor     eax,0x80000000     
-        xor     ecx,0x80000000     
-        mov     D [slTmp1],eax
-        mov     D [slTmp3],ecx
-        // determine vertex shade
-        fld     D [slTmp1]
-        fmul    D [fLightObjX]
-        fld     D [slTmp2]
-        fmul    D [fLightObjY]
-        fld     D [slTmp3]
-        fmul    D [fLightObjZ]
-        fxch    st(2)
-        faddp   st(1),st(0)
-        faddp   st(1),st(0)
-        fistp   D [ebx]
-        // store lerped normal (if needed)
-        cmp     D [bKeepNormals],0
-        je      vtxNext16L
-        mov     ecx,D [esp]
-        imul    ecx,3*4
-        add     ecx,D [pnorMipBase]
-        mov     eax,D [slTmp1]
-        mov     edx,D [slTmp2]
-        mov     esi,D [slTmp3]
-        mov     D [ecx]GFXNormal.nx, eax
-        mov     D [ecx]GFXNormal.ny, edx
-        mov     D [ecx]GFXNormal.nz, esi
-        // advance to next vertex
-vtxNext16L:
-        pop     ecx
-        add     edi,3*4
-        add     ebx,1*2
-        inc     ecx
-        cmp     ecx,D [_ctAllMipVx]
-        jl      vtxLoop16L
-      }
-#else
       // for each vertex in mip
       for( INDEX iMipVx=0; iMipVx<_ctAllMipVx; iMipVx++) {
         // get destination for unpacking
@@ -1340,7 +1069,6 @@ vtxNext16L:
           pnorMipBase[iMipVx].nz = fNZ;
         }
       }
-#endif
 
     }
   }
@@ -1352,76 +1080,6 @@ vtxNext16L:
     // if no lerping
     if( pFrame0==pFrame1)
     {
-#if ASMOPT == 1
-      // for each vertex in mip
-      const SLONG fixLerpRatio = FloatToInt(fLerpRatio*256.0f); // fix 8:8
-      SLONG slTmp1, slTmp2, slTmp3;
-      __asm {
-        mov     edi,D [pvtxMipBase]
-        mov     ebx,D [pswMipCol]
-        xor     ecx,ecx
-vtxLoop8:
-        push    ecx
-        mov     esi,D [puwMipToMdl]
-        movzx   eax,W [esi+ecx*2]
-        mov     esi,D [pFrame0]
-        lea     esi,[esi+eax*4]
-        // store vertex
-        movsx   eax,B [esi]ModelFrameVertex8.mfv_SBPoint[0]
-        movsx   ecx,B [esi]ModelFrameVertex8.mfv_SBPoint[1]
-        movsx   edx,B [esi]ModelFrameVertex8.mfv_SBPoint[2]
-        mov     D [slTmp1],eax
-        mov     D [slTmp2],ecx
-        mov     D [slTmp3],edx
-        fild    D [slTmp1]
-        fsub    D [fOffsetX]
-        fmul    D [fStretchX]
-        fild    D [slTmp2]
-        fsub    D [fOffsetY]
-        fmul    D [fStretchY]
-        fild    D [slTmp3]
-        fsub    D [fOffsetZ]
-        fmul    D [fStretchZ]
-        fxch    st(2)
-        fstp    D [edi]GFXVertex3.x
-        fstp    D [edi]GFXVertex3.y
-        fstp    D [edi]GFXVertex3.z
-        // determine normal
-        movzx   eax,B [esi]ModelFrameVertex8.mfv_NormIndex
-        lea     esi,[eax*2+eax]
-        // determine vertex shade
-        fld     D [avGouraudNormals+ esi*4 +0]
-        fmul    D [fLightObjX]
-        fld     D [avGouraudNormals+ esi*4 +4]
-        fmul    D [fLightObjY]
-        fld     D [avGouraudNormals+ esi*4 +8]
-        fmul    D [fLightObjZ]
-        fxch    st(2)
-        faddp   st(1),st(0)
-        faddp   st(1),st(0)
-        fistp   D [ebx]
-        // store lerped normal (if needed)
-        cmp     D [bKeepNormals],0
-        je      vtxNext8
-        mov     ecx,D [esp]
-        imul    ecx,3*4
-        add     ecx,D [pnorMipBase]
-        mov     eax,D [avGouraudNormals+ esi*4 +0]
-        mov     edx,D [avGouraudNormals+ esi*4 +4]
-        mov     esi,D [avGouraudNormals+ esi*4 +8]
-        mov     D [ecx]GFXNormal.nx, eax
-        mov     D [ecx]GFXNormal.ny, edx
-        mov     D [ecx]GFXNormal.nz, esi
-        // advance to next vertex
-vtxNext8:
-        pop     ecx
-        add     edi,3*4
-        add     ebx,1*2
-        inc     ecx
-        cmp     ecx,D [_ctAllMipVx]
-        jl      vtxLoop8
-      }
-#else
       // for each vertex in mip
       for( INDEX iMipVx=0; iMipVx<_ctAllMipVx; iMipVx++) {
         // get destination for unpacking
@@ -1446,126 +1104,10 @@ vtxNext8:
           pnorMipBase[iMipVx].nz = fNZ;
         }
       }
-#endif
     }
     // if lerping
     else
     {
-#if ASMOPT == 1
-      const SLONG fixLerpRatio = FloatToInt(fLerpRatio*256.0f); // fix 8:8
-      SLONG slTmp1, slTmp2, slTmp3;
-      // re-adjust stretching factors because of fixint lerping (divide by 256)
-      fStretchX*=0.00390625f;  fOffsetX*=256.0f;  
-      fStretchY*=0.00390625f;  fOffsetY*=256.0f;
-      fStretchZ*=0.00390625f;  fOffsetZ*=256.0f;
-      // for each vertex in mip
-      __asm {
-        mov     edi,D [pvtxMipBase]
-        mov     ebx,D [pswMipCol]
-        xor     ecx,ecx
-vtxLoop8L:
-        push    ecx
-        push    ebx
-        mov     esi,D [puwMipToMdl]
-        movzx   ebx,W [esi+ecx*2]
-        mov     esi,D [pFrame0]
-        mov     ecx,D [pFrame1]
-        // lerp vertex
-        movsx   eax,B [esi+ebx*4]ModelFrameVertex8.mfv_SBPoint[0]
-        movsx   edx,B [ecx+ebx*4]ModelFrameVertex8.mfv_SBPoint[0]
-        sub     edx,eax
-        imul    edx,D [fixLerpRatio]
-        shl     eax,8
-        add     eax,edx
-        mov     D [slTmp1],eax
-        movsx   eax,B [esi+ebx*4]ModelFrameVertex8.mfv_SBPoint[1]
-        movsx   edx,B [ecx+ebx*4]ModelFrameVertex8.mfv_SBPoint[1]
-        sub     edx,eax
-        imul    edx,D [fixLerpRatio]
-        shl     eax,8
-        add     eax,edx
-        mov     D [slTmp2],eax
-        movsx   eax,B [esi+ebx*4]ModelFrameVertex8.mfv_SBPoint[2]
-        movsx   edx,B [ecx+ebx*4]ModelFrameVertex8.mfv_SBPoint[2]
-        sub     edx,eax
-        imul    edx,D [fixLerpRatio]
-        shl     eax,8
-        add     eax,edx
-        mov     D [slTmp3],eax
-        // store vertex
-        fild    D [slTmp1]
-        fsub    D [fOffsetX]
-        fmul    D [fStretchX]
-        fild    D [slTmp2]
-        fsub    D [fOffsetY]
-        fmul    D [fStretchY]
-        fild    D [slTmp3]
-        fsub    D [fOffsetZ]
-        fmul    D [fStretchZ]
-        fxch    st(2)
-        fstp    D [edi]GFXVertex3.x
-        fstp    D [edi]GFXVertex3.y
-        fstp    D [edi]GFXVertex3.z
-        // load normals
-        movzx   eax,B [esi+ebx*4]ModelFrameVertex8.mfv_NormIndex
-        movzx   edx,B [ecx+ebx*4]ModelFrameVertex8.mfv_NormIndex
-        lea     esi,[eax*2+eax]
-        lea     ecx,[edx*2+edx]
-        // lerp normals
-        fld     D [avGouraudNormals+ ecx*4 +0]
-        fsub    D [avGouraudNormals+ esi*4 +0]
-        fld     D [avGouraudNormals+ ecx*4 +4]
-        fsub    D [avGouraudNormals+ esi*4 +4]
-        fld     D [avGouraudNormals+ ecx*4 +8]
-        fsub    D [avGouraudNormals+ esi*4 +8]
-        fxch    st(2)   // nx1-nx0, ny1-ny0, nz1-nz0
-        fmul    D [fLerpRatio]
-        fxch    st(1)   // ny1-ny0, lnx1, nz1-nz0
-        fmul    D [fLerpRatio]
-        fxch    st(2)   // nz1-nz0, lnx1, lny1
-        fmul    D [fLerpRatio]
-        fxch    st(1)   // lnx1, lnz1, lny1
-        fadd    D [avGouraudNormals+ esi*4 +0]
-        fxch    st(2)   // lny1, lnz1, fNX
-        fadd    D [avGouraudNormals+ esi*4 +4]
-        fxch    st(1)   // lnz1, fNY, fNX
-        fadd    D [avGouraudNormals+ esi*4 +8]
-        fxch    st(2)   // fNX, fNY, fNZ
-        // determine vertex shade
-        fld     D [fLightObjX]
-        fmul    st(0),st(1)     // flnx, fNX, fNY, fNZ 
-        pop     ebx            
-        fld     D [fLightObjY]
-        fmul    st(0),st(3)     // flny, flnx, fNX, fNY, fNZ 
-        fld     D [fLightObjZ]
-        fmul    st(0),st(5)     // flnz, flny, flnx, fNX, fNY, fNXZ
-        fxch    st(2)
-        faddp   st(1),st(0)
-        faddp   st(1),st(0)     // FL, fNX, fNY, fNXZ
-        fistp   D [ebx]
-        // store lerped normal (if needed)
-        cmp     D [bKeepNormals],0
-        je      vtxNext8L
-        mov     ecx,D [esp]
-        imul    ecx,3*4
-        add     ecx,D [pnorMipBase]
-        fstp    D [ecx]GFXNormal.nx
-        fstp    D [ecx]GFXNormal.ny
-        fst     D [ecx]GFXNormal.nz
-        fld     st(0)
-        fld     st(0)
-        // advance to next vertex
-vtxNext8L:
-        fstp    st(0)
-        fcompp
-        pop     ecx
-        add     edi,3*4
-        add     ebx,1*2
-        inc     ecx
-        cmp     ecx,D [_ctAllMipVx]
-        jl      vtxLoop8L
-      }
-#else
       // for each vertex in mip
       for( INDEX iMipVx=0; iMipVx<_ctAllMipVx; iMipVx++) {
         // get destination for unpacking
@@ -1592,108 +1134,19 @@ vtxNext8L:
           pnorMipBase[iMipVx].nz = fNZ;
         }
       }
-#endif
     }
   }
 
   // generate colors from shades
-#if ASMOPT == 1
-  __asm {
-    pxor    mm0,mm0
-    // construct 64-bit RGBA light
-    mov     eax,D [_slLR]
-    mov     ebx,D [_slLG]
-    mov     ecx,D [_slLB]
-    shl     ebx,16
-    or      eax,ebx
-    or      ecx,0x01FE0000
-    movd    mm5,eax
-    movd    mm7,ecx
-    psllq   mm7,32
-    por     mm5,mm7
-    psllw   mm5,1 // boost for multiply
-    // construct 64-bit RGBA ambient
-    mov     eax,D [_slAR]
-    mov     ebx,D [_slAG]
-    mov     ecx,D [_slAB]
-    shl     ebx,16
-    or      eax,ebx
-    movd    mm6,eax
-    movd    mm7,ecx
-    psllq   mm7,32
-    por     mm6,mm7
-    // init
-    mov     esi,D [pswMipCol]
-    mov     edi,D [pcolMipBase]
-    mov     ecx,D [_ctAllMipVx]
-    shr     ecx,2
-    jz      colRest
-    // 4-colors loop
-colLoop4:
-    movq    mm1,Q [esi]
-    packuswb mm1,mm0
-    punpcklbw mm1,mm1
-    psrlw   mm1,1
-    movq    mm3,mm1
-    punpcklwd mm1,mm1
-    punpckhwd mm3,mm3
-    movq    mm2,mm1
-    movq    mm4,mm3
-    punpckldq mm1,mm1
-    punpckhdq mm2,mm2
-    punpckldq mm3,mm3
-    punpckhdq mm4,mm4
-    pmulhw  mm1,mm5
-    pmulhw  mm2,mm5
-    pmulhw  mm3,mm5
-    pmulhw  mm4,mm5
-    paddsw  mm1,mm6
-    paddsw  mm2,mm6
-    paddsw  mm3,mm6
-    paddsw  mm4,mm6
-    packuswb mm1,mm2
-    packuswb mm3,mm4
-    movq    Q [edi+0],mm1
-    movq    Q [edi+8],mm3
-    add     esi,2*4
-    add     edi,4*4
-    dec     ecx
-    jnz     colLoop4
-    // 1-color loop
-colRest:
-    mov     ecx,D [_ctAllMipVx]
-    and     ecx,3
-    jz      colEnd
-colLoop1:
-    movsx   eax,W [esi]
-    movd    mm1,eax
-    packuswb mm1,mm0
-    punpcklbw mm1,mm1
-    psrlw   mm1,1
-    punpcklwd mm1,mm1
-    punpckldq mm1,mm1
-    pmulhw  mm1,mm5
-    paddsw  mm1,mm6
-    packuswb mm1,mm0
-    movd    D [edi],mm1    
-    add     esi,2
-    add     edi,4
-    dec     ecx
-    jnz     colLoop1
-colEnd:
-    emms
+  for( INDEX iMipVx=0; iMipVx<_ctAllMipVx; iMipVx++)
+  {
+     GFXColor &col = pcolMipBase[iMipVx];
+     const SLONG slShade = Clamp( (SLONG)pswMipCol[iMipVx], 0L, 255L);
+     col.r = pubClipByte[_slAR + ((_slLR*slShade)>>8)];
+     col.g = pubClipByte[_slAG + ((_slLG*slShade)>>8)];
+     col.b = pubClipByte[_slAB + ((_slLB*slShade)>>8)];
+     col.a = slShade;
   }
-#else
-    // generate colors from shades
-    for( INDEX iMipVx=0; iMipVx<_ctAllMipVx; iMipVx++) {
-      GFXColor &col = pcolMipBase[iMipVx];
-      const SLONG slShade = Clamp( (SLONG)pswMipCol[iMipVx], 0L, 255L);
-      col.r = pubClipByte[_slAR + ((_slLR*slShade)>>8)];
-      col.g = pubClipByte[_slAG + ((_slLG*slShade)>>8)];
-      col.b = pubClipByte[_slAB + ((_slLB*slShade)>>8)];
-      col.a = slShade;
-    }
-#endif
 
   // all done
   _pfModelProfile.StopTimer( CModelProfile::PTI_VIEW_INIT_UNPACK);
@@ -1964,28 +1417,6 @@ void CModelObject::RenderModel_View( CRenderModel &rm)
     pvtxSrfBase = &_avtxSrfBase[iSrfVx0];
     INDEX iSrfVx;
 
-#if ASMOPT == 1
-    __asm {
-      push    ebx
-      mov     ebx,D [puwSrfToMip]
-      mov     esi,D [pvtxMipBase]
-      mov     edi,D [pvtxSrfBase]
-      mov     ecx,D [ctSrfVx]
-srfVtxLoop:
-      movzx   eax,W [ebx]
-      lea     eax,[eax*2+eax]     // *3
-      mov     edx,D [esi+eax*4+0] 
-      movq    mm1,Q [esi+eax*4+4]
-      mov     D [edi+0],edx
-      movq    Q [edi+4],mm1
-      add     ebx,2
-      add     edi,4*4
-      dec     ecx
-      jnz     srfVtxLoop
-      emms
-      pop     ebx
-    }
-#else
     // setup vetrex array
     for( iSrfVx=0; iSrfVx<ctSrfVx; iSrfVx++) {
       const INDEX iMipVx = puwSrfToMip[iSrfVx];
@@ -1993,7 +1424,6 @@ srfVtxLoop:
       pvtxSrfBase[iSrfVx].y = pvtxMipBase[iMipVx].y;
       pvtxSrfBase[iSrfVx].z = pvtxMipBase[iMipVx].z;
     }
-#endif
     // setup normal array for truform (if enabled)
     if( GFX_bTruform) {
       GFXNormal *pnorSrfBase = &_anorSrfBase[iSrfVx0];
@@ -2064,53 +1494,11 @@ srfVtxLoop:
     const COLOR colD = AdjustColor( ms.ms_colDiffuse, _slTexHueShift, _slTexSaturation);
     colSrfDiff.MultiplyRGBA( colD, colMdlDiff);
 
-#if ASMOPT == 1
-    // setup texcoord array
-    __asm {
-      push    ebx
-      mov     esi,D [pvTexCoord]
-      mov     edi,D [ptexSrfBase]
-      mov     ecx,D [ctSrfVx]
-      shr     ecx,1
-      jz      vtxRest
-vtxLoop:
-      fld     D [esi+0]
-      fmul    D [fTexCorrU]
-      fld     D [esi+8]
-      fmul    D [fTexCorrU]
-      fld     D [esi+4]
-      fmul    D [fTexCorrV]
-      fld     D [esi+12]
-      fmul    D [fTexCorrV]
-      fxch    st(3)   // u1, v1, u2, v2
-      fstp    D [edi+0]
-      fstp    D [edi+4]
-      fstp    D [edi+8]
-      fstp    D [edi+12]
-      add     esi,2*2*4
-      add     edi,2*2*4
-      dec     ecx
-      jnz     vtxLoop
-vtxRest:
-      test    D [ctSrfVx],1
-      jz      vtxEnd
-      fld     D [esi+0]
-      fmul    D [fTexCorrU]
-      fld     D [esi+4]
-      fmul    D [fTexCorrV]
-      fxch    st(1)
-      fstp    D [edi+0]
-      fstp    D [edi+4]
-vtxEnd:
-      pop     ebx
-    }
-#else
     // setup texcoord array
     for( INDEX iSrfVx=0; iSrfVx<ctSrfVx; iSrfVx++) {
       ptexSrfBase[iSrfVx].s = pvTexCoord[iSrfVx](1) *fTexCorrU;
       ptexSrfBase[iSrfVx].t = pvTexCoord[iSrfVx](2) *fTexCorrV;
     }
-#endif
 
     // setup color array
     if( ms.ms_sstShadingType==SST_FULLBRIGHT) {
@@ -2124,42 +1512,11 @@ vtxEnd:
       for( INDEX iSrfVx=0; iSrfVx<ctSrfVx; iSrfVx++) pcolSrfBase[iSrfVx] = colSrfDiffAdj;
     }
     else {
-#if ASMOPT == 1
-      // setup color array
-      const COLOR colS = colSrfDiff.abgr;
-      __asm {
-        push    ebx
-        mov     ebx,D [puwSrfToMip]
-        mov     esi,D [pcolMipBase]
-        mov     edi,D [pcolSrfBase]
-        pxor    mm0,mm0
-        movd    mm4,D [colS]
-        punpcklbw mm4,mm0
-        psllw   mm4,7
-        paddw   mm4,Q [mmRounder]
-        xor     ecx,ecx
-diffColLoop:
-        movzx   eax,W [ebx+ecx*2]
-        movd    mm1,D [esi+eax*4]
-        punpcklbw mm1,mm0
-        por     mm1,Q [mmF000]
-        psllw   mm1,1
-        pmulhw  mm1,mm4
-        packuswb mm1,mm1
-        movd    D [edi+ecx*4],mm1
-        inc     ecx
-        cmp     ecx,D [ctSrfVx]
-        jl      diffColLoop
-        emms
-        pop     ebx
-      }
-#else
       // setup diffuse color array
       for( INDEX iSrfVx=0; iSrfVx<ctSrfVx; iSrfVx++) {
         const INDEX iMipVx = puwSrfToMip[iSrfVx];
         pcolSrfBase[iSrfVx].MultiplyRGBCopyA1( colSrfDiff, pcolMipBase[iMipVx]);
       }
-#endif
     }
     // eventually attenuate color in case of fog or haze
     if( (ms.ms_ulRenderingFlags&SRF_OPAQUE) && !_bForceTranslucency) continue;
@@ -2325,90 +1682,6 @@ diffColLoop:
     // cache rotation
     const FLOATmatrix3D &m = rm.rm_mObjectRotation;
 
-#if ASMOPT == 1
-    __asm {
-      push    ebx
-      mov     ebx,D [m]
-      mov     esi,D [pnorMipBase]
-      mov     edi,D [ptexMipBase]
-      mov     ecx,D [_ctAllMipVx]
-reflMipLoop:
-      // get normal in absolute space
-      fld     D [esi]GFXNormal.nx
-      fmul    D [ebx+ 0*3+0]
-      fld     D [esi]GFXNormal.ny
-      fmul    D [ebx+ 0*3+4]
-      fld     D [esi]GFXNormal.nz
-      fmul    D [ebx+ 0*3+8]
-      fxch    st(2)
-      faddp   st(1),st(0) 
-      faddp   st(1),st(0)   // fNx
-      fld     D [esi]GFXNormal.nx
-      fmul    D [ebx+ 4*3+0]
-      fld     D [esi]GFXNormal.ny
-      fmul    D [ebx+ 4*3+4]
-      fld     D [esi]GFXNormal.nz
-      fmul    D [ebx+ 4*3+8]
-      fxch    st(2)
-      faddp   st(1),st(0) 
-      faddp   st(1),st(0)   // fNy, fNx
-      fld     D [esi]GFXNormal.nx
-      fmul    D [ebx+ 8*3+0]
-      fld     D [esi]GFXNormal.ny
-      fmul    D [ebx+ 8*3+4]
-      fld     D [esi]GFXNormal.nz
-      fmul    D [ebx+ 8*3+8]
-      fxch    st(2)
-      faddp   st(1),st(0) 
-      faddp   st(1),st(0)   // fNz, fNy, fNx
-      // reflect viewer around normal
-      fld     D [_vViewer+0]
-      fmul    st(0), st(3)
-      fld     D [_vViewer+4]
-      fmul    st(0), st(3)
-      fld     D [_vViewer+8]
-      fmul    st(0), st(3)  // vNz, vNy, vNx, fNz, fNy, fNx
-      fxch    st(2)
-      faddp   st(1),st(0) 
-      faddp   st(1),st(0)   // fNV, fNz, fNy, fNx
-      fmul    st(3),st(0)
-      fmul    st(2),st(0)
-      fmulp   st(1),st(0)   // fNz*fNV, fNy*fNV, fNx*fNV
-      fxch    st(2)
-      fadd    st(0),st(0)   // 2*fNx*fNV, fNy*fNV, fNz*fNV
-      fxch    st(1)
-      fadd    st(0),st(0)   // 2*fNy*fNV, 2*fNx*fNV, fNz*fNV
-      fxch    st(2)
-      fadd    st(0),st(0)    // 2*fNz*fNV, 2*fNx*fNV, 2*fNy*fNV
-      fxch    st(1)          // 2*fNx*fNV, 2*fNz*fNV, 2*fNy*fNV
-      fsubr   D [_vViewer+0]
-      fxch    st(2)          // 2*fNy*fNV, 2*fNz*fNV, fRVx
-      fsubr   D [_vViewer+4]
-      fxch    st(1)          // 2*fNz*fNV, fRVy, fRVx
-      fsubr   D [_vViewer+8] // fRVz, fRVy, fRVx
-      // calc 1oFM
-      fxch    st(1)          // fRVy, fRVz, fRVx
-      fadd    st(0),st(0)
-      fadd    D [f2]
-      fsqrt
-      fdivr   D [f05]
-      // map reflected vector to texture
-      fmul    st(2),st(0)    // f1oFM, fRVz, s
-      fmulp   st(1),st(0) 
-      fxch    st(1)          // s, t
-      fadd    D [f05]
-      fxch    st(1)     
-      fadd    D [f05]
-      fxch    st(1)     
-      fstp    D [edi+0]
-      fstp    D [edi+4]
-      add     esi,3*4
-      add     edi,2*4
-      dec     ecx
-      jnz     reflMipLoop
-      pop     ebx
-    }
-#else
     // for each mip vertex
     for( INDEX iMipVx=0; iMipVx<_ctAllMipVx; iMipVx++)
     { // get normal in absolute space
@@ -2427,7 +1700,6 @@ reflMipLoop:
       ptexMipBase[iMipVx].s = fRVx*f1oFM +0.5f;
       ptexMipBase[iMipVx].t = fRVz*f1oFM +0.5f;
     }
-#endif
     _pfModelProfile.StopTimer( CModelProfile::PTI_VIEW_INIT_REFL_MIP);
 
     // setup surface vertices
@@ -2520,95 +1792,6 @@ reflMipLoop:
     // cache object view rotation
     const FLOATmatrix3D &m = rm.rm_mObjectToView;
 
-#if ASMOPT == 1
-    __asm {
-      push    ebx
-      mov     ebx,D [m]
-      mov     esi,D [pnorMipBase]
-      mov     edi,D [ptexMipBase]
-      mov     ecx,D [_ctAllMipVx]
-specMipLoop:
-      // reflect light vector around vertex normal in object space
-      fld     D [esi]GFXNormal.nx
-      fmul    D [_vLightObj+0]
-      fld     D [esi]GFXNormal.ny
-      fmul    D [_vLightObj+4]
-      fld     D [esi]GFXNormal.nz
-      fmul    D [_vLightObj+8]
-      fxch    st(2)
-      faddp   st(1),st(0) 
-      faddp   st(1),st(0) // fNL
-      fld     D [esi]GFXNormal.nx
-      fmul    st(0),st(1) // fnl*nx, fnl
-      fld     D [esi]GFXNormal.ny
-      fmul    st(0),st(2) // fnl*ny, fnl*nx, fnl
-      fld     D [esi]GFXNormal.nz
-      fmulp   st(3),st(0) // fnl*ny, fnl*nx, fnl*nz
-      fxch    st(1)       // fnl*nx, fnl*ny, fnl*nz
-      fadd    st(0),st(0)
-      fxch    st(1)       // fnl*ny, 2*fnl*nx, fnl*nz
-      fadd    st(0),st(0)
-      fxch    st(2)       
-      fadd    st(0),st(0) 
-      fxch    st(1)       // 2*fnl*nx, 2*fnl*nz, 2*fnl*ny
-      fsubr   D [_vLightObj+0]
-      fxch    st(2)       // 2*fnl*ny, 2*fnl*nz, fRx
-      fsubr   D [_vLightObj+4]
-      fxch    st(1)       // 2*fnl*nz, fRy, fRx
-      fsubr   D [_vLightObj+8]
-      fxch    st(2)       // fRx, fRy, fRz
-      // transform the reflected vector to viewer space
-      fld     D [ebx+ 8*3+0]
-      fmul    st(0),st(1)
-      fld     D [ebx+ 8*3+4]
-      fmul    st(0),st(3)
-      fld     D [ebx+ 8*3+8]
-      fmul    st(0),st(5)
-      fxch    st(2)
-      faddp   st(1),st(0)
-      faddp   st(1),st(0)     // fRVz, fRx, fRy, fRz
-      fld     D [ebx+ 4*3+0]
-      fmul    st(0),st(2)
-      fld     D [ebx+ 4*3+4]
-      fmul    st(0),st(4)
-      fld     D [ebx+ 4*3+8]
-      fmul    st(0),st(6)    
-      fxch    st(2)
-      faddp   st(1),st(0)
-      faddp   st(1),st(0)    // fRVy, fRVz, fRx, fRy, fRz
-      fxch    st(2)          // fRx,  fRVz, fRVy, fRy, fRz
-      fmul    D [ebx+ 0*3+0] // fRxx, fRVz, fRVy, fRy, fRz
-      fxch    st(3)
-      fmul    D [ebx+ 0*3+4] // fRxy, fRVz, fRVy, fRxx, fRz
-      fxch    st(4)
-      fmul    D [ebx+ 0*3+8] // fRxz, fRVz, fRVy, fRxx, fRxy
-      fxch    st(3)          // fRxx, fRVz, fRVy, fRxz, fRxy
-      faddp   st(4),st(0)    // fRVz, fRVy, fRxz, fRxy+fRxx
-      fxch    st(2)          // fRxz, fRVy, fRVz, fRxy+fRxx
-      faddp   st(3),st(0)    // fRVy, fRVz, fRVx
-      // calc 1oFM
-      fxch    st(1)          // fRVz, fRVy, fRVx
-      fadd    st(0),st(0)
-      fadd    D [f2]
-      fsqrt
-      fdivr   D [f05]
-      // map reflected vector to texture
-      fmul    st(2),st(0)    // f1oFM, fRVy, s
-      fmulp   st(1),st(0) 
-      fxch    st(1)          // s, t
-      fadd    D [f05]
-      fxch    st(1)     
-      fadd    D [f05]
-      fxch    st(1)     
-      fstp    D [edi+0]
-      fstp    D [edi+4]
-      add     esi,3*4
-      add     edi,2*4
-      dec     ecx
-      jnz     specMipLoop
-      pop     ebx
-    }
-#else
     // for each mip vertex
     for( INDEX iMipVx=0; iMipVx<_ctAllMipVx; iMipVx++)
     { // reflect light vector around vertex normal in object space
@@ -2626,7 +1809,6 @@ specMipLoop:
       ptexMipBase[iMipVx].s = fRVx*f1oFM +0.5f;
       ptexMipBase[iMipVx].t = fRVy*f1oFM +0.5f;
     }
-#endif
     _pfModelProfile.StopTimer( CModelProfile::PTI_VIEW_INIT_SPEC_MIP);
 
     // setup surface vertices

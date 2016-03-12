@@ -106,7 +106,7 @@ CViewPort::~CViewPort(void)
 
 
 #define CViewPortCLASS "ViewPort Window"
-static BOOL _bClassRegistered = FALSE;
+static bool _bClassRegistered = FALSE;
 
 LRESULT CALLBACK CViewPortCLASS_WindowProc(
   HWND hWnd,      // handle to window
@@ -162,7 +162,7 @@ void CViewPort::OpenCanvas(void)
   CDisplayMode dm;
   _pGfx->GetCurrentDisplayMode(dm);
   ASSERT( (dm.dm_pixSizeI==0 && dm.dm_pixSizeJ==0) || (dm.dm_pixSizeI!=0 && dm.dm_pixSizeJ!=0));
-  const BOOL bFullScreen = (dm.dm_pixSizeI==pixWinSizeI && dm.dm_pixSizeJ==pixWinSizeJ);
+  const bool bFullScreen = (dm.dm_pixSizeI==pixWinSizeI && dm.dm_pixSizeJ==pixWinSizeJ);
 
   // set fullscreen attribs if window size is equal to screen size
   DWORD dwExStyle = NONE;
@@ -201,7 +201,7 @@ void CViewPort::OpenCanvas(void)
 
 
 // close overlaid window
-void CViewPort::CloseCanvas( BOOL bRelease/*=FALSE*/)
+void CViewPort::CloseCanvas( bool bRelease/*=FALSE*/)
 {
   // release D3D swap chain if allocated
 #ifdef SE1_D3D
@@ -212,7 +212,7 @@ void CViewPort::CloseCanvas( BOOL bRelease/*=FALSE*/)
 #endif // SE1_D3D
   // destroy window
   if( vp_hWnd!=NULL && IsWindow(vp_hWnd)) { 
-    BOOL bRes = DestroyWindow(vp_hWnd);
+    bool bRes = DestroyWindow(vp_hWnd);
     ASSERT(bRes);
   }
   // mark

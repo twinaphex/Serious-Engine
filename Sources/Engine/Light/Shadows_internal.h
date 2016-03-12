@@ -21,7 +21,7 @@ public:
   PIX lr_pixSizeU;
   PIX lr_pixSizeV;
   // point on the plane closest to the light
-  FLOAT lr_fpixHotU;
-  FLOAT lr_fpixHotV;
-  FLOAT lr_fLightPlaneDistance;
+  float lr_fpixHotU;
+  float lr_fpixHotV;
+  float lr_fLightPlaneDistance;
 };

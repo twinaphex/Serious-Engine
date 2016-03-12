@@ -233,7 +233,7 @@ void CRenderer::SetupFogAndHaze(void)
   }
 
   // if fog is enabled
-  re_bCurrentSectorHasFog = FALSE;
+  re_bCurrentSectorHasFog = false;
   if( _wrpWorldRenderPrefs.wrp_bFogOn && gfx_bRenderFog)
   { // if the sector has fog
     CFogParameters fp;
@@ -244,12 +244,12 @@ void CRenderer::SetupFogAndHaze(void)
                       br.br_prProjection->pr_ViewerRotationMatrix);
       }
       // mark that current sector has fog
-      re_bCurrentSectorHasFog = TRUE;
+      re_bCurrentSectorHasFog = true;
     }
   }
 
   // if haze is enabled
-  re_bCurrentSectorHasHaze = FALSE;
+  re_bCurrentSectorHasHaze = false;
   if( _wrpWorldRenderPrefs.wrp_bHazeOn && gfx_bRenderFog)
   { // if the sector has haze
     CHazeParameters hp;
@@ -264,7 +264,7 @@ void CRenderer::SetupFogAndHaze(void)
         // if viewer is in this sector
         if( bsc.bsc_bspBSPTree.TestSphere(re_vdViewSphere, 0.01)>=0) {
           // mark that viewer is in haze
-          re_bViewerInHaze = TRUE;
+          re_bViewerInHaze = true;
         }
         // if there is a viewer
         else if( re_penViewer!=NULL) { 
@@ -275,7 +275,7 @@ void CRenderer::SetupFogAndHaze(void)
               // if viewer is in this sector
               if( pbsc->bsc_bspBSPTree.TestSphere(re_vdViewSphere, 0.01)>=0) {
                 // mark that viewer is in haze
-                re_bViewerInHaze = TRUE;
+                re_bViewerInHaze = true;
                 break;
               }
             }
@@ -290,7 +290,7 @@ void CRenderer::SetupFogAndHaze(void)
                          br.br_prProjection->pr_ViewerRotationMatrix);
         }
         // mark that current sector has haze
-        re_bCurrentSectorHasHaze = TRUE;
+        re_bCurrentSectorHasHaze = true;
       }
     }
   }
@@ -342,7 +342,7 @@ void CRenderer::AddEdgeToAddAndRemoveLists(CScreenEdge &sed)
   plnBefore->ln_Succ = plnThis;
   plnAfter->ln_Pred = plnThis;
   // mark that it is added
-  sed.sed_bAdded = TRUE;
+  sed.sed_bAdded = true;
   ASSERT(re_actAddCounts[iTopLine]==re_alhAddLists[iTopLine].Count());
 
   _pfRenderProfile.StopTimer(CRenderProfile::PTI_ADDEDGETOADDLIST);
@@ -413,7 +413,7 @@ inline void CRenderer::MakeScreenEdge(
   // edge has polygon initially
   sed.sed_pspo = NULL;
   // edge is not linked to add and remove lists initially
-  sed.sed_bAdded = FALSE;
+  sed.sed_bAdded = false;
   sed.sed_psedNextRemove = NULL;
 
   // if bottom vertex is above screen top or top vertex is below screen bottom
@@ -595,7 +595,7 @@ CScreenPolygon *CRenderer::MakeScreenPolygon(CBrushPolygon &bpo)
   sppo.spo_ctVtx = 0;
   sppo.spo_piElements = NULL;
   sppo.spo_ctElements = 0;
-  spo.spo_bActive = TRUE;
+  spo.spo_bActive = true;
   spo.spo_ubSpanAdded = 0;
   // link with brush polygon
   spo.spo_pbpoBrushPolygon = &bpo;
@@ -695,7 +695,7 @@ CScreenPolygon *CRenderer::MakeScreenPolygon(CBrushPolygon &bpo)
   spo.spo_psedSpanStart = NULL;
 
   // eventually adjust polygon opacity depending on brush entity variable
-  BOOL bForceTraslucency = FALSE;
+  BOOL bForceTraslucency = false;
   const FLOAT fOpacity = br.br_penEntity->GetOpacity();
   if( fOpacity<1)
   { // better to hold opacity in integer
@@ -718,7 +718,7 @@ CScreenPolygon *CRenderer::MakeScreenPolygon(CBrushPolygon &bpo)
       }
     }
     // mark that we need translucency
-    bForceTraslucency = TRUE;
+    bForceTraslucency = true;
   }
 
   // not translucent by default
@@ -898,14 +898,14 @@ void CRenderer::AddSpansToScene(void)
       memset(pubShadow, 255, pixLen);
       pubShadow+=pixLen;
       // mark that at least one pixel is lighted
-      re_bSomeLightExists = TRUE;
+      re_bSomeLightExists = true;
     // if the spans polygon is some other polygon
     } else {
       // mark those pixels as shadowed
       memset(pubShadow, 0, pixLen);
       pubShadow+=pixLen;
       // mark that at least one pixel is darkened
-      re_bSomeDarkExists = TRUE;
+      re_bSomeDarkExists = true;
     }
     // add to pixel counter
     ctPixels+=pixLen;

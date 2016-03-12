@@ -32,12 +32,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 class ENGINE_API COneLensFlare {
 public:
   CTextureObject olf_toTexture;       // texture used for this flare
-  FLOAT olf_fReflectionPosition;      // 0=light 1=center of screen
-  FLOAT olf_fSizeIOverScreenSizeI;    // flare dimensions relative to screen size
-  FLOAT olf_fSizeJOverScreenSizeI;
-  FLOAT olf_fLightAmplification;      // amplification for light color
-  FLOAT olf_fLightDesaturation;       // desaturation factor for light color (1=monochrome)
-  FLOAT oft_fFallOffFactor;           // flare falloff relative to light falloff
+  float olf_fReflectionPosition;      // 0=light 1=center of screen
+  float olf_fSizeIOverScreenSizeI;    // flare dimensions relative to screen size
+  float olf_fSizeJOverScreenSizeI;
+  float olf_fLightAmplification;      // amplification for light color
+  float olf_fLightDesaturation;       // desaturation factor for light color (1=monochrome)
+  float oft_fFallOffFactor;           // flare falloff relative to light falloff
   ANGLE olf_aRotationFactor;          // flare rotation (deg/screen width)
   ULONG olf_ulFlags;
 };
@@ -49,10 +49,10 @@ class ENGINE_API CLensFlareType {
 public:
   CStaticArray<COneLensFlare> lft_aolfFlares; // all flares for this effect
   // glaring when light source is near screen center
-  FLOAT lft_fGlareCompression;        // glaring compression towards center
-  FLOAT lft_fGlareIntensity;          // maximum glare intensity
-  FLOAT lft_fGlareFallOffFactor;      // glare falloff relative to light falloff
-  FLOAT lft_fGlareDesaturation;  // desaturation factor for center glare (1=monochrome)
+  float lft_fGlareCompression;        // glaring compression towards center
+  float lft_fGlareIntensity;          // maximum glare intensity
+  float lft_fGlareFallOffFactor;      // glare falloff relative to light falloff
+  float lft_fGlareDesaturation;       // desaturation factor for center glare (1=monochrome)
 };
 
 

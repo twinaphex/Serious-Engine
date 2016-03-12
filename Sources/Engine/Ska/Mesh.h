@@ -38,7 +38,7 @@ struct ENGINE_API MeshLOD
     mlod_ulFlags      =  0;
   };
   ~MeshLOD() {}
-  FLOAT mlod_fMaxDistance;
+  float mlod_fMaxDistance;
   ULONG mlod_ulFlags;
   CStaticArray<struct MeshVertex>    mlod_aVertices;   // vertices
   CStaticArray<struct MeshNormal>    mlod_aNormals;	   // normals
@@ -51,13 +51,13 @@ struct ENGINE_API MeshLOD
 
 struct ENGINE_API MeshVertex
 {
-  FLOAT x, y, z;
+  float x, y, z;
   ULONG dummy; // 16 byte alingment
 };
 
 struct ENGINE_API MeshNormal
 {
-  FLOAT nx, ny, nz;
+  float nx, ny, nz;
   ULONG dummy; // 16 byte alingment
 };
 
@@ -69,7 +69,7 @@ struct ENGINE_API MeshUVMap
 
 struct ENGINE_API MeshTexCoord
 {
-  FLOAT u, v;
+  float u, v;
 };
 
 struct ENGINE_API MeshSurface
@@ -96,7 +96,7 @@ struct ENGINE_API MeshWeightMap
 struct ENGINE_API MeshVertexWeight
 {
   INDEX mww_iVertex;      // absolute index of the vertex this weight refers to
-  FLOAT mww_fWeight;      // weight for this bone [0.0 - 1.0]
+  float mww_fWeight;      // weight for this bone [0.0 - 1.0]
 };
 
 struct ENGINE_API MeshMorphMap
@@ -109,12 +109,12 @@ struct ENGINE_API MeshMorphMap
 struct ENGINE_API MeshVertexMorph
 {
   INDEX mwm_iVxIndex;      // absolute index of the vertex this weight refers to
-  FLOAT mwm_x;
-  FLOAT mwm_y;
-  FLOAT mwm_z;
-  FLOAT mwm_nx;
-  FLOAT mwm_ny;
-  FLOAT mwm_nz;
+  float mwm_x;
+  float mwm_y;
+  float mwm_z;
+  float mwm_nx;
+  float mwm_ny;
+  float mwm_nz;
   ULONG dummy;        // 32 byte padding
 };
 

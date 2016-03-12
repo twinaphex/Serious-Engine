@@ -61,24 +61,24 @@ public:
   ScenePolygon spo_spoScenePolygon;       // holder for scene data of this polygon
 
   CBrushPolygon *spo_pbpoBrushPolygon;
-  BOOL spo_bActive;     // set if active in rendering
+  bool spo_bActive;                       // set if active in rendering
 
-  CListNode spo_lnInStack;              // node in surface stack
-  INDEX spo_iInStack;                   // counter of additions to surface stack
+  CListNode spo_lnInStack;                // node in surface stack
+  INDEX spo_iInStack;                     // counter of additions to surface stack
   class CScreenEdge *spo_psedSpanStart;   // edge where polygon's span started
-  UBYTE spo_ubIllumination;             // illumination of the polygon (when rendering shadows)
-  UBYTE spo_ubSpanAdded;    // set if polygon has created any span yet
-  UBYTE spo_ubDirectionFlags; // set if should invert polygon edges
+  UBYTE spo_ubIllumination;               // illumination of the polygon (when rendering shadows)
+  UBYTE spo_ubSpanAdded;                  // set if polygon has created any span yet
+  UBYTE spo_ubDirectionFlags;             // set if should invert polygon edges
   UBYTE spo_ubDummy;
-  INDEX spo_iEdgeVx0;   // first vertex of edge vertices
-  INDEX spo_ctEdgeVx;   // number of vertices of edge vertices
-  INDEX spo_ised0;   // first screen edge
-  INDEX spo_ctsed;   // number of screen edges
-  PIX spo_pixMinI;  // bounding box on screen
+  INDEX spo_iEdgeVx0;                     // first vertex of edge vertices
+  INDEX spo_ctEdgeVx;                     // number of vertices of edge vertices
+  INDEX spo_ised0;                        // first screen edge
+  INDEX spo_ctsed;                        // number of screen edges
+  PIX spo_pixMinI;                        // bounding box on screen
   PIX spo_pixMinJ;
   PIX spo_pixMaxI;
   PIX spo_pixMaxJ;
-  PIX spo_pixTotalArea; // sum of all visible spans
+  PIX spo_pixTotalArea;                   // sum of all visible spans
 
   /* Default constructor. */
   CScreenPolygon(void) {
@@ -90,8 +90,10 @@ public:
   inline ~CScreenPolygon(void);
   
   /* Test if this polygon is a portal. */
-  inline BOOL IsPortal(void) { 
-    return spo_pbpoBrushPolygon!=NULL && spo_pbpoBrushPolygon->bpo_ulFlags&BPOF_RENDERASPORTAL;
+  inline bool IsPortal(void)
+  { 
+    return    (spo_pbpoBrushPolygon!=NULL)
+           && (spo_pbpoBrushPolygon->bpo_ulFlags & BPOF_RENDERASPORTAL);
   };
   /* Clear the object. */
   inline void Clear(void) {};
@@ -101,10 +103,10 @@ public:
 class CViewVertex {
 public:
   FLOAT3D vvx_vView;      // coordinates in view space
-  FLOAT vvx_fD; // distance from clip plane
+  float vvx_fD; // distance from clip plane
   ULONG vvx_ulOutcode;    // outcode of the vertex -> bits set if polygon is behind the plane
-  FLOAT vvx_fI; // screen-space coordinates
-  FLOAT vvx_fJ;
+  float vvx_fI; // screen-space coordinates
+  float vvx_fJ;
 };
 
 /*
@@ -112,19 +114,19 @@ public:
  */
 class CScreenEdge {
 public:
-// first block is data needed for ASER
-  FIX16_16 sed_xI;            // top I coordinate
-  FIX16_16 sed_xIStep;        // I coordinate step per scan line
+  // first block is data needed for ASER
+  FIX16_16 sed_xI;                           // top I coordinate
+  FIX16_16 sed_xIStep;                       // I coordinate step per scan line
 
-  CScreenPolygon *sed_pspo;   // polygon
+  CScreenPolygon *sed_pspo;                  // polygon
 
-  BOOL sed_bAdded;    // set if added to add/active list
-  CScreenEdge *sed_psedNextRemove;     // node in remove list
+  bool sed_bAdded;                           // set if added to add/active list
+  CScreenEdge *sed_psedNextRemove;           // node in remove list
 
-// second block is data needed for clipping etc.
+  // second block is data needed for clipping etc.
   enum LineDirectionType sed_ldtDirection;   // edge orientation on screen
 
-  PIX sed_pixTopJ;            // top and bottom J coordinates of the edge
+  PIX sed_pixTopJ;                           // top and bottom J coordinates of the edge
   PIX sed_pixBottomJ;
 
   ALIGNED_NEW_AND_DELETE(32);
@@ -206,8 +208,8 @@ inline void Clear(Vector<float,2> &dummy) {};
 
 class CDelayedModel {
 public:
-  FLOAT dm_fDistance;         // Z distance from viewer (for sorting)
-  FLOAT dm_fMipFactor;        // mip factor of the model
+  float dm_fDistance;         // Z distance from viewer (for sorting)
+  float dm_fMipFactor;        // mip factor of the model
   ULONG dm_ulFlags;           // various flags
   CEntity *dm_penModel;       // the model entity
   CModelObject *dm_pmoModel;  // model of the entity
@@ -227,32 +229,32 @@ public:
   ULONG lfi_ulDrawPortID;             // unique ID of the lens flare's drawport
   CLightSource *lfi_plsLightSource;   // the light source
   FLOAT3D lfi_vProjected;             // coordinates in view space (for fog and haze)
-  FLOAT lfi_fI, lfi_fJ;    // position of light source on screen in this frame
-  FLOAT lfi_fDistance;     // distance of light source from viewer in this frame
-  FLOAT lfi_fOoK;          // depth of light source in this frame
-  TIME  lfi_tmLastFrame;   // last time it was animated
-  INDEX lfi_iMirrorLevel;  // mirror recursion level in which the flare is
-  FLOAT lfi_fFadeFactor;   // current fade ratio (0..1)
-  ULONG lfi_ulFlags;       // various flags
+  float lfi_fI, lfi_fJ;               // position of light source on screen in this frame
+  float lfi_fDistance;                // distance of light source from viewer in this frame
+  float lfi_fOoK;                     // depth of light source in this frame
+  TIME  lfi_tmLastFrame;              // last time it was animated
+  INDEX lfi_iMirrorLevel;             // mirror recursion level in which the flare is
+  float lfi_fFadeFactor;              // current fade ratio (0..1)
+  ULONG lfi_ulFlags;                  // various flags
 
   __forceinline void Clear(void) { };
 };
 
 class CTranslucentPolygon {
 public:
-  FLOAT tp_fViewerDistance;
+  float tp_fViewerDistance;
   ScenePolygon *tp_pspoPolygon;
   __forceinline void Clear(void) {};
 };
 
 class CMirror {
 public:
-  INDEX mi_iMirrorType;       // mirror index
-  FLOATplane3D mi_plPlane;    // plane in absolute space
-  FLOAT3D mi_vClosest;        // point closest to viewer, in view space
-  PIXaabbox2D mi_boxOnScreen; // bounding box of the mirror on screen
-  FLOAT mi_fpixArea;     // total area of mirror
-  FLOAT mi_fpixMaxPolygonArea;     // max area of single polygon of mirror
+  INDEX mi_iMirrorType;            // mirror index
+  FLOATplane3D mi_plPlane;         // plane in absolute space
+  FLOAT3D mi_vClosest;             // point closest to viewer, in view space
+  PIXaabbox2D mi_boxOnScreen;      // bounding box of the mirror on screen
+  float mi_fpixArea;               // total area of mirror
+  float mi_fpixMaxPolygonArea;     // max area of single polygon of mirror
 
   // parameters
   CMirrorParameters mi_mp;
@@ -274,47 +276,47 @@ public:
 class CRenderer {
 public:
 // implementation:
-  INDEX re_iIndex;                // index of this renderer in static array
+  INDEX re_iIndex;                              // index of this renderer in static array
   CWorld             *re_pwoWorld;              // world to render
   CDrawPort          *re_pdpDrawPort;           // drawport that is drawn on
-  // where the spans are emitted
+                                                // where the spans are emitted
   struct ScenePolygon *re_pspoFirst;  
   struct ScenePolygon *re_pspoFirstTranslucent;
   struct ScenePolygon *re_pspoFirstBackground;
   struct ScenePolygon *re_pspoFirstBackgroundTranslucent;
 
-  FLOATaabbox3D re_boxViewer;         // bounding box of viewer
-  CEntity           *re_penViewer;    // entity that is viewed from
+  FLOATaabbox3D re_boxViewer;                   // bounding box of viewer
+  CEntity           *re_penViewer;              // entity that is viewed from
   CDynamicContainer<CScreenPolygon> *re_pcspoViewPolygons;  // polygons that is viewed from (for mirrors)
-  CAnyProjection3D   re_prProjection; // projection to viewer space
+  CAnyProjection3D   re_prProjection;           // projection to viewer space
   DOUBLE3D re_vdViewSphere;
   DOUBLE   re_dViewSphereR;
 
   // used for fixing problems with extra trapezoids generated on t-junctions
-  FLOAT re_fEdgeOffsetI;
-  FLOAT re_fEdgeAdjustK;
+  float re_fEdgeOffsetI;
+  float re_fEdgeAdjustK;
 
-  BOOL re_bBackgroundEnabled;         // set if should render background objects in background
-  CEntity *re_penBackgroundViewer;    // background viewer entity
+  bool re_bBackgroundEnabled;                  // set if should render background objects in background
+  CEntity *re_penBackgroundViewer;             // background viewer entity
   CAnyProjection3D re_prBackgroundProjection;  // projection for background
 
   PIX re_pixSizeI;
-  FLOAT re_fMinJ;   // top row
-  FLOAT re_fMaxJ;   // bottom row+1
-  FLOATaabbox2D re_fbbClipBox;    // clip rectangle on screen
+  float re_fMinJ;                              // top row
+  float re_fMaxJ;                              // bottom row+1
+  FLOATaabbox2D re_fbbClipBox;                 // clip rectangle on screen
 
-  BOOL re_bRenderingShadows;    // set if rendering shadows instead of normal view
-  BOOL re_bDirectionalShadows;  // set if rendering directional shadows
-  UBYTE *re_pubShadow;          // byte-packed shadow mask
+  bool re_bRenderingShadows;                   // set if rendering shadows instead of normal view
+  bool re_bDirectionalShadows;                 // set if rendering directional shadows
+  UBYTE *re_pubShadow;                         // byte-packed shadow mask
   SLONG re_slShadowWidth;
   SLONG re_slShadowHeight; 
-  BOOL re_bSomeLightExists;     // set if rendering light, and at least one pixel is lighted
-  BOOL re_bSomeDarkExists;      // set if rendering light, and at least one pixel is dark
+  bool re_bSomeLightExists;     // set if rendering light, and at least one pixel is lighted
+  bool re_bSomeDarkExists;      // set if rendering light, and at least one pixel is dark
   UBYTE re_ubLightIllumination;  // the illumination type used by light rendering shadows
   COLOR re_colSelection;        // selection color
-  BOOL re_bCurrentSectorHasFog;   // set if currently added sector has fog
-  BOOL re_bCurrentSectorHasHaze;  // set if currently added sector has haze
-  BOOL re_bViewerInHaze;          // set if viewer is viewing from a hazed sector
+  bool re_bCurrentSectorHasFog;   // set if currently added sector has fog
+  bool re_bCurrentSectorHasHaze;  // set if currently added sector has haze
+  bool re_bViewerInHaze;          // set if viewer is viewing from a hazed sector
   ULONG re_ulVisExclude;    // for visibility tweaking
   ULONG re_ulVisInclude;
 
@@ -368,7 +370,7 @@ public:
   PIX re_pixCurrentScanJ;           // J coordinate of current scan line
   FLOAT re_fCurrentScanJ;
   FIX16_16 re_xCurrentScanI;        // I coordinate on current scan line
-  BOOL re_bCoherentScanLine;        // set if this line is coherent with previous one
+  bool re_bCoherentScanLine;        // set if this line is coherent with previous one
 
   CScreenEdge re_sedLeftSentinel;   // sentinel edges for list of active edges
   CScreenEdge re_sedRightSentinel;
@@ -401,7 +403,7 @@ public:
   // check if a polygon is to be visible
   __forceinline ULONG GetPolygonVisibility(const CBrushPolygon &bpo);
   // check if polygon is outside viewfrustum
-  __forceinline BOOL IsPolygonCulled(const CBrushPolygon &bpo);
+  __forceinline bool IsPolygonCulled(const CBrushPolygon &bpo);
   // setup fog/haze for current sector
   void SetupFogAndHaze(void);
   // transform vertices in current sector before clipping
@@ -409,7 +411,7 @@ public:
   // transform planes in current sector before clipping
   void PreClipPlanes(void);
   // make initial edges for a polygon
-  void MakeInitialPolygonEdges(CBrushPolygon &bpo, CScreenPolygon &spo, BOOL bInverted);
+  void MakeInitialPolygonEdges(CBrushPolygon &bpo, CScreenPolygon &spo, bool bInverted);
   // find which portals should be rendered as portals or as pretenders
   void FindPretenders(void);
   // make screen polygons for nondetail polygons in current sector
@@ -424,8 +426,10 @@ public:
   void ClipToOnePlane(const FLOATplane3D &plView);
   // clip all polygons to all clip planes of a projection
   void ClipToAllPlanes(CAnyProjection3D &pr);
+
   // make outcodes for current clip plane for all active vertices
-  __forceinline BOOL MakeOutcodes(void);
+  __forceinline bool MakeOutcodes(void);
+
   // clip one polygon to current clip plane
   void ClipOnePolygon(CScreenPolygon &spo);
   // generate clip edges for one polygon
@@ -463,11 +467,14 @@ public:
   void AddMirror(CScreenPolygon &spo);
   
   /* Add a polygon to surface stack. */
-  inline BOOL AddPolygonToSurfaceStack(CScreenPolygon &spo);
+  inline bool AddPolygonToSurfaceStack(CScreenPolygon &spo);
+
   /* Remove a polygon from surface stack. */
-  inline BOOL RemPolygonFromSurfaceStack(CScreenPolygon &spo);
+  inline bool RemPolygonFromSurfaceStack(CScreenPolygon &spo);
+
   /* Swap two polygons in surface stack. */
-  inline BOOL SwapPolygonsInSurfaceStack(CScreenPolygon &spoOld, CScreenPolygon &spoNew);
+  inline bool SwapPolygonsInSurfaceStack(CScreenPolygon &spoOld, CScreenPolygon &spoNew);
+
   /* Remove all polygons from surface stack. */
   inline void FlushSurfaceStack(void);
 
@@ -485,23 +492,27 @@ public:
 
   /* Render wireframe brushes. */
   void RenderWireFrameBrushes(void);
+
   /* Find lights for one model. */
-  BOOL FindModelLights( CEntity &en, const CPlacement3D &plModel, COLOR &colLight, COLOR &colAmbient,
+  bool FindModelLights( CEntity &en, const CPlacement3D &plModel, COLOR &colLight, COLOR &colAmbient,
                         FLOAT &fTotalShadowIntensity, FLOAT3D &vTotalLightDirection, FLOATplane3D &plFloorPlane);
   /* Render a model. */
   void RenderOneModel( CEntity &en, CModelObject &moModel, const CPlacement3D &plModel,
-                       const FLOAT fDistanceFactor, BOOL bRenderShadow, ULONG ulDMFlags);
+                       const FLOAT fDistanceFactor, bool bRenderShadow, ULONG ulDMFlags);
+
   /* Render a ska model. */
   void CRenderer::RenderOneSkaModel( CEntity &en, const CPlacement3D &plModel,
-                                  const FLOAT fDistanceFactor, BOOL bRenderShadow, ULONG ulDMFlags);
+                                  const FLOAT fDistanceFactor, bool bRenderShadow, ULONG ulDMFlags);
+
   /* Render models that were kept for delayed rendering. */
-  void RenderModels(BOOL bBackground);
+  void RenderModels(bool bBackground);
+
   /* Render active terrains */
   void RenderTerrains(void);
   /* Render active terrains in wireframe mode */
   void RenderWireFrameTerrains(void);
   /* Render particles for models that were kept for delayed rendering. */
-  void RenderParticles(BOOL bBackground);
+  void RenderParticles(bool bBackground);
   // render one arrow given its 3d coordinates in world
   void ProjectClipAndDrawArrow(
     const FLOAT3D &v0, const FLOAT3D &v1, COLOR colColor);

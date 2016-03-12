@@ -47,7 +47,7 @@ extern FLOAT gfx_tmProbeDecay;
 
 
 // special mode flag when loading texture for exporting
-static BOOL _bExport = FALSE;
+static bool _bExport = FALSE;
 
 // singleton object for texture settings
 struct TextureSettings TS = {0};
@@ -100,8 +100,8 @@ extern void UpdateTextureSettings(void)
 
   // clamp and adjust texture compression type
   INDEX iTCType = 0;
-  const ULONG ulGfxFlags = _pGfx->gl_ulFlags;
-  const BOOL bHasTC = (ulGfxFlags&GLF_TEXTURECOMPRESSION); 
+  const uint32_t ulGfxFlags = _pGfx->gl_ulFlags;
+  const bool bHasTC = (ulGfxFlags&GLF_TEXTURECOMPRESSION); 
   if( eAPI==GAT_OGL && bHasTC)
   { // OpenGL
     extern INDEX ogl_iTextureCompressionType;  // 0=none, 1=default (ARB), 2=S3TC, 3=FXT1, 4=legacy S3TC
@@ -122,7 +122,7 @@ extern void UpdateTextureSettings(void)
   // clamp and cache cvar
   extern INDEX tex_bCompressAlphaChannel; 
   if( tex_bCompressAlphaChannel) tex_bCompressAlphaChannel = 1; 
-  const BOOL bCAC = tex_bCompressAlphaChannel;  
+  const bool bCAC = tex_bCompressAlphaChannel;  
 
   // set members
   switch( iTCType) {
@@ -254,12 +254,12 @@ void CTextureData::AddFrame_t( const CImageInfo *pII)
   if( pixHeight != GetPixHeight() ) throw( TRANS("Incompatible frame height."));
 
   // add memory for new frame
-  SLONG slFramesSize = td_slFrameSize * td_ctFrames;
+  int32_t slFramesSize = td_slFrameSize * td_ctFrames;
   GrowMemory( (void**)&td_pulFrames, slFramesSize + td_slFrameSize);
 
   // add new frame to the end of the previous texture frames
   PIX    pixMipmapSize   = pixWidth*pixHeight;
-  ULONG *pulCurrentFrame = td_pulFrames + slFramesSize/BYTES_PER_TEXEL;
+  uint32_t *pulCurrentFrame = td_pulFrames + slFramesSize/BYTES_PER_TEXEL;
 
   if( td_ulFlags&TEX_ALPHACHANNEL) {
     // has alpha channel - do simple copying
@@ -267,7 +267,7 @@ void CTextureData::AddFrame_t( const CImageInfo *pII)
   } else {
     // hasn't got alpha channel - do conversion from 24-bit bitmap to 32-bit format
     memcpy( pulCurrentFrame, pII->ii_Picture, pixMipmapSize*3);
-    AddAlphaChannel( (UBYTE*)pulCurrentFrame, (ULONG*)pulCurrentFrame, pixMipmapSize);
+    AddAlphaChannel( (uint8_t*)pulCurrentFrame, (uint32_t*)pulCurrentFrame, pixMipmapSize);
   }
   // make mipmaps (in place!)
   MakeMipmaps( td_ctFineMipLevels, pulCurrentFrame, pixWidth,pixHeight);
@@ -278,7 +278,7 @@ void CTextureData::AddFrame_t( const CImageInfo *pII)
 
 
 // routine that creates one-frame-texture from loaded picture thru image info structure
-void CTextureData::Create_t( const CImageInfo *pII, MEX mexWanted, INDEX ctFineMips, BOOL bForce32bit)
+void CTextureData::Create_t( const CImageInfo *pII, MEX mexWanted, INDEX ctFineMips, bool bForce32bit)
 {
   // check for supported image format
   _bExport = FALSE;
@@ -322,20 +322,20 @@ void CTextureData::Create_t( const CImageInfo *pII, MEX mexWanted, INDEX ctFineM
   td_slFrameSize = GetMipmapOffset( 15, pixSizeU, pixSizeV) *BYTES_PER_TEXEL;
 
   // allocate small ammount of memory just for Realloc sake
-  td_pulFrames = (ULONG*)AllocMemory(16);
+  td_pulFrames = (uint32_t*)AllocMemory(16);
   AddFrame_t( pII);
 }
 
 
 
 // returns dimension of effect buffers and size in bytes (of one, not both)
-static ULONG GetEffectBufferSize( CTextureData *pTD)
+static uint32_t GetEffectBufferSize( CTextureData *pTD)
 {
   ASSERT( pTD->td_ptegEffect!=NULL);
   PIX pixWidth  = pTD->td_pixBufferWidth; 
   PIX pixHeight = pTD->td_pixBufferHeight;
 
-  ULONG ulSize = pixWidth*pixHeight *sizeof(UBYTE);
+  uint32_t ulSize = pixWidth*pixHeight *sizeof(uint8_t);
   // eventual adjustment for water effect type
   if( pTD->td_ptegEffect->IsWater()) ulSize = pixWidth*(pixHeight+2) *sizeof(SWORD);
   return ulSize;
@@ -381,15 +381,15 @@ static void FreeEffectBuffers( CTextureData *pTD)
 
 
 // allocates and resets effect buffers
-static ULONG AllocEffectBuffers( CTextureData *pTD)
+static uint32_t AllocEffectBuffers( CTextureData *pTD)
 {
   // free if already allocated
   FreeEffectBuffers( pTD);
   // determine size of effect buffers 
-  ULONG ulSize = GetEffectBufferSize( pTD);
+  uint32_t ulSize = GetEffectBufferSize( pTD);
   // allocate and reset buffers (memory walling!)
-  pTD->td_pubBuffer1 = (UBYTE*)AllocMemory( ulSize+8);
-  pTD->td_pubBuffer2 = (UBYTE*)AllocMemory( ulSize+8);
+  pTD->td_pubBuffer1 = (uint8_t*)AllocMemory( ulSize+8);
+  pTD->td_pubBuffer2 = (uint8_t*)AllocMemory( ulSize+8);
   memset( pTD->td_pubBuffer1, 0, ulSize);
   memset( pTD->td_pubBuffer2, 0, ulSize);
   return ulSize;
@@ -398,7 +398,7 @@ static ULONG AllocEffectBuffers( CTextureData *pTD)
 
 // creates new effect texture with one frame
 void CTextureData::CreateEffectTexture( PIX pixWidth, PIX pixHeight, MEX mexWidth,
-                                        CTextureData *ptdBaseTexture, ULONG ulGlobalEffect)
+                                        CTextureData *ptdBaseTexture, uint32_t ulGlobalEffect)
 {
   ptdBaseTexture->MarkUsed();
   Clear();
@@ -425,7 +425,7 @@ void CTextureData::CreateEffectTexture( PIX pixWidth, PIX pixHeight, MEX mexWidt
 
 
 // this promotes 16bit internal format to corresponding 32bit
-static ULONG PromoteTo32bitFormat( ULONG ulFormat)
+static uint32_t PromoteTo32bitFormat( uint32_t ulFormat)
 {
   if( ulFormat==TS.ts_tfRGB5) return TS.ts_tfRGB8;
   if( ulFormat==TS.ts_tfRGBA4 || ulFormat==TS.ts_tfRGB5A1) return TS.ts_tfRGBA8;
@@ -434,17 +434,17 @@ static ULONG PromoteTo32bitFormat( ULONG ulFormat)
 
 
 // returns format in what texture will be uploaded (regarding console vars)
-static ULONG DetermineInternalFormat( CTextureData *pTD)
+static uint32_t DetermineInternalFormat( CTextureData *pTD)
 {
   // cache some vars
   extern INDEX gap_bAllowGrayTextures;
-  BOOL bGrayTexture  = gap_bAllowGrayTextures && (pTD->td_ulFlags&TEX_GRAY);
-  BOOL bAlphaChannel = pTD->td_ulFlags & TEX_ALPHACHANNEL;
+  bool bGrayTexture  = gap_bAllowGrayTextures && (pTD->td_ulFlags&TEX_GRAY);
+  bool bAlphaChannel = pTD->td_ulFlags & TEX_ALPHACHANNEL;
   PIX  pixTexSize    = pTD->GetPixWidth() * pTD->GetPixHeight();
 
   // choose internal texture format for alpha textures
   INDEX iQuality;
-  ULONG ulInternalFormat;
+  uint32_t ulInternalFormat;
   if( bAlphaChannel)
   {
     iQuality = pTD->td_ctFrames>1 ? TS.ts_iAnimQualityA : TS.ts_iNormQualityA;
@@ -512,15 +512,15 @@ static void Convert( CTextureData *pTD)
   PIX pixMipSize   = pixWidth * pixHeight;
   PIX pixFrameSize = GetMipmapOffset( 15, pixWidth, pixHeight);
   // allocate memory for new texture
-  ULONG *pulFramesNew = (ULONG*)AllocMemory( pixFrameSize*pTD->td_ctFrames *BYTES_PER_TEXEL);
-  UWORD *puwFramesOld = (UWORD*)pTD->td_pulFrames;
+  uint32_t *pulFramesNew = (uint32_t*)AllocMemory( pixFrameSize*pTD->td_ctFrames *BYTES_PER_TEXEL);
+  uint16_t *puwFramesOld = (uint16_t*)pTD->td_pulFrames;
   ASSERT( puwFramesOld!=NULL);
 
   // determine alpha channel presence
-  BOOL bHasAlphaChannel = pTD->td_ulFlags & TEX_ALPHACHANNEL;
+  bool bHasAlphaChannel = pTD->td_ulFlags & TEX_ALPHACHANNEL;
 
   // unpack texture from 16-bit RGBA4444 or RGBA5551 format to RGBA8888 32-bit format
-  UBYTE r,g,b,a;
+  uint8_t r,g,b,a;
   // for each frame
   for( INDEX iFr=0; iFr<pTD->td_ctFrames; iFr++)
   { // get addresses of current frames (new and old)
@@ -528,7 +528,7 @@ static void Convert( CTextureData *pTD)
     // for each pixel
     for( INDEX iPix=0; iPix<pixMipSize; iPix++)
     { // read 16-bit pixel
-      UWORD uwPix = puwFramesOld[pixFrameOffset+iPix];
+      uint16_t uwPix = puwFramesOld[pixFrameOffset+iPix];
       // unpack it
       if( bHasAlphaChannel) {
         // with alpha channel
@@ -549,7 +549,7 @@ static void Convert( CTextureData *pTD)
       }
 
       // pack it back to 32-bit
-      ULONG ulPix = RGBAToColor(r,g,b,a);
+      uint32_t ulPix = RGBAToColor(r,g,b,a);
       // store 32-bit pixel
       pulFramesNew[pixFrameOffset+iPix] = ByteSwap(ulPix);
     }
@@ -588,11 +588,11 @@ static void RemoveOversizedMipmaps( CTextureData *pTD)
   while( ctMips<=ctSkipMips) ctSkipMips--;
 
   // determine memory size and allocate memory for rest mip-maps
-  SLONG slRemovedMipsSize = GetMipmapOffset( ctSkipMips, pixSizeU, pixSizeV) *BYTES_PER_TEXEL;
-  SLONG slNewFrameSize    = pTD->td_slFrameSize-slRemovedMipsSize;
-  ULONG *pulNewFrames = (ULONG*)AllocMemory( slNewFrameSize * pTD->td_ctFrames);
-  ULONG *pulNewFrame  = pulNewFrames;
-  ULONG *pulOldFrame  = pTD->td_pulFrames + (slRemovedMipsSize/BYTES_PER_TEXEL);
+  int32_t slRemovedMipsSize = GetMipmapOffset( ctSkipMips, pixSizeU, pixSizeV) *BYTES_PER_TEXEL;
+  int32_t slNewFrameSize    = pTD->td_slFrameSize-slRemovedMipsSize;
+  uint32_t *pulNewFrames = (uint32_t*)AllocMemory( slNewFrameSize * pTD->td_ctFrames);
+  uint32_t *pulNewFrame  = pulNewFrames;
+  uint32_t *pulOldFrame  = pTD->td_pulFrames + (slRemovedMipsSize/BYTES_PER_TEXEL);
 
   // copy only needed mip-maps from each frame
   for( INDEX iFr=0; iFr<pTD->td_ctFrames; iFr++) {
@@ -619,11 +619,11 @@ static void RemoveOversizedMipmaps( CTextureData *pTD)
 
 // test mipmap if it can be equilized
 #define EQUALIZER_TRESHOLD 3
-static BOOL IsEqualized( ULONG *pulMipmap, INDEX pixMipSize)
+static bool IsEqualized( uint32_t *pulMipmap, INDEX pixMipSize)
 {
   // determine components and calc averages
   COLOR col;
-  ULONG ulR=0, ulG=0, ulB=0;
+  uint32_t ulR=0, ulG=0, ulB=0;
   for( INDEX iPix=0; iPix<pixMipSize; iPix++) {
     col  = ByteSwap(pulMipmap[iPix]);
     ulR += (col&CT_RMASK)>>CT_RSHIFT;
@@ -633,9 +633,9 @@ static BOOL IsEqualized( ULONG *pulMipmap, INDEX pixMipSize)
   ulR /= pixMipSize;
   ulG /= pixMipSize;
   ulB /= pixMipSize;
-  const ULONG ulLoEdge = 127-EQUALIZER_TRESHOLD;
-  const ULONG ulHiEdge = 128+EQUALIZER_TRESHOLD;
-  BOOL bEqulized = FALSE;
+  const uint32_t ulLoEdge = 127-EQUALIZER_TRESHOLD;
+  const uint32_t ulHiEdge = 128+EQUALIZER_TRESHOLD;
+  bool bEqulized = FALSE;
   if( ulR>ulLoEdge && ulR<ulHiEdge &&
       ulG>ulLoEdge && ulG<ulHiEdge &&
       ulB>ulLoEdge && ulB<ulHiEdge) bEqulized = TRUE;
@@ -645,10 +645,10 @@ static BOOL IsEqualized( ULONG *pulMipmap, INDEX pixMipSize)
 
 // test mipmap if it can be transparent
 #define TRANS_TRESHOLD 7
-static BOOL IsTransparent( ULONG *pulMipmap, INDEX pixMipSize)
+static bool IsTransparent( uint32_t *pulMipmap, INDEX pixMipSize)
 {
   COLOR col;
-  ULONG ulA;
+  uint32_t ulA;
   // determine transparency
   for( INDEX iPix=0; iPix<pixMipSize; iPix++) {
     col = ByteSwap(pulMipmap[iPix]);
@@ -661,7 +661,7 @@ static BOOL IsTransparent( ULONG *pulMipmap, INDEX pixMipSize)
 
 
 // test mipmap whether it is grayscaled
-static BOOL IsGray( ULONG *pulMipmap, INDEX pixMipSize)
+static bool IsGray( uint32_t *pulMipmap, INDEX pixMipSize)
 {
   // loop thru texels
   for( INDEX iPix=0; iPix<pixMipSize; iPix++) {
@@ -690,7 +690,7 @@ void CTextureData::Read_t( CTStream *inFile)
 #endif // SE1_D3D
 
   // determine driver context presence (must have at least 1 texture unit!)
-  const BOOL bHasContext = (_pGfx->gl_ctRealTextureUnits>0);
+  const bool bHasContext = (_pGfx->gl_ctRealTextureUnits>0);
 
   // read version
   INDEX iVersion;
@@ -702,9 +702,9 @@ void CTextureData::Read_t( CTStream *inFile)
   
   // mark if this texture was loaded form the old format
   if( iVersion==3) td_ulFlags |= TEX_WASOLD;
-  BOOL bResetEffectBuffers = FALSE;
-  BOOL bFramesLoaded = FALSE;
-  BOOL bAlphaChannel = FALSE;
+  bool bResetEffectBuffers = FALSE;
+  bool bFramesLoaded = FALSE;
+  bool bAlphaChannel = FALSE;
   // loop trough file and react according to chunk ID
   do
   {
@@ -719,7 +719,7 @@ void CTextureData::Read_t( CTStream *inFile)
     if( idChunk == CChunkID("TDAT"))
     {
       // read data describing texture
-      ULONG ulFlags=0;
+      uint32_t ulFlags=0;
       INDEX ctMipLevels;
       *inFile >> ulFlags;
       *inFile >> td_mexWidth;
@@ -742,7 +742,7 @@ void CTextureData::Read_t( CTStream *inFile)
       // if no driver is present and texture is not static
       if( !(bHasContext || td_ulFlags&TEX_STATIC))
       { // determine frames' size
-        SLONG slSkipSize = td_slFrameSize;
+        int32_t slSkipSize = td_slFrameSize;
         if( iVersion==4) {
           slSkipSize = GetPixWidth()*GetPixHeight();
           if( bAlphaChannel) slSkipSize *=4;
@@ -753,8 +753,8 @@ void CTextureData::Read_t( CTStream *inFile)
         continue;
       }
       // calculate texture size for corresponding texture format and allocate memory
-      SLONG slTexSize = td_slFrameSize * td_ctFrames;
-      td_pulFrames = (ULONG*)AllocMemory( slTexSize);
+      int32_t slTexSize = td_slFrameSize * td_ctFrames;
+      td_pulFrames = (uint32_t*)AllocMemory( slTexSize);
       // if older version
       if( iVersion==3) {
         // alloc memory block and read mip-maps
@@ -765,7 +765,7 @@ void CTextureData::Read_t( CTStream *inFile)
         PIX pixFrameSizeOnDisk = GetPixWidth()*GetPixHeight();
         for( INDEX iFr=0; iFr<td_ctFrames; iFr++)
         { // loop thru frames
-          ULONG *pulCurrentFrame = td_pulFrames + (iFr * td_slFrameSize/BYTES_PER_TEXEL);
+          uint32_t *pulCurrentFrame = td_pulFrames + (iFr * td_slFrameSize/BYTES_PER_TEXEL);
           if( bAlphaChannel) {
             // read texture with alpha channel from file
             inFile->Read_t( pulCurrentFrame, pixFrameSizeOnDisk *4);
@@ -773,7 +773,7 @@ void CTextureData::Read_t( CTStream *inFile)
             // read texture without alpha channel from file
             inFile->Read_t( pulCurrentFrame, pixFrameSizeOnDisk *3);
             // add opaque alpha channel
-            AddAlphaChannel( (UBYTE*)pulCurrentFrame, pulCurrentFrame, pixFrameSizeOnDisk);
+            AddAlphaChannel( (uint8_t*)pulCurrentFrame, pulCurrentFrame, pixFrameSizeOnDisk);
           }
         }
       }
@@ -814,7 +814,7 @@ void CTextureData::Read_t( CTStream *inFile)
         inFile->Seek_t( 2* GetPixWidth()*GetPixHeight() *sizeof(SWORD), CTStream::SD_CUR);
       } else {
         ASSERT( td_pixBufferWidth>0 && td_pixBufferHeight>0);
-        ULONG ulSize = AllocEffectBuffers(this);
+        uint32_t ulSize = AllocEffectBuffers(this);
         if( td_ptegEffect->IsWater()) ulSize*=2;
         inFile->Seek_t( 2*ulSize, CTStream::SD_CUR);
       }
@@ -822,14 +822,14 @@ void CTextureData::Read_t( CTStream *inFile)
     else if( idChunk == CChunkID("FXB2")) 
     { // read effect buffers
       ASSERT( td_pixBufferWidth>0 && td_pixBufferHeight>0);
-      ULONG ulSize = AllocEffectBuffers(this);
+      uint32_t ulSize = AllocEffectBuffers(this);
       inFile->Read_t( td_pubBuffer1, ulSize);
       inFile->Read_t( td_pubBuffer2, ulSize);
     }
     // if this is chunk containing effect data
     else if( idChunk == CChunkID("FXDT"))
     { // read effect class
-      ULONG ulGlobalEffect;
+      uint32_t ulGlobalEffect;
       *inFile >> ulGlobalEffect;
       // read effect buffer dimensions
       if( iVersion==4) *inFile >> td_pixBufferWidth;
@@ -848,7 +848,7 @@ void CTextureData::Read_t( CTStream *inFile)
       FOREACHINDYNAMICARRAY( td_ptegEffect->teg_atesEffectSources, CTextureEffectSource, itEffectSource)
       {
         // read type of effect source
-        *inFile >> (ULONG) itEffectSource->tes_ulEffectSourceType;
+        *inFile >> (uint32_t) itEffectSource->tes_ulEffectSourceType;
         // read structure holding effect source properties
         inFile->Read_t( &itEffectSource->tes_tespEffectSourceProperties, sizeof(struct TextureEffectSourceProperties));
         // remember pointer to global effect
@@ -865,8 +865,8 @@ void CTextureData::Read_t( CTStream *inFile)
         }
       }
       // allocate memory for effect frame buffer
-      SLONG slFrameSize = GetMipmapOffset( 15, GetPixWidth(), GetPixHeight()) *BYTES_PER_TEXEL;
-      td_pulFrames = (ULONG*)AllocMemory( slFrameSize);
+      int32_t slFrameSize = GetMipmapOffset( 15, GetPixWidth(), GetPixHeight()) *BYTES_PER_TEXEL;
+      td_pulFrames = (uint32_t*)AllocMemory( slFrameSize);
       // remember once again new frame size just for the sake of old effect textures
       td_slFrameSize = slFrameSize;
       // mark that effect texture needs to be static
@@ -909,7 +909,7 @@ void CTextureData::Read_t( CTStream *inFile)
   if( bAlphaChannel) {
     td_ulFlags |= TEX_TRANSPARENT; 
     for( iFrame=0; iFrame<td_ctFrames; iFrame++) {
-      ULONG *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
+      uint32_t *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
       if( !IsTransparent( pulCurrentFrame, pixTexSize)) {
         // no need to test other frames if one found that isn't gray
         td_ulFlags &= ~TEX_TRANSPARENT; 
@@ -928,13 +928,13 @@ void CTextureData::Read_t( CTStream *inFile)
   if( !_bExport && !(td_ulFlags&TEX_KEEPCOLOR) && (_slTexSaturation!=256 || _slTexHueShift!=0)) {
     td_ulFlags |= TEX_SATURATED;
     for( iFrame=0; iFrame<td_ctFrames; iFrame++) {
-      ULONG *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
+      uint32_t *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
       AdjustBitmapColor( pulCurrentFrame, pulCurrentFrame, pixWidth, pixHeight, _slTexHueShift, _slTexSaturation);
     }
   }
   // make mipmaps
   for( iFrame=0; iFrame<td_ctFrames; iFrame++) { 
-    ULONG *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
+    uint32_t *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
     MakeMipmaps( td_ctFineMipLevels, pulCurrentFrame, pixWidth,pixHeight, iTexFilter);
   }
 
@@ -952,14 +952,14 @@ void CTextureData::Read_t( CTStream *inFile)
   if( !_bExport && tex_bColorizeMipmaps && !(td_ulFlags&TEX_CONSTANT)) {
     td_ulFlags |= TEX_COLORIZED;
     for( iFrame=0; iFrame<td_ctFrames; iFrame++) {
-      ULONG *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
+      uint32_t *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
       ColorizeMipmaps( 1, pulCurrentFrame, pixWidth, pixHeight);
     }
   } // if not colorized, test if texture is gray
   else {
     td_ulFlags |= TEX_GRAY; 
     for( iFrame=0; iFrame<td_ctFrames; iFrame++) {
-      ULONG *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
+      uint32_t *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
       if( !IsGray( pulCurrentFrame, pixTexSize)) {
         // no need to test other frames if one found that isn't gray
         td_ulFlags &= ~TEX_GRAY; 
@@ -970,7 +970,7 @@ void CTextureData::Read_t( CTStream *inFile)
   if( td_ctFrames<2 && (!gap_bAllowSingleMipmap || td_ctFineMipLevels>1))
   { // get last mipmap pointer
     INDEX ctLastPixels   = Max(pixWidth,pixHeight) / Min(pixWidth,pixHeight);
-    ULONG *pulLastMipMap = td_pulFrames + td_slFrameSize/BYTES_PER_TEXEL - ctLastPixels;
+    uint32_t *pulLastMipMap = td_pulFrames + td_slFrameSize/BYTES_PER_TEXEL - ctLastPixels;
     if( IsEqualized( pulLastMipMap, ctLastPixels)) td_ulFlags |= TEX_EQUALIZED;
   }
 
@@ -990,7 +990,7 @@ void CTextureData::Read_t( CTStream *inFile)
   if( !_bExport && iDitherType!=0) {
     td_ulFlags |= TEX_DITHERED;
     for( iFrame=0; iFrame<td_ctFrames; iFrame++) {
-      ULONG *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
+      uint32_t *pulCurrentFrame = td_pulFrames + iFrame*pixFrameSize;
       DitherMipmaps( iDitherType, pulCurrentFrame, pulCurrentFrame, pixWidth, pixHeight);
     }
   }
@@ -1022,8 +1022,8 @@ void CTextureData::Write_t( CTStream *outFile)   // throw char *
   *outFile << iVersion;
 
   // isolate required flags
-  ULONG ulFlags = td_ulFlags & (TEX_ALPHACHANNEL|TEX_32BIT);
-  BOOL bAlphaChannel = td_ulFlags&TEX_ALPHACHANNEL;
+  uint32_t ulFlags = td_ulFlags & (TEX_ALPHACHANNEL|TEX_32BIT);
+  bool bAlphaChannel = td_ulFlags&TEX_ALPHACHANNEL;
 
   // write chunk containing texture data
   outFile->WriteID_t( CChunkID("TDAT"));
@@ -1043,12 +1043,12 @@ void CTextureData::Write_t( CTStream *outFile)   // throw char *
     outFile->WriteID_t( CChunkID("FRMS"));
     PIX pixFrSize = GetPixWidth()*GetPixHeight();
     // eventually prepare temp buffer in case of frames without alpha channel
-    UBYTE *pubTmp = NULL;
-    if( !bAlphaChannel) pubTmp = (UBYTE*)AllocMemory( pixFrSize*3);
+    uint8_t *pubTmp = NULL;
+    if( !bAlphaChannel) pubTmp = (uint8_t*)AllocMemory( pixFrSize*3);
     // write frames without mip-maps (just write the largest one)
     for( INDEX iFr=0; iFr<td_ctFrames; iFr++ )
     { // determine write params
-      ULONG *pulCurrentFrame = td_pulFrames + (iFr * td_slFrameSize/BYTES_PER_TEXEL);
+      uint32_t *pulCurrentFrame = td_pulFrames + (iFr * td_slFrameSize/BYTES_PER_TEXEL);
       if( bAlphaChannel) { // write frame with alpha channel
         outFile->Write_t( pulCurrentFrame, pixFrSize *4);
       } else { // write frame without alpha channel
@@ -1090,7 +1090,7 @@ void CTextureData::Write_t( CTStream *outFile)   // throw char *
     if( td_pubBuffer1!=NULL && td_pubBuffer2!=NULL)
     { // write chunk containing effect buffers
       outFile->WriteID_t( CChunkID("FXB2"));
-      ULONG ulSize = GetEffectBufferSize(this);
+      uint32_t ulSize = GetEffectBufferSize(this);
       // write effect buffers
       outFile->Write_t( td_pubBuffer1, ulSize);
       outFile->Write_t( td_pubBuffer2, ulSize);
@@ -1133,10 +1133,10 @@ void CTextureData::Export_t( class CImageInfo &iiExportedImage, INDEX iFrame)
   iiExportedImage.ii_BitsPerPixel = (td_ulFlags&TEX_ALPHACHANNEL) ? 32 : 24;
 
   // prepare the texture for exporting (with or without alpha channel)
-  ULONG *pulFrame = td_pulFrames + td_slFrameSize*iFrame/BYTES_PER_TEXEL;
+  uint32_t *pulFrame = td_pulFrames + td_slFrameSize*iFrame/BYTES_PER_TEXEL;
   PIX  pixMipSize = pixWidth*pixHeight;
-  SLONG slMipSize = pixMipSize * iiExportedImage.ii_BitsPerPixel/8;
-  iiExportedImage.ii_Picture = (UBYTE*)AllocMemory( slMipSize);
+  int32_t slMipSize = pixMipSize * iiExportedImage.ii_BitsPerPixel/8;
+  iiExportedImage.ii_Picture = (uint8_t*)AllocMemory( slMipSize);
   // export frame
   if( td_ulFlags&TEX_ALPHACHANNEL) {
     memcpy( iiExportedImage.ii_Picture, pulFrame, slMipSize);
@@ -1151,10 +1151,10 @@ void CTextureData::Export_t( class CImageInfo &iiExportedImage, INDEX iFrame)
 
 
 // force texture to be re-loaded (if needed) in corresponding manner
-void CTextureData::Force( ULONG ulTexFlags) 
+void CTextureData::Force( uint32_t ulTexFlags) 
 {
   ASSERT( td_ctFrames>0);
-  const BOOL bReload = (td_pulFrames==NULL        && (ulTexFlags&TEX_STATIC))
+  const bool bReload = (td_pulFrames==NULL        && (ulTexFlags&TEX_STATIC))
                    || ((td_ulFlags&TEX_DISPOSED)  && (ulTexFlags&TEX_CONSTANT))
                    || ((td_ulFlags&TEX_SATURATED) && (ulTexFlags&TEX_KEEPCOLOR));
   td_ulFlags |= ulTexFlags & (TEX_CONSTANT|TEX_STATIC|TEX_KEEPCOLOR);
@@ -1164,7 +1164,7 @@ void CTextureData::Force( ULONG ulTexFlags)
 
 
 // set texture to be as current for accelerator and eventually upload it to accelerator's memory
-void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, BOOL bForceUpload/*=FALSE*/)
+void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, bool bForceUpload/*=FALSE*/)
 {
   // check API
   const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
@@ -1175,8 +1175,8 @@ void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, BOOL bForceUpload/*=FALSE
 #endif // SE1_D3D
 
   ASSERT( iFrameNo<td_ctFrames);
-  BOOL bNeedUpload = bForceUpload;
-  BOOL bNoDiscard  = TRUE;
+  bool bNeedUpload = bForceUpload;
+  bool bNoDiscard  = TRUE;
   PIX  pixWidth  = GetPixWidth();
   PIX  pixHeight = GetPixHeight();
 
@@ -1200,8 +1200,8 @@ void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, BOOL bForceUpload/*=FALSE
   }
 
   // determine probing
-  extern BOOL ProbeMode( CTimerValue tvLast);
-  BOOL bUseProbe = ProbeMode(td_tvLastDrawn);
+  extern bool ProbeMode( CTimerValue tvLast);
+  bool bUseProbe = ProbeMode(td_tvLastDrawn);
 
   // if we have an effect texture
   if( td_ptegEffect!=NULL)
@@ -1234,11 +1234,11 @@ void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, BOOL bForceUpload/*=FALSE
       }
     }
     // if current frame size differs from the previous one
-    SLONG slFrameSize = GetMipmapOffset( 15, pixWidth, pixHeight) *BYTES_PER_TEXEL;
+    int32_t slFrameSize = GetMipmapOffset( 15, pixWidth, pixHeight) *BYTES_PER_TEXEL;
     if( td_pulFrames==NULL || td_slFrameSize!=slFrameSize) {
       // (re)allocate the frame buffer
       if( td_pulFrames!=NULL) FreeMemory( td_pulFrames);
-      td_pulFrames = (ULONG*)AllocMemory( slFrameSize);
+      td_pulFrames = (uint32_t*)AllocMemory( slFrameSize);
       td_slFrameSize = slFrameSize;
       bNoDiscard = FALSE;
     }
@@ -1257,7 +1257,7 @@ void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, BOOL bForceUpload/*=FALSE
       // render effect texture
       td_ptegEffect->Render( iWantedMipLevel, pixWidth, pixHeight);
       // determine internal format
-      ULONG ulNewFormat;
+      uint32_t ulNewFormat;
       if( td_ulFlags&TEX_GRAY) {
         if( td_ulFlags&TEX_ALPHACHANNEL) ulNewFormat = TS.ts_tfLA8;
         else ulNewFormat = TS.ts_tfL8;
@@ -1318,7 +1318,7 @@ void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, BOOL bForceUpload/*=FALSE
 
     if( td_ctFrames>1) {
       // animation textures
-      td_pulObjects = (ULONG*)AllocMemory( td_ctFrames *sizeof(td_ulProbeObject));
+      td_pulObjects = (uint32_t*)AllocMemory( td_ctFrames *sizeof(td_ulProbeObject));
       for( INDEX i=0; i<td_ctFrames; i++) gfxGenerateTexture( td_pulObjects[i]);
     } else {
       // single-frame textures
@@ -1340,7 +1340,7 @@ void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, BOOL bForceUpload/*=FALSE
   if( td_iRenderFrame != _pGfx->gl_iFrameNumber) {
     td_iRenderFrame = _pGfx->gl_iFrameNumber;
     // determine size and update
-    SLONG slBytes = pixWidth*pixHeight * gfxGetFormatPixRatio(td_ulInternalFormat);
+    int32_t slBytes = pixWidth*pixHeight * gfxGetFormatPixRatio(td_ulInternalFormat);
     if( !td_tpLocal.tp_bSingleMipmap) slBytes = slBytes *4/3;
     _sfStats.IncrementCounter( CStatForm::SCI_TEXTUREBINDS, 1);
     _sfStats.IncrementCounter( CStatForm::SCI_TEXTUREBINDBYTES, slBytes);
@@ -1353,7 +1353,7 @@ void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, BOOL bForceUpload/*=FALSE
     ASSERT( td_pulFrames!=NULL && td_pulFrames[0]!=0xDEADBEEF);
 
     // must discard uploaded texture if single mipmap flag has been changed
-    const BOOL bLastSingleMipmap = td_ulFlags & TEX_SINGLEMIPMAP;
+    const bool bLastSingleMipmap = td_ulFlags & TEX_SINGLEMIPMAP;
     bNoDiscard = (bNoDiscard && bLastSingleMipmap==td_tpLocal.tp_bSingleMipmap);
     // update flag
     if( td_tpLocal.tp_bSingleMipmap) td_ulFlags |= TEX_SINGLEMIPMAP;
@@ -1365,8 +1365,8 @@ void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, BOOL bForceUpload/*=FALSE
       // animation textures
       for( INDEX iFr=0; iFr<td_ctFrames; iFr++)
       { // determine frame offset and upload texture frame
-        ULONG *pulCurrentFrame = td_pulFrames + (iFr * td_slFrameSize/BYTES_PER_TEXEL);
-        gfxSetTexture( ((ULONG*)td_ulObject)[iFr], td_tpLocal);
+        uint32_t *pulCurrentFrame = td_pulFrames + (iFr * td_slFrameSize/BYTES_PER_TEXEL);
+        gfxSetTexture( ((uint32_t*)td_ulObject)[iFr], td_tpLocal);
         gfxUploadTexture( pulCurrentFrame, pixWidth, pixHeight, td_ulInternalFormat, bNoDiscard);
       }
     } else {
@@ -1378,7 +1378,7 @@ void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, BOOL bForceUpload/*=FALSE
     if( td_ulProbeObject!=NONE) {
       PIX pixProbeWidth  = pixWidth;
       PIX pixProbeHeight = pixHeight;
-      ULONG *pulProbeFrame = td_pulFrames;
+      uint32_t *pulProbeFrame = td_pulFrames;
       GetMipmapOfSize( 16*16, pulProbeFrame, pixProbeWidth, pixProbeHeight);
       gfxSetTexture( td_ulProbeObject, td_tpLocal);
       gfxUploadTexture( pulProbeFrame, pixProbeWidth, pixProbeHeight, TS.ts_tfRGBA4, FALSE);
@@ -1400,12 +1400,12 @@ void CTextureData::SetAsCurrent( INDEX iFrameNo/*=0*/, BOOL bForceUpload/*=FALSE
     // must reset local texture parameters for each frame of animated texture
     for( INDEX iFr=0; iFr<td_ctFrames; iFr++) {
       td_tpLocal.Clear();
-      gfxSetTexture( ((ULONG*)td_ulObject)[iFr], td_tpLocal);
+      gfxSetTexture( ((uint32_t*)td_ulObject)[iFr], td_tpLocal);
     }
   } 
   // set corresponding probe or texture frame as current
-  ULONG ulTexObject = td_ulObject; // single-frame
-  if( td_ctFrames>1) ulTexObject = ((ULONG*)td_ulObject)[iFrameNo]; // animation
+  uint32_t ulTexObject = td_ulObject; // single-frame
+  if( td_ctFrames>1) ulTexObject = ((uint32_t*)td_ulObject)[iFrameNo]; // animation
   if( bUseProbe) {
     // set probe if burst value doesn't allow real texture
     if( _pGfx->gl_slAllowedUploadBurst<0) {  
@@ -1528,7 +1528,7 @@ MEX CTextureObject::GetWidth(void) const
 { return ((CTextureData*)ao_AnimData)->GetWidth();  };
 MEX CTextureObject::GetHeight(void) const
 { return ((CTextureData*)ao_AnimData)->GetHeight(); };
-ULONG CTextureObject::GetFlags(void) const
+uint32_t CTextureObject::GetFlags(void) const
 { return ((CTextureData*)ao_AnimData)->GetFlags();  };
 
 /****************************************
@@ -1546,7 +1546,7 @@ void ProcessScript_t( const CTFileName &inFileName) // throw char *
   CTextureData tex;
 	CListHead FrameNamesList;
   INDEX NoOfDataFound = 0;
-  BOOL bForce32bit = FALSE;
+  bool bForce32bit = FALSE;
 
 	File.Open_t( inFileName, CTStream::OM_READ);    // open script file for text reading
 
@@ -1626,7 +1626,7 @@ void ProcessScript_t( const CTFileName &inFileName) // throw char *
 
 
 void CreateTexture_t( const CTFileName &inFileName, const CTFileName &outFileName,
-                      MEX inMex, INDEX inMipmaps, BOOL bForce32bit)
+                      MEX inMex, INDEX inMipmaps, bool bForce32bit)
 {
   if( inFileName.FileExt() == ".SCR")
   {
@@ -1658,7 +1658,7 @@ void CreateTexture_t( const CTFileName &inFileName, const CTFileName &outFileNam
 }
 
 void CreateTexture_t( const CTFileName &inFileName,
-                      MEX inMex, INDEX inMipmaps, BOOL bForce32bit)
+                      MEX inMex, INDEX inMipmaps, bool bForce32bit)
 {
   CTFileName outFileName = inFileName.FileDir() + inFileName.FileName() + ".TEX";
   CreateTexture_t( inFileName, outFileName, inMex, inMipmaps, bForce32bit);
@@ -1709,7 +1709,7 @@ const CTFileName &CTextureObject::GetName(void)
 
 
 // check if this kind of objects is auto-freed
-BOOL CTextureData::IsAutoFreed(void)
+bool CTextureData::IsAutoFreed(void)
 {
   // cannot be
   return FALSE;
@@ -1718,14 +1718,14 @@ BOOL CTextureData::IsAutoFreed(void)
 
 
 // get amount of memory used by this object
-SLONG CTextureData::GetUsedMemory(void)
+int32_t CTextureData::GetUsedMemory(void)
 {
   // readout texture object
-  ULONG ulTexObject = td_ulObject;
+  uint32_t ulTexObject = td_ulObject;
   if( td_ctFrames>1) ulTexObject = td_pulObjects[0];
 
   // add structure size and anim block size
-  SLONG slUsed = sizeof(*this) + CAnimData::GetUsedMemory()-sizeof(CAnimData);
+  int32_t slUsed = sizeof(*this) + CAnimData::GetUsedMemory()-sizeof(CAnimData);
   // add effect buffers and static memory if exist
   if( td_pubBuffer1!=NULL) slUsed += 2* GetEffectBufferSize(this); // two buffers
   if( (td_ulFlags&TEX_STATIC) && td_pulFrames!=NULL) {
@@ -1733,7 +1733,7 @@ SLONG CTextureData::GetUsedMemory(void)
   }
 
   // add eventual uploaded size and finito
-  const SLONG slUploadSize = gfxGetTextureSize( ulTexObject, !td_tpLocal.tp_bSingleMipmap);
+  const int32_t slUploadSize = gfxGetTextureSize( ulTexObject, !td_tpLocal.tp_bSingleMipmap);
   return slUsed + td_ctFrames*slUploadSize; 
 }
 
@@ -1759,12 +1759,12 @@ COLOR CTextureData::GetTexel( MEX mexU, MEX mexV)
   ASSERT(pixU>=0 && pixU<GetPixWidth());
   ASSERT(pixV>=0 && pixV<GetPixHeight());
   // read texel from texture
-  return ByteSwap( *(ULONG*)(td_pulFrames + pixV*GetPixWidth() + pixU));
+  return ByteSwap( *(uint32_t*)(td_pulFrames + pixV*GetPixWidth() + pixU));
 }
 
 
 // copy (and eventually convert to floats) one row from texture to an array (iChannel is 1=R,2=G,3=B,4=A)
-void CTextureData::FetchRow( PIX pixRow, void *pvDst, INDEX iChannel/*=4*/, BOOL bConvertToFloat/*=TRUE*/)
+void CTextureData::FetchRow( PIX pixRow, void *pvDst, INDEX iChannel/*=4*/, bool bConvertToFloat/*=TRUE*/)
 {
   // if the texture is not static
   if (!(td_ulFlags&TEX_STATIC) && !(td_ulFlags&TEX_CONSTANT)) {
@@ -1776,17 +1776,17 @@ void CTextureData::FetchRow( PIX pixRow, void *pvDst, INDEX iChannel/*=4*/, BOOL
   Force( TEX_STATIC|TEX_CONSTANT);
 
   // determine row offset and loop thru row pixels
-  ULONG *pulSrc = td_pulFrames + pixRow*GetPixWidth();
+  uint32_t *pulSrc = td_pulFrames + pixRow*GetPixWidth();
   for( INDEX iCol=0; iCol<GetPixWidth(); iCol++) {
-    const UBYTE ubPix = ((UBYTE*)pulSrc)[iCol*4 +iChannel-1];
+    const uint8_t ubPix = ((uint8_t*)pulSrc)[iCol*4 +iChannel-1];
     if( bConvertToFloat) ((FLOAT*)pvDst)[iCol] = NormByteToFloat(ubPix);
-    else                 ((UBYTE*)pvDst)[iCol] = ubPix;
+    else                 ((uint8_t*)pvDst)[iCol] = ubPix;
   }
 }
 
 
 // get pointer to one row of texture
-ULONG *CTextureData::GetRowPointer( PIX pixRow)
+uint32_t *CTextureData::GetRowPointer( PIX pixRow)
 {
   // if the texture is not static
   if (!(td_ulFlags&TEX_STATIC) && !(td_ulFlags&TEX_CONSTANT)) {

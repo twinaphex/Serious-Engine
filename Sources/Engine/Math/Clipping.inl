@@ -111,101 +111,6 @@ ENGINE_API inline void CIntersector::AddEdge( FLOAT fedgx1, FLOAT fedgy1, FLOAT 
 inline BOOL ClipLineByNearPlane(FLOAT3D &v0, FLOAT3D &v1, FLOAT fPlaneDistance, 
                             ULONG &ulCode0, ULONG &ulCode1, ULONG ulCodeClip)
 {
-#if ASMOPT
-  static FLOAT f1=1;
-  static FLOAT fDistance0, fDistance1;
-  __asm {
-    mov     esi,D [v0]
-    mov     edi,D [v1]
-
-    fld     D [fPlaneDistance]
-    fchs
-
-    fld     D [esi+ 8]
-    fsubr   st(0),st(1)
-    fld     D [edi+ 8]
-    fsubp   st(2),st(0)
-    fstp    D [fDistance0]
-    fst     D [fDistance1]
-
-    fsubr   D [fDistance0]
-    fdivr   D [f1]
-
-    cmp     D [fDistance0],0
-    jg      firstFront
-
-
-;firstBack:
-    cmp     D [fDistance1],0
-    jle     falseRet
-
-;secondFront:
-    mov     eax,D [fPlaneDistance]
-    mov     ebx,D [ulCode0]
-    xor     eax,80000000h
-    mov     edx,D [ulCodeClip]
-    mov     D [esi+ 8],eax
-    mov     D [ebx],edx
-
-    fmul    D [fDistance0]
-    ;//st0=fFactor
-    fld     D [esi+ 0]
-    fsub    D [edi+ 0]
-    fld     D [esi+ 4]
-    fsub    D [edi+ 4]
-    ;//st0=v0(2)-v1(2), st1=v0(1)-v1(1), st2=fFactor
-    fxch    st(1)
-    fmul    st(0),st(2)
-    fxch    st(1)
-    fmulp   st(2),st(0)
-    ;//st0=(v0(1)-v1(1))*fFactor, st1=(v0(2)-v1(2))*fFactor
-    fsubr   D [esi+ 0]
-    fxch    st(1)
-    fsubr   D [esi+ 4]
-    fxch    st(1)
-    fstp    D [esi+ 0]
-    fst     D [esi+ 4]
-    jmp     trueRet
-
- firstFront:
-    cmp     D [fDistance1],0
-    jg      trueRet
-
-;secondBack:
-    mov     eax,D [fPlaneDistance]
-    mov     ebx,D [ulCode1]
-    mov     edx,D [ulCodeClip]
-    xor     eax,80000000h
-    shl     edx,8
-    mov     D [edi+ 8],eax
-    mov     D [ebx],edx
-    
-    fmul    D [fDistance1]
-    ;//st0=fFactor
-    fld     D [esi+ 0]
-    fsub    D [edi+ 0]
-    fld     D [esi+ 4]
-    fsub    D [edi+ 4]
-    ;//st0=v0(2)-v1(2), st1=v0(1)-v1(1), st2=fFactor
-    fxch    st(1)
-    fmul    st(0),st(2)
-    fxch    st(1)
-    fmulp   st(2),st(0)
-    ;//st0=(v0(1)-v1(1))*fFactor, st1=(v0(2)-v1(2))*fFactor
-    fsubr   D [edi+ 0]
-    fxch    st(1)
-    fsubr   D [edi+ 4]
-    fxch    st(1)
-    fstp    D [edi+ 0]
-    fst     D [edi+ 4]
-  }
-trueRet:
-  _asm fstp st(0)
-  return TRUE;
-falseRet:
-  _asm fstp st(0)
-  return FALSE;
-#else
   // calculate point distances from clip plane
   FLOAT fDistance0 = -fPlaneDistance-v0(3);
   FLOAT fDistance1 = -fPlaneDistance-v1(3);
@@ -246,7 +151,6 @@ falseRet:
       return TRUE;
     }
   }
-#endif
 }
 
 /*
@@ -255,99 +159,6 @@ falseRet:
 inline BOOL ClipLineByFarPlane(FLOAT3D &v0, FLOAT3D &v1, FLOAT fPlaneDistance, 
                             ULONG &ulCode0, ULONG &ulCode1, ULONG ulCodeClip)
 {
-#if ASMOPT
-  static FLOAT f1=1;
-  static FLOAT fDistance0, fDistance1;
-  __asm {
-    mov     esi,D [v0]
-    mov     edi,D [v1]
-
-    fld     D [fPlaneDistance]
-    fadd    D [esi+ 8]
-    fld     D [fPlaneDistance]
-    fadd    D [edi+ 8]
-    fxch    st(1)
-    fstp    D [fDistance0]
-    fst     D [fDistance1]
-
-    fsubr   D [fDistance0]
-    fdivr   D [f1]
-
-    cmp     D [fDistance0],0
-    jg      firstFront
-
-
-;firstBack:
-    cmp     D [fDistance1],0
-    jle     falseRet
-
-;secondFront:
-    mov     eax,D [fPlaneDistance]
-    mov     ebx,D [ulCode0]
-    xor     eax,80000000h
-    mov     edx,D [ulCodeClip]
-    mov     D [esi+ 8],eax
-    mov     D [ebx],edx
-
-    fmul    D [fDistance0]
-    ;//st0=fFactor
-    fld     D [esi+ 0]
-    fsub    D [edi+ 0]
-    fld     D [esi+ 4]
-    fsub    D [edi+ 4]
-    ;//st0=v0(2)-v1(2), st1=v0(1)-v1(1), st2=fFactor
-    fxch    st(1)
-    fmul    st(0),st(2)
-    fxch    st(1)
-    fmulp   st(2),st(0)
-    ;//st0=(v0(1)-v1(1))*fFactor, st1=(v0(2)-v1(2))*fFactor
-    fsubr   D [esi+ 0]
-    fxch    st(1)
-    fsubr   D [esi+ 4]
-    fxch    st(1)
-    fstp    D [esi+ 0]
-    fst     D [esi+ 4]
-    jmp     trueRet
-
- firstFront:
-    cmp     D [fDistance1],0
-    jg      trueRet
-
-;secondBack:
-    mov     eax,D [fPlaneDistance]
-    mov     ebx,D [ulCode1]
-    mov     edx,D [ulCodeClip]
-    xor     eax,80000000h
-    shl     edx,8
-    mov     D [edi+8],eax
-    mov     D [ebx],edx
-    
-    fmul    D [fDistance1]
-    ;//st0=fFactor
-    fld     D [esi+ 0]
-    fsub    D [edi+ 0]
-    fld     D [esi+ 4]
-    fsub    D [edi+ 4]
-    ;//st0=v0(2)-v1(2), st1=v0(1)-v1(1), st2=fFactor
-    fxch    st(1)
-    fmul    st(0),st(2)
-    fxch    st(1)
-    fmulp   st(2),st(0)
-    ;//st0=(v0(1)-v1(1))*fFactor, st1=(v0(2)-v1(2))*fFactor
-    fsubr   D [edi+ 0]
-    fxch    st(1)
-    fsubr   D [edi+ 4]
-    fxch    st(1)
-    fstp    D [edi+ 0]
-    fst     D [edi+ 4]
-  }
-trueRet:
-  _asm fstp st(0)
-  return TRUE;
-falseRet:
-  _asm fstp st(0)
-  return FALSE;
-#else
   // calculate point distances from clip plane
   FLOAT fDistance0 = fPlaneDistance+v0(3);
   FLOAT fDistance1 = fPlaneDistance+v1(3);
@@ -388,7 +199,6 @@ falseRet:
       return TRUE;
     }
   }
-#endif
 }
 
 static inline void MakeClipPlane(const FLOAT3D &vN, FLOAT fD, FLOATplane3D &pl)

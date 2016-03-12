@@ -101,14 +101,14 @@ void CLightSource::Read_t( CTStream *pstrm)        // throw char *
       *pstrm>>iLayerInShadowMap;
       // for each layer in the shadow map
       INDEX iLayerInShadowMapCurrent = 0;
-      BOOL bLayerFound = FALSE;
+      bool bLayerFound = false;
       FOREACHINLIST(CBrushShadowLayer, bsl_lnInShadowMap, pbsm->bsm_lhLayers, itbsl) {
         // if it is that layer
         if (iLayerInShadowMapCurrent==iLayerInShadowMap) {
           // attach the layer to the light source
           itbsl->bsl_plsLightSource = this;
           ls_lhLayers.AddTail(itbsl->bsl_lnInLightSource);
-          bLayerFound = TRUE;
+          bLayerFound = true;
           break;
         }
         iLayerInShadowMapCurrent++;
@@ -186,18 +186,18 @@ void CLightSource::DiscardShadowLayers(void)
 }
 
 // test if a polygon has a layer from this light source
-BOOL CLightSource::PolygonHasLayer(CBrushPolygon &bpo)
+bool CLightSource::PolygonHasLayer(CBrushPolygon &bpo)
 {
   // for each shadow layer in the polygon
-  FOREACHINLIST(CBrushShadowLayer, bsl_lnInShadowMap, bpo.bpo_smShadowMap.bsm_lhLayers, itbsl) {
-    // if it is from this light source
-    if (itbsl->bsl_plsLightSource==this) {
-      // it does have
-      return TRUE;
-    }
+  FOREACHINLIST(CBrushShadowLayer, bsl_lnInShadowMap, bpo.bpo_smShadowMap.bsm_lhLayers, itbsl)
+  {
+     // if it is from this light source, it does have */
+     if (itbsl->bsl_plsLightSource==this)
+        return true;
   }
+
   // otherwise, it doesn't have
-  return FALSE;
+  return false;
 }
 
 // set layer parameters
@@ -276,29 +276,28 @@ void CLightSource::UpdateLayer(CBrushShadowLayer &bsl)
   SetLayerParameters(bsl, bpo, lr);
 }
 
-static inline BOOL IsPolygonInfluencedByDirectionalLight(CBrushPolygon *pbpo)
+static inline bool IsPolygonInfluencedByDirectionalLight(CBrushPolygon *pbpo)
 {
   ULONG ulFlags = pbpo->bpo_ulFlags;
-  // if polygon has no directional light
-  if (!(ulFlags&(BPOF_HASDIRECTIONALLIGHT|BPOF_HASDIRECTIONALAMBIENT))) {
-    // not influenced
-    return FALSE;
-  }
+
+  // if polygon has no directional light, not influenced
+  if (!(ulFlags&(BPOF_HASDIRECTIONALLIGHT|BPOF_HASDIRECTIONALAMBIENT)))
+     return false;
 
   // if has no shadows
-  BOOL bIsTransparent = (ulFlags&BPOF_PORTAL) && !(ulFlags&(BPOF_TRANSLUCENT|BPOF_TRANSPARENT));
-  BOOL bTakesShadow = !(ulFlags&BPOF_FULLBRIGHT);
+  bool bIsTransparent = (ulFlags&BPOF_PORTAL) && !(ulFlags&(BPOF_TRANSLUCENT|BPOF_TRANSPARENT));
+  bool bTakesShadow = !(ulFlags&BPOF_FULLBRIGHT);
   if (bIsTransparent || !bTakesShadow) {
     // not influenced
-    return FALSE;
+    return false;
   }
 
   // influenced
-  return TRUE;
+  return true;
 }
 
 // find all shadow maps that should have layers from this light source
-void CLightSource::FindShadowLayersDirectional(BOOL bSelectedOnly)
+void CLightSource::FindShadowLayersDirectional(bool bSelectedOnly)
 {
   // for each layer of the light source
   {FORDELETELIST(CBrushShadowLayer, bsl_lnInLightSource, ls_lhLayers, itbsl) {
@@ -361,45 +360,45 @@ void CLightSource::FindShadowLayersDirectional(BOOL bSelectedOnly)
 
 static const FLOAT3D *_pvOrigin;
 static FLOATaabbox3D _boxLight;
-static BOOL  _bCastShadows;
-static FLOAT _rRange;
-static FLOAT _fEpsilon;
+static bool  _bCastShadows;
+static float _rRange;
+static float _fEpsilon;
 static INDEX _iDynamic; // 0=disallow, 1=maybe (depend on flag), 2=allow
 
 
-static inline BOOL IsPolygonInfluencedByPointLight(CBrushPolygon *pbpo)
+static inline bool IsPolygonInfluencedByPointLight(CBrushPolygon *pbpo)
 {
   ULONG ulFlags = pbpo->bpo_ulFlags;
 
   // if has no shadows
-  BOOL bIsTransparent = (ulFlags&BPOF_PORTAL) && !(ulFlags&(BPOF_TRANSLUCENT|BPOF_TRANSPARENT));
-  BOOL bTakesShadow  = !(ulFlags&BPOF_FULLBRIGHT);
-  if( bIsTransparent || !bTakesShadow) {
-    // not influenced
-    return FALSE;
-  }
+  bool bIsTransparent = (ulFlags&BPOF_PORTAL) && !(ulFlags&(BPOF_TRANSLUCENT|BPOF_TRANSPARENT));
+  bool bTakesShadow  = !(ulFlags&BPOF_FULLBRIGHT);
+
+  // not influenced
+  if( bIsTransparent || !bTakesShadow)
+    return false;
 
   // if in range of light
   if( _boxLight.HasContactWith(pbpo->bpo_boxBoundingBox)) {
     // find distance of light from the plane
-    const FLOAT fDistance = pbpo->bpo_pbplPlane->bpl_plAbsolute.PointDistance(*_pvOrigin);
+    const float fDistance = pbpo->bpo_pbplPlane->bpl_plAbsolute.PointDistance(*_pvOrigin);
     // if the polygon is in range, (and not behind for diffuse lights)
     if( fDistance<=_rRange && (!_bCastShadows || fDistance>_fEpsilon)) {
       // if this light is allowed on this polygon
       if( _iDynamic==2 || (!(ulFlags&BPOF_NODYNAMICLIGHTS) && _iDynamic==1)) {
         // influenced
-        return TRUE;
+        return true;
       }
     }
   }
   // not influenced
-  return FALSE;
+  return false;
 }
 
 
 extern CEntity *_penLightUpdating = NULL;
 
-void CLightSource::FindShadowLayersPoint(BOOL bSelectedOnly)
+void CLightSource::FindShadowLayersPoint(bool bSelectedOnly)
 {
   // find bounding sphere and bounding box of the light influence
   _rRange = ls_rFallOff;
@@ -522,13 +521,11 @@ void CLightSource::FindShadowLayersPoint(BOOL bSelectedOnly)
   }}
 }
 
-void CLightSource::FindShadowLayers(BOOL bSelectedOnly)
+void CLightSource::FindShadowLayers(bool bSelectedOnly)
 {
-  // if the light is used for lens flares only
-  if (ls_ulFlags&LSF_LENSFLAREONLY) {
-    // do nothing
+  // if the light is used for lens flares only, do nothing
+  if (ls_ulFlags&LSF_LENSFLAREONLY)
     return;
-  }
 
   // use spatial classification!!!!
 
@@ -577,12 +574,12 @@ void CLightSource::UpdateTerrains(CPlacement3D plOld, CPlacement3D plNew)
         if(bboxLightPos.HasContactWith(bboxLightOld)) {
           FLOATaabbox3D bboxLightAll = bboxLightOld;
           bboxLightAll |= bboxLightNew;
-          ptrTerrain->UpdateShadowMap(&bboxLightAll,TRUE);
+          ptrTerrain->UpdateShadowMap(&bboxLightAll,true);
         } else {
           // Update part of shadow map where light was before moving
-          ptrTerrain->UpdateShadowMap(&bboxLightOld,TRUE);
+          ptrTerrain->UpdateShadowMap(&bboxLightOld,true);
           // Update part of shadow map where light is now
-          ptrTerrain->UpdateShadowMap(&bboxLightNew,TRUE);
+          ptrTerrain->UpdateShadowMap(&bboxLightNew,true);
         }
       }
     }
@@ -611,14 +608,15 @@ void CLightSource::SetLightSourceWithNoDiscarding( const CLightSource &lsOrigina
 void CLightSource::SetLightSource(const CLightSource &lsOriginal)
 {
   // test if layers should be discarded
-  BOOL bDiscardLayers =
+  bool bDiscardLayers =
     ls_rFallOff               !=  lsOriginal.ls_rFallOff               ||
     ls_ubPolygonalMask        !=  lsOriginal.ls_ubPolygonalMask        ||
     ls_ulFlags                !=  lsOriginal.ls_ulFlags                ||
     ls_fNearClipDistance      !=  lsOriginal.ls_fNearClipDistance      ||
     ls_fFarClipDistance       !=  lsOriginal.ls_fFarClipDistance       ;
+
   // test if shadows should be uncached
-  BOOL bUncacheShadows = bDiscardLayers ||
+  bool bUncacheShadows = bDiscardLayers ||
     ls_rHotSpot               !=  lsOriginal.ls_rHotSpot               ||
     ls_colColor               !=  lsOriginal.ls_colColor               ||
     ls_colAmbient             !=  lsOriginal.ls_colAmbient             ||
@@ -633,7 +631,7 @@ void CLightSource::SetLightSource(const CLightSource &lsOriginal)
   SetLightSourceWithNoDiscarding(lsOriginal);
   // find all shadow maps that should have layers from this light source if needed
   if( bDiscardLayers) {
-    FindShadowLayers(FALSE);
+    FindShadowLayers(false);
   }
 
   UpdateTerrains();
@@ -657,7 +655,7 @@ void CLightSource::GetLightColor( UBYTE &ubR, UBYTE &ubG, UBYTE &ubB) const
   ColorToRGB( ls_colColor, ubR, ubG, ubB);
   if( ls_paoLightAnimation==NULL) return;
   // animation!
-  FLOAT fRatio;
+  float fRatio;
   COLOR col0, col1;
   UBYTE ubMR, ubMG, ubMB;
   ls_paoLightAnimation->GetFrame( (SLONG&)col0, (SLONG&)col1, fRatio);
@@ -681,7 +679,7 @@ void CLightSource::GetLightAmbient( UBYTE &ubAR, UBYTE &ubAG, UBYTE &ubAB) const
 {
   ColorToRGB( ls_colAmbient, ubAR, ubAG, ubAB);
   if( ls_paoAmbientLightAnimation==NULL) return;
-  FLOAT fRatio;
+  float fRatio;
   COLOR col0, col1;
   UBYTE ubMR, ubMG, ubMB;
   ls_paoAmbientLightAnimation->GetFrame( (SLONG&)col0, (SLONG&)col1, fRatio);

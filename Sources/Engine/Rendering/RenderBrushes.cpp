@@ -100,8 +100,8 @@ void CRenderer::DrawBrushPolygonVerticesAndEdges(CBrushPolygon &bpo)
         continue;
       }
 
-      BOOL bDrawVertex0 = ulClipFlags&LCFVERTEX0(LCF_UNCLIPPED) && !(bvx0.bvx_ulFlags&BVXF_DRAWNINWIREFRAME);
-      BOOL bDrawVertex1 = ulClipFlags&LCFVERTEX1(LCF_UNCLIPPED) && !(bvx1.bvx_ulFlags&BVXF_DRAWNINWIREFRAME);
+      bool bDrawVertex0 = ulClipFlags&LCFVERTEX0(LCF_UNCLIPPED) && !(bvx0.bvx_ulFlags&BVXF_DRAWNINWIREFRAME);
+      bool bDrawVertex1 = ulClipFlags&LCFVERTEX1(LCF_UNCLIPPED) && !(bvx1.bvx_ulFlags&BVXF_DRAWNINWIREFRAME);
       // if edges should be drawn
       if (_wrpWorldRenderPrefs.wrp_ftEdges != CWorldRenderPrefs::FT_NONE) {
         // draw line between vertices
@@ -300,7 +300,7 @@ void CRenderer::PrepareBrush(CEntity *penBrush)
  */
 void CRenderer::RenderWireFrameBrushes(void)
 {
-  BOOL bRenderNonField =
+  bool bRenderNonField =
      _wrpWorldRenderPrefs.   wrp_ftEdges != CWorldRenderPrefs::FT_NONE
    ||_wrpWorldRenderPrefs.wrp_ftVertices != CWorldRenderPrefs::FT_NONE
    ||_wrpWorldRenderPrefs.wrp_stSelection== CWorldRenderPrefs::ST_VERTICES;

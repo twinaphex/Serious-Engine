@@ -30,7 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define STEREO_BOTH    2
 
 // query whether user has turned stereo rendering on
-ENGINE_API BOOL Stereo_IsEnabled(void);
+ENGINE_API bool Stereo_IsEnabled(void);
 // set buffer for stereo rendering left/right/both
 ENGINE_API void Stereo_SetBuffer(INDEX iEye);
 // adjust perspective projection for stereo rendering left/right/both

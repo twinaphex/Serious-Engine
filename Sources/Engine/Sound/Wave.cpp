@@ -47,26 +47,26 @@ void PCMWaveInput::CheckWaveFormat_t(WAVEFORMATEX wfeCheck, char *pcErrorString)
 
 
 // Get next data
-inline ULONG PCMWaveInput::GetData_t(CTStream *pCstrInput)
+inline uint32_t PCMWaveInput::GetData_t(CTStream *pCstrInput)
 {
   ASSERT(pwi_bInfoLoaded);
   // read data according to bits per sample value
   if (pwi_wfeWave.wBitsPerSample==8) {
-    // read UBYTE
-    UBYTE ubData;
+    // read uint8_t
+    uint8_t ubData;
     *pCstrInput >> ubData;
-    return ((ULONG)ubData) <<16;            // (shift) prepare data for shrink/expand operation
+    return ((uint32_t)ubData) <<16;            // (shift) prepare data for shrink/expand operation
   } else {
     // read UWORD
     SWORD swData;
     *pCstrInput >> swData;
-    return ((ULONG)(swData+0x8000)) <<8;   // (shift) prepare data for shrink/expand operation
+    return ((uint32_t)(swData+0x8000)) <<8;   // (shift) prepare data for shrink/expand operation
   }
 }
 
 
 // Store data
-inline void PCMWaveInput::StoreData(ULONG ulData)
+inline void PCMWaveInput::StoreData(uint32_t ulData)
 {
   ASSERT( pwi_wfeDesired.wBitsPerSample==16);
   *pwi_pswMemory++ = ((SWORD)(ulData>>8) -0x8000);  // (shift) restore data format
@@ -79,7 +79,7 @@ inline void PCMWaveInput::StoreData(ULONG ulData)
 void PCMWaveInput::CopyData_t(CTStream *pCstrInput)
 {
   // for all input data (mono and stereo)
-  ULONG ulDataCount = GetDataLength() * pwi_wfeWave.nChannels;
+  uint32_t ulDataCount = GetDataLength() * pwi_wfeWave.nChannels;
   while (ulDataCount > 0) {
     StoreData(GetData_t(pCstrInput));   // read and store data from input (hidden BitsPerSample conversion!)
     ulDataCount--;                      // to next data
@@ -99,7 +99,7 @@ void PCMWaveInput::ShrinkData_t(CTStream *pCstrInput)
   // *** MONO ***
   if (pwi_wfeWave.nChannels == 1) {
     DOUBLE dInterData, dTempData, dRatio;
-    ULONG ulDataCount;
+    uint32_t ulDataCount;
 
     // data intermediate value
     dInterData = 0.0;
@@ -111,7 +111,7 @@ void PCMWaveInput::ShrinkData_t(CTStream *pCstrInput)
       if (dRatio<1.0) {
         dTempData = GetData_t(pCstrInput);
         dInterData += dTempData*dRatio;
-        StoreData(ULONG(dInterData/pwi_dRatio));
+        StoreData((uint32_t)(dInterData/pwi_dRatio));
         // new intermediate value
         dRatio = 1 - dRatio;
         dInterData = dTempData*dRatio;
@@ -124,13 +124,13 @@ void PCMWaveInput::ShrinkData_t(CTStream *pCstrInput)
       }
       ulDataCount--;        // to next data
     }
-    StoreData(ULONG(dInterData/(pwi_dRatio-dRatio)));
+    StoreData((uint32_t)(dInterData/(pwi_dRatio-dRatio)));
 
 
   // *** STEREO ***
   } else if (pwi_wfeWave.nChannels == 2) {
     DOUBLE dLInterData, dRInterData, dLTempData, dRTempData, dRatio;
-    ULONG ulDataCount;
+    uint32_t ulDataCount;
 
     // data intermediate value
     dLInterData = 0.0;
@@ -145,8 +145,8 @@ void PCMWaveInput::ShrinkData_t(CTStream *pCstrInput)
         dRTempData = GetData_t(pCstrInput);
         dLInterData += dLTempData*dRatio;
         dRInterData += dRTempData*dRatio;
-        StoreData(ULONG(dLInterData/pwi_dRatio));
-        StoreData(ULONG(dRInterData/pwi_dRatio));
+        StoreData((uint32_t)(dLInterData/pwi_dRatio));
+        StoreData((uint32_t)(dRInterData/pwi_dRatio));
         // new intermediate value
         dRatio = 1 - dRatio;
         dLInterData = dLTempData*dRatio;
@@ -161,8 +161,8 @@ void PCMWaveInput::ShrinkData_t(CTStream *pCstrInput)
       }
       ulDataCount--;        // to next data
     }
-    StoreData(ULONG(dLInterData/(pwi_dRatio-dRatio)));
-    StoreData(ULONG(dRInterData/(pwi_dRatio-dRatio)));
+    StoreData((uint32_t)(dLInterData/(pwi_dRatio-dRatio)));
+    StoreData((uint32_t)(dRInterData/(pwi_dRatio-dRatio)));
   }
 }
 
@@ -287,7 +287,7 @@ void PCMWaveInput::LoadData_t(CTStream *pCstrInput, SWORD *pswMemory, WAVEFORMAT
 /*
  *  Length in bytes
  */
-ULONG PCMWaveInput::GetByteLength(void)
+uint32_t PCMWaveInput::GetByteLength(void)
 {
   ASSERT(pwi_bInfoLoaded);
   return pwi_ulDataLength;
@@ -296,14 +296,14 @@ ULONG PCMWaveInput::GetByteLength(void)
 /*
  *  Length in blocks
  */
-ULONG PCMWaveInput::GetDataLength(void)
+uint32_t PCMWaveInput::GetDataLength(void)
 {
   ASSERT(pwi_bInfoLoaded);
   return GetByteLength() / (pwi_wfeWave.nChannels * pwi_wfeWave.wBitsPerSample/8);
 }
 
 
-ULONG PCMWaveInput::GetDataLength(WAVEFORMATEX SwfeDesired)
+uint32_t PCMWaveInput::GetDataLength(WAVEFORMATEX SwfeDesired)
 {
   ASSERT(pwi_bInfoLoaded);
   // return buffer size
@@ -323,13 +323,13 @@ DOUBLE PCMWaveInput::GetSecondsLength(void)
 /*
  *  Buffer length in bytes
  */
-ULONG PCMWaveInput::DetermineBufferSize(void)
+uint32_t PCMWaveInput::DetermineBufferSize(void)
 {
   return DetermineBufferSize(pwi_wfeWave);
 }
 
 
-ULONG PCMWaveInput::DetermineBufferSize( WAVEFORMATEX SwfeDesired)
+uint32_t PCMWaveInput::DetermineBufferSize( WAVEFORMATEX SwfeDesired)
 {
   ASSERT(pwi_bInfoLoaded);
   DOUBLE dRatio;
@@ -341,5 +341,5 @@ ULONG PCMWaveInput::DetermineBufferSize( WAVEFORMATEX SwfeDesired)
   // 16 bit sound with 2 channels must be aligned to 4 bytes boundary and a multiply with
   // random ratio can as result give any possible number
   DOUBLE ret = ceil(dRatio*GetDataLength()) * (pwi_wfeWave.nChannels*(pwi_wfeWave.wBitsPerSample/8));
-  return (ULONG)ret;
+  return (uint32_t)ret;
 }

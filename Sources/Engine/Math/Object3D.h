@@ -137,14 +137,14 @@ public:
 class ENGINE_API CObjectPolygonEdge {
 public:
   CObjectEdge *ope_Edge;          // pointer to the edge
-  BOOL ope_Backward;              // true if vertex0 and vertex1 must be swapped
+  bool ope_Backward;              // true if vertex0 and vertex1 must be swapped
 
   /* Default constructor. */
   inline CObjectPolygonEdge(void) : ope_Backward(FALSE) {};
   /* Constructor from edge pointer. */
   inline CObjectPolygonEdge(CObjectEdge *poed) : ope_Edge(poed), ope_Backward(FALSE) {};
   /* Constructor from edge pointer and reverse marker. */
-  inline CObjectPolygonEdge(CObjectEdge *poed, BOOL bReverse)
+  inline CObjectPolygonEdge(CObjectEdge *poed, bool bReverse)
     : ope_Edge(poed), ope_Backward(bReverse) {};
   /* Clear the object. */
   inline void Clear(void) {};
@@ -225,7 +225,7 @@ public:
   /* Check the optimization algorithm. */
   void CheckOptimizationAlgorithm(void);
   /* See if all polygons in sector are valid (planar). */
-  BOOL ArePolygonsPlanar(void);
+  bool ArePolygonsPlanar(void);
   /* Create indices for all members of all arrays. */
   void CreateIndices(void);
   /* Create BSP tree for sector. */
@@ -309,10 +309,10 @@ public:
 
   /* Create a new polygon in given sector. */
   ENGINE_API CObjectPolygon *CreatePolygon(INDEX ctVertices, INDEX aivVertices[],
-    CObjectMaterial &omaMaterial, ULONG ulFlags, BOOL bReverse);
+    CObjectMaterial &omaMaterial, ULONG ulFlags, bool bReverse);
   /* Create a new polygon in given sector. */
   ENGINE_API CObjectPolygon *CreatePolygon(INDEX ctVertices, DOUBLE3D avVertices[],
-    CObjectMaterial &omaMaterial, ULONG ulFlags, BOOL bReverse);
+    CObjectMaterial &omaMaterial, ULONG ulFlags, bool bReverse);
   /* Find bounding box of the sector. */
   void GetBoundingBox(DOUBLEaabbox3D &boxSector);
 };
@@ -324,13 +324,13 @@ public:
   // constants of the line that the edge is on
   DOUBLE3D edx_vDirection;       // normalized direction vector of the line
   DOUBLE3D edx_vReferencePoint;  // reference point on the line
-  BOOL edx_bReverse;            // set if the edge direction is opposite to the line direction
+  bool edx_bReverse;            // set if the edge direction is opposite to the line direction
 
   /* Initialize the structure for the given edge. */
   inline void Initialize(CObjectEdge *poedEdge);
   inline void Initialize(const DOUBLE3D *pvPoint0, const DOUBLE3D *pvPoint1);
   /* Test if a point is on the edge line. */
-  inline BOOL PointIsOnLine(const DOUBLE3D &vPoint) const;
+  inline bool PointIsOnLine(const DOUBLE3D &vPoint) const;
 };
 
 /*
@@ -363,7 +363,7 @@ public:
   /* Recognize and load any of supported 3D file formats. */
 	void LoadAny3DFormat_t( const CTFileName &FileName, const FLOATmatrix3D &mTransform, enum LoadType ltLoadType=LT_NORMAL); // throw (char *)
   // start/end batch loading of 3d objects
-  static void BatchLoading_t(BOOL bOn);
+  static void BatchLoading_t(bool bOn);
   /* Convert from intermediate structures into O3D */
   void ConvertArraysToO3D( void);
 
@@ -375,7 +375,7 @@ public:
   /* Remove unused and replicated elements. */
   void Optimize(void);
   /* See if all polygons in object 3D are valid (planar). */
-  BOOL ArePolygonsPlanar(void);
+  bool ArePolygonsPlanar(void);
   /* Create BSP trees for all sectors. */
   void CreateSectorBSPs(void);
 

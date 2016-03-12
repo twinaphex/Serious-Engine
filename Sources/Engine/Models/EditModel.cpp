@@ -53,7 +53,7 @@ public:
 
 CThumbnailSettings::CThumbnailSettings( void)
 {
-  ts_bSet = FALSE;
+  ts_bSet = false;
 }
 
 void CThumbnailSettings::Read_t( CTStream *strFile)
@@ -94,7 +94,7 @@ void CThumbnailSettings::Write_t( CTStream *strFile)
 
 CEditModel::CEditModel()
 {
-  edm_md.md_bIsEdited = TRUE; // this model data is edited
+  edm_md.md_bIsEdited = true; // this model data is edited
   edm_iActiveCollisionBox = 0;
 }
 
@@ -127,7 +127,7 @@ struct VertexNeighbors { CStaticStackArray<INDEX> vp_aiNeighbors; };
 void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D &mStretch) // throw char *
 {
   try {
-  CObject3D::BatchLoading_t(TRUE);
+  CObject3D::BatchLoading_t(true);
 
   INDEX i;
 	CObject3D OB3D;
@@ -175,12 +175,12 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
 	INDEX iO3D = 0;                        // index used for progress dialog
   CStaticStackArray<FLOAT3D> avVertices; // for caching all vertices in all frames
 
-  BOOL bOrigin = FALSE;
+  BOOL bOrigin = false;
   FLOATmatrix3D mOrientation;
   // set bOrigin if aiTransVtx is valid
   if((aiTransVtx[0] >=0) && (aiTransVtx[1] >=0) && (aiTransVtx[2] >=0))
   {
-    bOrigin = TRUE;
+    bOrigin = true;
   }
 
   {FOREACHINLIST( CFileNameNode, cfnn_Node, FrameNamesList, itFr)
@@ -411,9 +411,9 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
   // all done
 	OB3D.ob_aoscSectors.Unlock();
 
-  CObject3D::BatchLoading_t(FALSE);
+  CObject3D::BatchLoading_t(false);
   } catch (char*) {
-  CObject3D::BatchLoading_t(FALSE);
+  CObject3D::BatchLoading_t(false);
   throw;
   }
 }
@@ -596,7 +596,7 @@ CAttachedModel::CAttachedModel(void)
 {
   am_strName = "No name";
   am_iAnimation = 0;
-  am_bVisible = TRUE;
+  am_bVisible = true;
 }
 
 CAttachedModel::~CAttachedModel(void)
@@ -671,8 +671,8 @@ CAttachedSound::CAttachedSound( void)
 {
   as_fDelay = 0.0f;
   as_fnAttachedSound = CTString("");
-  as_bLooping = FALSE;
-  as_bPlaying = TRUE;
+  as_bLooping = false;
+  as_bPlaying = true;
 }
 
 void CAttachedSound::Read_t(CTStream *strFile)
@@ -937,7 +937,7 @@ void CEditModel::CreateScriptFile_t(CTFileName &fnO3D) // throw char *
 void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 {
   try {
-  CObject3D::BatchLoading_t(TRUE);
+  CObject3D::BatchLoading_t(true);
 
   INDEX i;
   CTFileStream File;
@@ -958,10 +958,10 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 	O3D.ob_aoscSectors.Lock();
 	File.Open_t( fnScriptName);				// open script file for reading
 
-	// if these flags will not be TRUE at the end of script, throw error
-	bMappingDimFound = FALSE;
-	bAnimationsFound = FALSE;
-  bLoadInitialMapping = FALSE;
+	// if these flags will not be true at the end of script, throw error
+	bMappingDimFound   = false;
+	bAnimationsFound   = false;
+  bLoadInitialMapping = false;
 
   // to hold number of line's chars
   int iLineChars;
@@ -1085,7 +1085,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
         O3D.LoadAny3DFormat_t( CTString(full_path), mStretch);
 			  if( edm_md.md_VerticesCt == 0)					// If there are no vertices in model, call New Model
 			  {
-				  if( bMappingDimFound == FALSE)
+				  if( bMappingDimFound == false)
 				  {
 					  ThrowF_t("Found key word \"MIP_MODELS\" but texture dimension wasn't found.\n"
 					    "There must be key word \"TEXTURE_DIM\" before key word \"MIP_MODELS\" in script file.");
@@ -1148,7 +1148,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
       sscanf( ld_line, "TEXTURE_DIM %f %f", &fWidth, &fHeight);	// read given texture dimensions
 			edm_md.md_Width = MEX_METERS( fWidth);
       edm_md.md_Height = MEX_METERS( fHeight);
-      bMappingDimFound = TRUE;
+      bMappingDimFound = true;
 		}
 		// Key-word "ANIM_START" starts loading of Animation Data object
 		else if( EQUAL_SUB_STR( "ANIM_START"))
@@ -1158,7 +1158,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
       edm_md.md_acbCollisionBox.New();
       // reset attaching sounds
       CreateEmptyAttachingSounds();
-			bAnimationsFound = TRUE;				// mark that we found animations section in script-file
+			bAnimationsFound = true;				// mark that we found animations section in script-file
 		}
     else if( EQUAL_SUB_STR( "ORIGIN_TRI"))
     {
@@ -1185,13 +1185,13 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 	 * At the end we check if we found animations in script file and if initial mapping was done
 	 * during loading of script file what means that key-word 'TEXTURE_DIM' was found
 	 */
-	if( bAnimationsFound != TRUE)
+	if( bAnimationsFound != true)
 		throw( "There are no animations defined for this model, and that can't be. Probable cause: script missing key-word \"ANIM_START\".");
 
-	if( bMappingDimFound != TRUE)
+	if( bMappingDimFound != true)
 		throw( "Initial mapping not done, and that can't be. Probable cause: script missing key-word \"TEXTURE_DIM\".");
 
-  edm_md.LinkDataForSurfaces(TRUE);
+  edm_md.LinkDataForSurfaces(true);
 
   // try to
   try
@@ -1300,9 +1300,9 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
   if( edm_aasAttachedSounds.Count() == 0)
     CreateEmptyAttachingSounds();
 
-  CObject3D::BatchLoading_t(FALSE);
+  CObject3D::BatchLoading_t(false);
   } catch (char*) {
-  CObject3D::BatchLoading_t(FALSE);
+  CObject3D::BatchLoading_t(false);
   throw;
   }
 }
@@ -1369,7 +1369,7 @@ void CEditModel::AddMipModel(	CObject3D *pO3D)
 	 */
 	for( i=0; i<o3dvct; i++)
 	{
-		same_found = FALSE;
+		same_found = false;
 		for( j=0; j<edm_md.md_VerticesCt; j++)
 		{
 			FLOAT3D vVertex = DOUBLEtoFLOAT(pO3D->ob_aoscSectors[0].osc_aovxVertices[ i]);
@@ -1378,11 +1378,11 @@ void CEditModel::AddMipModel(	CObject3D *pO3D)
 			{
 				edm_md.md_VertexMipMask[ j] |= mip_vtx_mask;// we mark that this vertice exists in this mip model
 				pO3D->ob_aoscSectors[0].osc_aovxVertices[ i].ovx_Tag = j;// remapping verice index must be remembered
-				same_found = TRUE;								// mark that this vertex's remap is found
+				same_found = true;								// mark that this vertex's remap is found
 				break;
 			}
 		}
-		if( same_found == FALSE)	// if no vertice close enough is found, we have error
+		if( same_found == false)	// if no vertice close enough is found, we have error
 		{
 			ThrowF_t("Vertex from mip model %d with number %d, coordinates (%f,%f,%f), can't be found in main mip model.\n"
 			  "There can't be new vertices in rougher mip-models,"
@@ -1470,18 +1470,18 @@ void CEditModel::AddMipModel(	CObject3D *pO3D)
 	INDEX tvct = 0;
 	for( i=0; i<pvct; i++)
 	{
-		same_vtx_found = FALSE;
+		same_vtx_found = false;
 		for( INDEX j=0; j<i; j++)
 		{
 			if( (aesv[ j].esv_Surface == aesv[ i].esv_Surface) &&				// if surface and global
 				  (aesv[ j].esv_MipGlobalIndex == aesv[ i].esv_MipGlobalIndex)) // vertex index are the same
 			{
-					same_vtx_found = TRUE;									// if yes, copy remap value
+					same_vtx_found = true;									// if yes, copy remap value
 					aesv[ i].esv_TextureVertexRemap = aesv[ j].esv_TextureVertexRemap;
 					break;
 			}
 		}
-		if( same_vtx_found == FALSE)									// if not, set value to current counter
+		if( same_vtx_found == false)									// if not, set value to current counter
 		{
 			aesv[ i].esv_TextureVertexRemap = tvct;
 			tvct ++;
@@ -1801,7 +1801,7 @@ void CEditModel::CreateMipModels_t(CObject3D &objRestFrame, CObject3D &objMipSou
   }
   ProgresRoutines.SetProgressState(ctVerticesInRestFrame);
   edm_md.SpreadMipSwitchFactors( 0, 5.0f);
-  edm_md.LinkDataForSurfaces(FALSE);
+  edm_md.LinkDataForSurfaces(false);
   CalculateMappingForMips();
 }
 //----------------------------------------------------------------------------------------------
@@ -1813,7 +1813,7 @@ void CEditModel::CreateMipModels_t(CObject3D &objRestFrame, CObject3D &objMipSou
 void CEditModel::UpdateMipModels_t(CTFileName &fnScriptName) // throw char *
 {
   try {
-  CObject3D::BatchLoading_t(TRUE);
+  CObject3D::BatchLoading_t(true);
 	CTFileStream File;
 	CObject3D O3D;
 	char base_path[ PATH_MAX] = "";
@@ -1918,11 +1918,11 @@ void CEditModel::UpdateMipModels_t(CTFileName &fnScriptName) // throw char *
 		}
 	}
 	O3D.ob_aoscSectors.Unlock();
-  edm_md.LinkDataForSurfaces(TRUE);
+  edm_md.LinkDataForSurfaces(true);
 
-  CObject3D::BatchLoading_t(FALSE);
+  CObject3D::BatchLoading_t(false);
   } catch (char*) {
-  CObject3D::BatchLoading_t(FALSE);
+  CObject3D::BatchLoading_t(false);
   throw;
   }
 }
@@ -2130,10 +2130,10 @@ BOOL CEditModel::GetFirstEmptyPatchIndex( INDEX &iMaskBit)
     if( pTD == NULL)
     {
       iMaskBit = iPatch;
-      return TRUE;
+      return true;
     }
   }
-  return FALSE;
+  return false;
 }
 //--------------------------------------------------------------------------------------------
 /*
@@ -2148,10 +2148,10 @@ BOOL CEditModel::GetFirstValidPatchIndex( INDEX &iMaskBit)
     if( pTD != NULL)
     {
       iMaskBit = iPatch;
-      return TRUE;
+      return true;
     }
   }
-  return FALSE;
+  return false;
 }
 //--------------------------------------------------------------------------------------------
 /*
@@ -2218,7 +2218,7 @@ void CEditModel::SetPatchStretch( INDEX iMaskBit, FLOAT fNewStretch)
 BOOL CEditModel::EditAddPatch( CTFileName fnPatchName, MEX2D mexPos, INDEX &iMaskBit)
 {
   if( !GetFirstEmptyPatchIndex( iMaskBit))
-    return FALSE;
+    return false;
 
   try
   {
@@ -2227,13 +2227,13 @@ BOOL CEditModel::EditAddPatch( CTFileName fnPatchName, MEX2D mexPos, INDEX &iMas
   catch (char *strError)
   {
     (void)strError;
-    return FALSE;
+    return false;
   }
   edm_md.md_mpPatches[ iMaskBit].mp_mexPosition = mexPos;
   edm_md.md_mpPatches[ iMaskBit].mp_fStretch = 1.0f;
   edm_md.md_mpPatches[ iMaskBit].mp_strName.PrintF( "Patch%02d", iMaskBit);
   CalculatePatchesPerPolygon();
-  return TRUE;
+  return true;
 }
 //--------------------------------------------------------------------------------------------
 /*
@@ -2498,11 +2498,11 @@ void CEditModel::LoadMapping_t( CTFileName fnFileName, INDEX iMip /*=-1*/)
 {
   CTFileStream strmMappingFile;
 
-  BOOL bReadPolygonsPerSurface = FALSE;
-  BOOL bReadSoundsAndAttachments = FALSE;
-  BOOL bReadCollision = FALSE;
-  BOOL bReadPatches = FALSE;
-  BOOL bReadSurfaceColors = FALSE;
+  BOOL bReadPolygonsPerSurface = false;
+  BOOL bReadSoundsAndAttachments = false;
+  BOOL bReadCollision = false;
+  BOOL bReadPatches = false;
+  BOOL bReadSurfaceColors = false;
   // open binary file
   strmMappingFile.Open_t( fnFileName);
   // recognize file ID
@@ -2515,33 +2515,33 @@ void CEditModel::LoadMapping_t( CTFileName fnFileName, INDEX iMip /*=-1*/)
   }
   else if( cidVersion == CChunkID( MAPPING_VERSION_WITHOUT_SOUNDS_AND_ATTACHMENTS))
   {
-    bReadPolygonsPerSurface = TRUE;
+    bReadPolygonsPerSurface = true;
   }
   else if( cidVersion == CChunkID( MAPPING_VERSION_WITHOUT_COLLISION))
   {
-    bReadPolygonsPerSurface = TRUE;
-    bReadSoundsAndAttachments = TRUE;
+    bReadPolygonsPerSurface = true;
+    bReadSoundsAndAttachments = true;
   }
   else if( cidVersion == CChunkID( MAPPING_VERSION_WITHOUT_PATCHES))
   {
-    bReadPolygonsPerSurface = TRUE;
-    bReadSoundsAndAttachments = TRUE;
-    bReadCollision = TRUE;
+    bReadPolygonsPerSurface = true;
+    bReadSoundsAndAttachments = true;
+    bReadCollision = true;
   }
   else if( cidVersion == CChunkID( MAPPING_WITHOUT_SURFACE_COLORS))
   {
-    bReadPolygonsPerSurface = TRUE;
-    bReadSoundsAndAttachments = TRUE;
-    bReadCollision = TRUE;
-    bReadPatches = TRUE;
+    bReadPolygonsPerSurface = true;
+    bReadSoundsAndAttachments = true;
+    bReadCollision = true;
+    bReadPatches = true;
   }
   else if( cidVersion == CChunkID( MAPPING_VERSION))
   {
-    bReadPolygonsPerSurface = TRUE;
-    bReadSoundsAndAttachments = TRUE;
-    bReadCollision = TRUE;
-    bReadPatches = TRUE;
-    bReadSurfaceColors = TRUE;
+    bReadPolygonsPerSurface = true;
+    bReadSoundsAndAttachments = true;
+    bReadCollision = true;
+    bReadPatches = true;
+    bReadSurfaceColors = true;
   }
   else
   {

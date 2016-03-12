@@ -20,25 +20,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 static void ogl_EnableTexture(void)
 {
-  // check consistency
-  ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
+   // check consistency
+   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes;
-  bRes = pglIsEnabled(GL_TEXTURE_2D);
-  OGL_CHECKERROR;
-  ASSERT( !bRes == !GFX_abTexture[GFX_iActiveTexUnit]);
+   bool bRes = pglIsEnabled(GL_TEXTURE_2D);
+   OGL_CHECKERROR;
+   ASSERT( !bRes == !GFX_abTexture[GFX_iActiveTexUnit]);
 #endif
 
-  // cached?
-  if( GFX_abTexture[GFX_iActiveTexUnit] && gap_bOptimizeStateChanges) return;
-  GFX_abTexture[GFX_iActiveTexUnit] = TRUE;
+   // cached?
+   if( GFX_abTexture[GFX_iActiveTexUnit] && gap_bOptimizeStateChanges) return;
+   GFX_abTexture[GFX_iActiveTexUnit] = TRUE;
 
-  _sfStats.StartTimer(CStatForm::STI_GFXAPI);
+   _sfStats.StartTimer(CStatForm::STI_GFXAPI);
 
-  pglEnable(GL_TEXTURE_2D);
-  OGL_CHECKERROR;
+   pglEnable(GL_TEXTURE_2D);
+   OGL_CHECKERROR;
 
-  _sfStats.StopTimer(CStatForm::STI_GFXAPI);
+   _sfStats.StopTimer(CStatForm::STI_GFXAPI);
 }
 
 
@@ -48,8 +47,7 @@ static void ogl_DisableTexture(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  bRes = pglIsEnabled(GL_TEXTURE_2D);
+  bool bRes = pglIsEnabled(GL_TEXTURE_2D);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_abTexture[GFX_iActiveTexUnit]);
 #endif
@@ -74,8 +72,7 @@ static void ogl_EnableDepthTest(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes;
-  bRes = pglIsEnabled(GL_DEPTH_TEST);
+  bool bRes = pglIsEnabled(GL_DEPTH_TEST);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bDepthTest);
 #endif
@@ -97,8 +94,7 @@ static void ogl_DisableDepthTest(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  bRes = pglIsEnabled(GL_DEPTH_TEST);
+  bool bRes = pglIsEnabled(GL_DEPTH_TEST);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bDepthTest);
 #endif
@@ -152,8 +148,7 @@ static void ogl_EnableDepthWrite(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  pglGetIntegerv( GL_DEPTH_WRITEMASK, (GLint*)&bRes);
+  bool bRes = pglGetIntegerv( GL_DEPTH_WRITEMASK, (GLint*)&bRes);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bDepthWrite);
 #endif
@@ -177,8 +172,7 @@ static void ogl_DisableDepthWrite(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  pglGetIntegerv( GL_DEPTH_WRITEMASK, (GLint*)&bRes);
+  bool bRes = pglGetIntegerv( GL_DEPTH_WRITEMASK, (GLint*)&bRes);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bDepthWrite);
 #endif
@@ -202,8 +196,7 @@ static void ogl_EnableDither(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes;
-  bRes = pglIsEnabled(GL_DITHER);
+  bool bRes = pglIsEnabled(GL_DITHER);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bDithering);
 #endif
@@ -227,8 +220,7 @@ static void ogl_DisableDither(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  bRes = pglIsEnabled(GL_DITHER);
+  bool bRes = pglIsEnabled(GL_DITHER);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bDithering);
 #endif
@@ -252,8 +244,7 @@ static void ogl_EnableAlphaTest(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes;
-  bRes = pglIsEnabled(GL_ALPHA_TEST);
+  bool bRes = pglIsEnabled(GL_ALPHA_TEST);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bAlphaTest);
 #endif
@@ -277,8 +268,7 @@ static void ogl_DisableAlphaTest(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  bRes = pglIsEnabled(GL_ALPHA_TEST);
+  bool bRes = pglIsEnabled(GL_ALPHA_TEST);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bAlphaTest);
 #endif
@@ -302,8 +292,7 @@ static void ogl_EnableBlend(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes;
-  bRes = pglIsEnabled(GL_BLEND);
+  bool bRes = pglIsEnabled(GL_BLEND);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bBlending);
 #endif
@@ -330,8 +319,7 @@ static void ogl_DisableBlend(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  bRes = pglIsEnabled(GL_BLEND);
+  bool bRes = = pglIsEnabled(GL_BLEND);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bBlending);
 #endif
@@ -362,7 +350,7 @@ static void ogl_EnableClipping(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes;
+  bool bRes;
   pglGetIntegerv( GL_CLIP_VOLUME_CLIPPING_HINT_EXT, (GLint*)&bRes);
   bRes = (bRes==GL_FASTEST) ? FALSE : TRUE;
   OGL_CHECKERROR;
@@ -391,7 +379,7 @@ static void ogl_DisableClipping(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes;
+  bool bRes;
   pglGetIntegerv( GL_CLIP_VOLUME_CLIPPING_HINT_EXT, (GLint*)&bRes);
   bRes = (bRes==GL_FASTEST) ? FALSE : TRUE;
   OGL_CHECKERROR;
@@ -418,8 +406,7 @@ static void ogl_EnableClipPlane(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  bRes = pglIsEnabled(GL_CLIP_PLANE0);
+  bool bRes = pglIsEnabled(GL_CLIP_PLANE0);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bClipPlane);
 #endif
@@ -442,8 +429,7 @@ static void ogl_DisableClipPlane(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  bRes = pglIsEnabled(GL_CLIP_PLANE0);
+  bool bRes = pglIsEnabled(GL_CLIP_PLANE0);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bClipPlane);
 #endif
@@ -467,8 +453,7 @@ static void ogl_EnableColorArray(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  bRes = pglIsEnabled(GL_COLOR_ARRAY);
+  bool bRes = pglIsEnabled(GL_COLOR_ARRAY);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bColorArray);
 #endif
@@ -493,8 +478,7 @@ static void ogl_DisableColorArray(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  bRes = pglIsEnabled(GL_COLOR_ARRAY);
+  bool bRes = pglIsEnabled(GL_COLOR_ARRAY);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bColorArray);
 #endif
@@ -522,8 +506,7 @@ static void ogl_EnableTruform(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  bRes = pglIsEnabled(GL_PN_TRIANGLES_ATI);
+  bool bRes = pglIsEnabled(GL_PN_TRIANGLES_ATI);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bTruform);
 #endif
@@ -550,8 +533,7 @@ static void ogl_DisableTruform(void)
   // check consistency
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
-  BOOL bRes; 
-  bRes = pglIsEnabled(GL_PN_TRIANGLES_ATI);
+  bool bRes = pglIsEnabled(GL_PN_TRIANGLES_ATI);
   OGL_CHECKERROR;
   ASSERT( !bRes == !GFX_bTruform);
 #endif
@@ -633,16 +615,16 @@ static void ogl_BlendFunc( GfxBlend eSrc, GfxBlend eDst)
 
 
 // color buffer writing enable
-static void ogl_SetColorMask( ULONG ulColorMask)
+static void ogl_SetColorMask( uint32_t ulColorMask)
 {
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
   _ulCurrentColorMask = ulColorMask; // keep for Get...()
   _sfStats.StartTimer(CStatForm::STI_GFXAPI);
 
-  const BOOL bR = (ulColorMask&CT_RMASK) == CT_RMASK;
-  const BOOL bG = (ulColorMask&CT_GMASK) == CT_GMASK;
-  const BOOL bB = (ulColorMask&CT_BMASK) == CT_BMASK;
-  const BOOL bA = (ulColorMask&CT_AMASK) == CT_AMASK;
+  const bool bR = (ulColorMask&CT_RMASK) == CT_RMASK;
+  const bool bG = (ulColorMask&CT_GMASK) == CT_GMASK;
+  const bool bB = (ulColorMask&CT_BMASK) == CT_BMASK;
+  const bool bA = (ulColorMask&CT_AMASK) == CT_AMASK;
   pglColorMask( bR,bG,bB,bA);
   OGL_CHECKERROR;
 
@@ -745,7 +727,7 @@ static void ogl_CullFace( GfxFace eFace)
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
 #ifndef NDEBUG
   GLenum gleCull;
-  BOOL bRes = pglIsEnabled(GL_CULL_FACE);
+  bool bRes = pglIsEnabled(GL_CULL_FACE);
   pglGetIntegerv( GL_CULL_FACE_MODE, (GLint*)&gleCull);
   OGL_CHECKERROR;
   ASSERT( (bRes==GL_FALSE && GFX_eCullFace==GFX_NONE)
@@ -788,7 +770,7 @@ static void ogl_FrontFace( GfxFace eFace)
        || (gleFace==GL_CW  && !GFX_bFrontFace));
 #endif
   // cached?
-  BOOL bFrontFace = (eFace==GFX_CCW);
+  bool bFrontFace = (eFace==GFX_CCW);
   if( !bFrontFace==!GFX_bFrontFace && gap_bOptimizeStateChanges) return;
 
   _sfStats.StartTimer(CStatForm::STI_GFXAPI);
@@ -868,7 +850,7 @@ static void ogl_SetViewMatrix( const FLOAT *pfMatrix/*=NULL*/)
 // set orthographic matrix
 static void ogl_SetOrtho( const FLOAT fLeft,   const FLOAT fRight, const FLOAT fTop,
                           const FLOAT fBottom, const FLOAT fNear,  const FLOAT fFar,
-                          const BOOL bSubPixelAdjust/*=FALSE*/)
+                          const bool bSubPixelAdjust/*=FALSE*/)
 {
   // check API and matrix type
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
@@ -996,7 +978,7 @@ static void ogl_SetTextureModulation( INDEX iScale)
 
 
 // generate texture for API
-static void ogl_GenerateTexture( ULONG &ulTexObject)
+static void ogl_GenerateTexture( uint32_t &ulTexObject)
 {
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
   _sfStats.StartTimer(CStatForm::STI_BINDTEXTURE);
@@ -1012,7 +994,7 @@ static void ogl_GenerateTexture( ULONG &ulTexObject)
 
  
 // unbind texture from API
-static void ogl_DeleteTexture( ULONG &ulTexObject)
+static void ogl_DeleteTexture( uint32_t &ulTexObject)
 {
   // skip if already unbound
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
@@ -1091,7 +1073,7 @@ static void ogl_SetColorArray( GFXColor *pcol)
 
 
 // prepare texture coordinates array for API
-static void ogl_SetTexCoordArray( GFXTexCoord *ptex, BOOL b4/*=FALSE*/)
+static void ogl_SetTexCoordArray( GFXTexCoord *ptex, bool b4/*=FALSE*/)
 {
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_OGL);
   ASSERT( ptex!=NULL);

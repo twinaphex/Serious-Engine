@@ -171,15 +171,13 @@ void SelectVertexOnRender(CBrushVertex &bvx, const PIX2D &vpix)
       // if alternative
       if (_bSelectAlternative) {
         // deselect
-        if (bvx.IsSelected(BVXF_SELECTED)) {
+        if (bvx.IsSelected(BVXF_SELECTED))
           _pselbvxtSelectOnRender->Deselect(bvx);
-        }
       // if normal
       } else {
         // select
-        if (!bvx.IsSelected(BVXF_SELECTED)) {
+        if (!bvx.IsSelected(BVXF_SELECTED))
           _pselbvxtSelectOnRender->Select(bvx);
-        }
       }
     }
   }
@@ -203,16 +201,14 @@ BOOL IsVertexInLasso( CProjection3D &prProjection, const FLOAT3D &vtx, FLOATmatr
   if (vpix(1)<0 || vpix(1)>=_pixSizeI
      || vpix(2)<0 || vpix(2)>=_pixSizeJ) {
     // no selecting
-    return FALSE;
+    return false;
   }
 
   // if the vertex is set in lasso buffer
   if (_pubLassoBuffer!=NULL
     &&_pubLassoBuffer[vpix(2)*_pixSizeI+vpix(1)])
-  {
     return TRUE;
-  }
-  return FALSE;
+  return false;
 }
 
 // check if given bounding box is selected by lasso
@@ -231,10 +227,8 @@ BOOL IsBoundingBoxInLasso( CProjection3D &prProjection, const FLOATaabbox3D &box
     IsVertexInLasso( prProjection, FLOAT3D( vMax(1), vMin(2), vMax(3)), pmR, vOffset) &&
     IsVertexInLasso( prProjection, FLOAT3D( vMin(1), vMax(2), vMax(3)), pmR, vOffset) &&
     IsVertexInLasso( prProjection, FLOAT3D( vMax(1), vMax(2), vMax(3)), pmR, vOffset) )
-  {
-    return TRUE;
-  }
-  return FALSE;
+    return true;
+  return false;
 }
 
 // check if all of the corners of entity's bounding box are influenced by current select-on-render selection
@@ -280,17 +274,13 @@ void SelectEntityOnRender(CProjection3D &prProjection, CEntity &en)
     {
       // deselect
       if (en.IsSelected(ENF_SELECTED))
-      {
         _pselenSelectOnRender->Deselect(en);
-      }
     }
     else
     {
       // select
       if (!en.IsSelected(ENF_SELECTED))
-      {
         _pselenSelectOnRender->Select(en);
-      }
     }
   }
 }

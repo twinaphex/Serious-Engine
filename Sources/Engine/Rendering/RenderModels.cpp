@@ -27,14 +27,19 @@ extern INDEX mdl_iShadowQuality;
  */
 static inline int CompareDelayedModels( const CDelayedModel &dm0, const CDelayedModel &dm1)
 {
-  BOOL bHasAlpha0 = dm0.dm_ulFlags&DMF_HASALPHA;
-  BOOL bHasAlpha1 = dm1.dm_ulFlags&DMF_HASALPHA;
-       if (! bHasAlpha0 &&  bHasAlpha1) return -1;
-  else if (  bHasAlpha0 && !bHasAlpha1) return +1;
+   bool bHasAlpha0 = dm0.dm_ulFlags&DMF_HASALPHA;
+   bool bHasAlpha1 = dm1.dm_ulFlags&DMF_HASALPHA;
+   if (! bHasAlpha0 &&  bHasAlpha1)
+      return -1;
+   if (  bHasAlpha0 && !bHasAlpha1)
+      return +1;
 
-       if (dm0.dm_fDistance<dm1.dm_fDistance) return -1;
-  else if (dm0.dm_fDistance>dm1.dm_fDistance) return +1;
-  else                                        return  0;
+   if (dm0.dm_fDistance<dm1.dm_fDistance)
+      return -1;
+   if (dm0.dm_fDistance>dm1.dm_fDistance)
+      return +1;
+
+   return  0;
 }
 
 static int qsort_CompareDelayedModels( const void *ppdm0, const void *ppdm1)
@@ -45,7 +50,7 @@ static int qsort_CompareDelayedModels( const void *ppdm0, const void *ppdm1)
 }
 
 
-static inline FLOAT IntensityAtDistance( FLOAT fFallOff, FLOAT fHotSpot, FLOAT fDistance)
+static inline float IntensityAtDistance( float fFallOff, float fHotSpot, float fDistance)
 {
   // intensity is zero if further than fall-off range
   if( fDistance>fFallOff) return 0.0f;
@@ -57,8 +62,8 @@ static inline FLOAT IntensityAtDistance( FLOAT fFallOff, FLOAT fHotSpot, FLOAT f
 
 
 /* Find lights for one model. */
-BOOL CRenderer::FindModelLights( CEntity &en, const CPlacement3D &plModel,
-                                 COLOR &colLight, COLOR &colAmbient, FLOAT &fTotalShadowIntensity,
+bool CRenderer::FindModelLights( CEntity &en, const CPlacement3D &plModel,
+                                 COLOR &colLight, COLOR &colAmbient, float &fTotalShadowIntensity,
                                  FLOAT3D &vTotalLightDirection, FLOATplane3D &plFloorPlane)
 {
   // find shading info if not already cached
@@ -165,7 +170,7 @@ BOOL CRenderer::FindModelLights( CEntity &en, const CPlacement3D &plModel,
         }
 
         // get the layer intensity at the point
-        FLOAT fShadowFactor;
+        float fShadowFactor;
         if (en.en_ulFlags&ENF_CLUSTERSHADOWS) {
           fShadowFactor = 1.0f;
         } else {
@@ -179,8 +184,8 @@ BOOL CRenderer::FindModelLights( CEntity &en, const CPlacement3D &plModel,
         const FLOAT3D &vLight = plLight.pl_PositionVector;
         // get its parameters at the model position
         FLOAT3D vDirection;
-        FLOAT fDistance;
-        FLOAT fFallOffFactor;
+        float fDistance;
+        float fFallOffFactor;
 
         if (plsLight->ls_ulFlags&LSF_DIRECTIONAL) {
           fFallOffFactor = 1.0f;
@@ -219,7 +224,7 @@ BOOL CRenderer::FindModelLights( CEntity &en, const CPlacement3D &plModel,
           ubB = (UBYTE)Clamp( (SLONG)ubB-slSAB, 0L, 255L);
         }
         // calculate light intensity
-        FLOAT fShade = (ubR+ubG+ubB)*(2.0f/(3.0f*255.0f));
+        float fShade = (ubR+ubG+ubB)*(2.0f/(3.0f*255.0f));
         ml.ml_fShadowIntensity = fShade*fShadowFactor;
         fTotalShadowIntensity += ml.ml_fShadowIntensity;
         // special case for dark light
@@ -234,7 +239,7 @@ BOOL CRenderer::FindModelLights( CEntity &en, const CPlacement3D &plModel,
         }
       }}
 
-      FLOAT fTR=0.0f; FLOAT fTG=0.0f; FLOAT fTB=0.0f;
+      float fTR=0.0f; float fTG=0.0f; float fTB=0.0f;
       FLOAT3D vDirection(0.0f,0.0f,0.0f);
       // for each active light
       {for(INDEX iLight=0; iLight<_amlLights.Count(); iLight++) {
@@ -244,11 +249,11 @@ BOOL CRenderer::FindModelLights( CEntity &en, const CPlacement3D &plModel,
         fTG += ml.ml_fG;
         fTB += ml.ml_fB;
         // add it to direction vector
-        FLOAT fWeight = Abs(ml.ml_fR+ml.ml_fG+ml.ml_fB) * (1.0f/(3.0f*255.0f));
+        float fWeight = Abs(ml.ml_fR+ml.ml_fG+ml.ml_fB) * (1.0f/(3.0f*255.0f));
         vDirection+=ml.ml_vDirection*fWeight;
       }}
       // normalize average direction vector
-      FLOAT fDirection = vDirection.Length();
+      float fDirection = vDirection.Length();
       if (fDirection>0.001f) {
         vDirection /= fDirection;
       } else {
@@ -256,11 +261,11 @@ BOOL CRenderer::FindModelLights( CEntity &en, const CPlacement3D &plModel,
       }
 
       // for each active light
-      FLOAT fDR=0.0f; FLOAT fDG=0.0f; FLOAT fDB=0.0f;
+      float fDR=0.0f; float fDG=0.0f; float fDB=0.0f;
       {for(INDEX iLight=0; iLight<_amlLights.Count(); iLight++) {
         struct ModelLight &ml = _amlLights[iLight];
         // find its contribution to direction vector
-        const FLOAT fFactor = ClampDn( vDirection%ml.ml_vDirection, 0.0f);
+        const float fFactor = ClampDn( vDirection%ml.ml_vDirection, 0.0f);
         // add it to directional intensity
         fDR += ml.ml_fR*fFactor;
         fDG += ml.ml_fG*fFactor;
@@ -274,7 +279,7 @@ BOOL CRenderer::FindModelLights( CEntity &en, const CPlacement3D &plModel,
         COLOR colGradientPoint;
         CEntity *pen = en.en_psiShadingInfo->si_pbpoPolygon->bpo_pbscSector->bsc_pbmBrushMip->bm_pbrBrush->br_penEntity;
         if( pen!=NULL && pen->GetGradient( ulGradientType, gp)) {
-          FLOAT fGrPt = (en.en_psiShadingInfo->si_vNearPoint % gp.gp_vGradientDir - gp.gp_fH0) / (gp.gp_fH1-gp.gp_fH0);
+          float fGrPt = (en.en_psiShadingInfo->si_vNearPoint % gp.gp_vGradientDir - gp.gp_fH0) / (gp.gp_fH1-gp.gp_fH0);
           fGrPt = Clamp( fGrPt, 0.0f, 1.0f);
           colGradientPoint = LerpColor( gp.gp_col0, gp.gp_col1, fGrPt);
           UBYTE ubGR,ubGG,ubGB;
@@ -323,7 +328,7 @@ BOOL CRenderer::FindModelLights( CEntity &en, const CPlacement3D &plModel,
  * Render one model with shadow (eventually)
  */
 void CRenderer::RenderOneModel( CEntity &en, CModelObject &moModel, const CPlacement3D &plModel,
-                                const FLOAT fDistanceFactor, BOOL bRenderShadow, ULONG ulDMFlags)
+                                const float fDistanceFactor, bool bRenderShadow, ULONG ulDMFlags)
 {
   // skip invisible models
   if( moModel.mo_Stretch == FLOAT3D(0,0,0)) return;
@@ -342,8 +347,8 @@ void CRenderer::RenderOneModel( CEntity &en, CModelObject &moModel, const CPlace
   FLOAT3D vTotalLightDirection( 1.0f, -1.0f, 1.0f);
   FLOATplane3D plFloorPlane(FLOAT3D( 0.0f, 1.0f, 0.0f), 0.0f);
 
-  BOOL bRenderModelShadow = FALSE;
-  FLOAT fTotalShadowIntensity = 0.0f;
+  bool bRenderModelShadow = FALSE;
+  float fTotalShadowIntensity = 0.0f;
   // if not rendering cluster shadows
   if( !re_bRenderingShadows) {
     // find model lights
@@ -353,7 +358,7 @@ void CRenderer::RenderOneModel( CEntity &en, CModelObject &moModel, const CPlace
 
   // let the entity adjust shading parameters if it wants to
   mdl_iShadowQuality = Clamp( mdl_iShadowQuality, 0L, 3L);
-  const BOOL bAllowShadows = en.AdjustShadingParameters( vTotalLightDirection, colLight, colAmbient);
+  const bool bAllowShadows = en.AdjustShadingParameters( vTotalLightDirection, colLight, colAmbient);
   bRenderModelShadow = (bRenderModelShadow && bAllowShadows && bRenderShadow && mdl_iShadowQuality>0);
   
   // prepare render model structure
@@ -399,8 +404,8 @@ void CRenderer::RenderOneModel( CEntity &en, CModelObject &moModel, const CPlace
     // if only one shadow
     else if( mdl_iShadowQuality==2) {
       // render one shadow of model from shading light direction
-      const FLOAT fHotSpot = 1E10f;
-      const FLOAT fFallOff = 1E11f;
+      const float fHotSpot = 1E10f;
+      const float fFallOff = 1E11f;
       CPlacement3D plLight;
       plLight.pl_PositionVector = plModel.pl_PositionVector - rm.rm_vLightDirection*1000.0f;
       moModel.RenderShadow( rm, plLight, fFallOff, fHotSpot, fTotalShadowIntensity, plFloorPlane);
@@ -414,8 +419,8 @@ void CRenderer::RenderOneModel( CEntity &en, CModelObject &moModel, const CPlace
         if( !(ml.ml_plsLight->ls_ulFlags&LSF_CASTSHADOWS)) continue;
         // get light parameters
         CPlacement3D plLight = ml.ml_plsLight->ls_penEntity->en_plPlacement;
-        FLOAT fHotSpot = ml.ml_plsLight->ls_rHotSpot;
-        FLOAT fFallOff = ml.ml_plsLight->ls_rFallOff;
+        float fHotSpot = ml.ml_plsLight->ls_rHotSpot;
+        float fFallOff = ml.ml_plsLight->ls_rFallOff;
         if (ml.ml_plsLight->ls_ulFlags & LSF_DIRECTIONAL) {
           fHotSpot = 1E10f;
           fFallOff = 1E11f;
@@ -424,7 +429,7 @@ void CRenderer::RenderOneModel( CEntity &en, CModelObject &moModel, const CPlace
           plLight.pl_PositionVector = plModel.pl_PositionVector-(vDirection*1000.0f);
         } 
         // render one shadow of model
-        const FLOAT fShadowIntensity  = Clamp( ml.ml_fShadowIntensity, 0.0f, 1.0f);
+        const float fShadowIntensity  = Clamp( ml.ml_fShadowIntensity, 0.0f, 1.0f);
         moModel.RenderShadow( rm, plLight, fFallOff, fHotSpot, fShadowIntensity, plFloorPlane);
       }
     }
@@ -450,7 +455,7 @@ void CRenderer::RenderOneModel( CEntity &en, CModelObject &moModel, const CPlace
  * Render one ska model with shadow (eventually)
  */
 void CRenderer::RenderOneSkaModel( CEntity &en, const CPlacement3D &plModel,
-                                  const FLOAT fDistanceFactor, BOOL bRenderShadow, ULONG ulDMFlags)
+                                  const float fDistanceFactor, bool bRenderShadow, ULONG ulDMFlags)
 {
   // skip invisible models
   if( en.GetModelInstance()->mi_vStretch == FLOAT3D(0,0,0)) return;
@@ -469,8 +474,8 @@ void CRenderer::RenderOneSkaModel( CEntity &en, const CPlacement3D &plModel,
   FLOAT3D vTotalLightDirection( 1.0f, -1.0f, 1.0f);
   FLOATplane3D plFloorPlane(FLOAT3D( 0.0f, 1.0f, 0.0f), 0.0f);
 
-  BOOL bRenderModelShadow = FALSE;
-  FLOAT fTotalShadowIntensity = 0.0f;
+  bool bRenderModelShadow = FALSE;
+  float fTotalShadowIntensity = 0.0f;
   // if not rendering cluster shadows
   if( !re_bRenderingShadows) {
     // find model lights
@@ -480,7 +485,7 @@ void CRenderer::RenderOneSkaModel( CEntity &en, const CPlacement3D &plModel,
 
   // let the entity adjust shading parameters if it wants to
   mdl_iShadowQuality = Clamp( mdl_iShadowQuality, 0L, 3L);
-  const BOOL bAllowShadows = en.AdjustShadingParameters( vTotalLightDirection, colLight, colAmbient);
+  const bool bAllowShadows = en.AdjustShadingParameters( vTotalLightDirection, colLight, colAmbient);
   bRenderModelShadow = (bRenderModelShadow && bAllowShadows && bRenderShadow && mdl_iShadowQuality>0);
 
   ULONG &ulRenFlags = RM_GetRenderFlags();
@@ -516,8 +521,8 @@ void CRenderer::RenderOneSkaModel( CEntity &en, const CPlacement3D &plModel,
     else if( mdl_iShadowQuality==2) {
       /*
       // render one shadow of model from shading light direction
-      const FLOAT fHotSpot = 1E10f;
-      const FLOAT fFallOff = 1E11f;
+      const float fHotSpot = 1E10f;
+      const float fFallOff = 1E11f;
       CPlacement3D plLight;
       plLight.pl_PositionVector = plModel.pl_PositionVector - vTotalLightDirection*1000.0f;
       // moModel.RenderShadow( rm, plLight, fFallOff, fHotSpot, fTotalShadowIntensity, plFloorPlane);
@@ -535,8 +540,8 @@ void CRenderer::RenderOneSkaModel( CEntity &en, const CPlacement3D &plModel,
         if( !(ml.ml_plsLight->ls_ulFlags&LSF_CASTSHADOWS)) continue;
         // get light parameters
         CPlacement3D plLight = ml.ml_plsLight->ls_penEntity->en_plPlacement;
-        FLOAT fHotSpot = ml.ml_plsLight->ls_rHotSpot;
-        FLOAT fFallOff = ml.ml_plsLight->ls_rFallOff;
+        float fHotSpot = ml.ml_plsLight->ls_rHotSpot;
+        float fFallOff = ml.ml_plsLight->ls_rFallOff;
         if (ml.ml_plsLight->ls_ulFlags & LSF_DIRECTIONAL) {
           fHotSpot = 1E10f;
           fFallOff = 1E11f;
@@ -545,7 +550,7 @@ void CRenderer::RenderOneSkaModel( CEntity &en, const CPlacement3D &plModel,
           plLight.pl_PositionVector = plModel.pl_PositionVector-(vDirection*1000.0f);
         } 
         // render one shadow of model
-        const FLOAT fShadowIntensity  = Clamp( ml.ml_fShadowIntensity, 0.0f, 1.0f);
+        const float fShadowIntensity  = Clamp( ml.ml_fShadowIntensity, 0.0f, 1.0f);
         // moModel.RenderShadow( rm, plLight, fFallOff, fHotSpot, fShadowIntensity, plFloorPlane);
       }
       */
@@ -576,7 +581,7 @@ void CRenderer::RenderOneSkaModel( CEntity &en, const CPlacement3D &plModel,
 /* 
  * Render models that were kept for delayed rendering.
  */
-void CRenderer::RenderModels( BOOL bBackground)
+void CRenderer::RenderModels( bool bBackground)
 {
   if( _bMultiPlayer) gfx_bRenderModels = 1; // must render in multiplayer mode!
   if( !gfx_bRenderModels && !re_bRenderingShadows) return;
@@ -608,7 +613,7 @@ void CRenderer::RenderModels( BOOL bBackground)
   for( INDEX iModel=0; iModel<re_admDelayedModels.Count(); iModel++) {
     CDelayedModel &dm = re_admDelayedModels[iModel];
     CEntity &en = *dm.dm_penModel;
-    BOOL bIsBackground = re_bBackgroundEnabled && (en.en_ulFlags&ENF_BACKGROUND);
+    bool bIsBackground = re_bBackgroundEnabled && (en.en_ulFlags&ENF_BACKGROUND);
 
     // skip if not rendered in this pass or not visible
     if(  (bBackground && !bIsBackground)
@@ -636,7 +641,7 @@ void CRenderer::RenderModels( BOOL bBackground)
         }
         // set position of marker at top of the model and it size to be proportional to the model
         boxModel.StretchByVector(en.GetModelInstance()->mi_vStretch);
-        FLOAT fSize = boxModel.Size().Length()*0.3f;
+        float fSize = boxModel.Size().Length()*0.3f;
         _wrpWorldRenderPrefs.wrp_pmoSelectedEntity->mo_Stretch = FLOAT3D( fSize, fSize, fSize);
         CPlacement3D plSelection = en.GetLerpedPlacement();
         plSelection.Translate_OwnSystem( FLOAT3D(0.0f, boxModel.Max()(2), 0.0f));
@@ -669,7 +674,7 @@ void CRenderer::RenderModels( BOOL bBackground)
         }
         // set position of marker at top of the model and it size to be proportional to the model
         boxModel.StretchByVector(moModelObject.mo_Stretch);
-        FLOAT fSize = boxModel.Size().Length()*0.3f;
+        float fSize = boxModel.Size().Length()*0.3f;
         _wrpWorldRenderPrefs.wrp_pmoSelectedEntity->mo_Stretch = FLOAT3D( fSize, fSize, fSize);
         CPlacement3D plSelection = en.GetLerpedPlacement();
         plSelection.Translate_OwnSystem( FLOAT3D(0.0f, boxModel.Max()(2), 0.0f));
@@ -696,11 +701,11 @@ void CRenderer::RenderModels( BOOL bBackground)
 
 
 extern CEntity *_Particle_penCurrentViewer;
-extern FLOAT _Particle_fCurrentMip;
-extern BOOL  _Particle_bHasFog;
-extern BOOL  _Particle_bHasHaze;
+extern float _Particle_fCurrentMip;
+extern bool  _Particle_bHasFog;
+extern bool  _Particle_bHasHaze;
 
-void Particle_PrepareEntity( FLOAT fMipFactor, BOOL bHasFog, BOOL bHasHaze, CEntity *penViewer)
+void Particle_PrepareEntity( float fMipFactor, bool bHasFog, bool bHasHaze, CEntity *penViewer)
 {
   _Particle_fCurrentMip = fMipFactor;
   _Particle_bHasFog     = bHasFog;
@@ -709,7 +714,7 @@ void Particle_PrepareEntity( FLOAT fMipFactor, BOOL bHasFog, BOOL bHasHaze, CEnt
 }
 
 /* Render particles for models that were kept for delayed rendering. */
-void CRenderer::RenderParticles(BOOL bBackground)
+void CRenderer::RenderParticles(bool bBackground)
 {
   if( _bMultiPlayer) gfx_bRenderParticles = 1; // must render in multiplayer mode!
   if( re_bRenderingShadows || !gfx_bRenderParticles) return;
@@ -727,7 +732,7 @@ void CRenderer::RenderParticles(BOOL bBackground)
   for(INDEX iModel=0; iModel<re_admDelayedModels.Count(); iModel++) {
     CDelayedModel &dm = re_admDelayedModels[iModel];
     CEntity &en = *dm.dm_penModel;
-    BOOL bIsBackground = re_bBackgroundEnabled && (en.en_ulFlags&ENF_BACKGROUND);
+    bool bIsBackground = re_bBackgroundEnabled && (en.en_ulFlags&ENF_BACKGROUND);
 
     // if not rendered in this pass
     if( (bBackground && !bIsBackground) || (!bBackground &&  bIsBackground)) continue;

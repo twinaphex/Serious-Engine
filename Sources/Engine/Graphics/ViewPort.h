@@ -54,7 +54,7 @@ public:
 
   // open/close canvas window
   void OpenCanvas(void);
-  void CloseCanvas(BOOL bRelease=FALSE);
+  void CloseCanvas(bool bRelease=FALSE);
 
 // interface
   /* Constructor for given window. */

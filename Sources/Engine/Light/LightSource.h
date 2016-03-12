@@ -54,15 +54,15 @@ public:
   UBYTE ls_ubLightAnimationObject;  // light animation - 0 for non animating lights
   UBYTE ls_ubPolygonalMask;         // mask for casting rays only through some polygons
 
-  FLOAT ls_fNearClipDistance;       // clip plane distance near light
-  FLOAT ls_fFarClipDistance;        // clip plane distance near polygon
+  float ls_fNearClipDistance;       // clip plane distance near light
+  float ls_fFarClipDistance;        // clip plane distance near polygon
 
   class CLensFlareType *ls_plftLensFlare;   // type of lens flare to use or NULL for none
   CAnimObject *ls_paoLightAnimation;  // animobject for light animating
   CAnimObject *ls_paoAmbientLightAnimation;  // animobject for light animating
 
   // test if a polygon has a layer from this light source
-  BOOL PolygonHasLayer(CBrushPolygon &bpo);
+  bool PolygonHasLayer(CBrushPolygon &bpo);
 
   // set layer parameters
   void SetLayerParameters(CBrushShadowLayer &bsl, CBrushPolygon &bpo, class CLightRectangle &lr);
@@ -77,9 +77,9 @@ public:
   // discard all linked shadow layers
   void DiscardShadowLayers(void);
   // find all shadow maps that should have layers from this light source
-  void FindShadowLayers(BOOL bSelectedOnly);
-  void FindShadowLayersDirectional(BOOL bSelectedOnly);
-  void FindShadowLayersPoint(BOOL bSelectedOnly);
+  void FindShadowLayers(bool bSelectedOnly);
+  void FindShadowLayersDirectional(bool bSelectedOnly);
+  void FindShadowLayersPoint(bool bSelectedOnly);
   // update shadow map on all terrains in world
   void UpdateTerrains(CPlacement3D plOld, CPlacement3D plNew);
   void UpdateTerrains(void);

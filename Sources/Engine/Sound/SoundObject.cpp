@@ -45,7 +45,7 @@ extern FLOAT snd_fBFilter;
 extern FLOAT snd_fUFilter;
 extern FLOAT snd_fDFilter;
 
-extern BOOL _bPredictionActive;
+extern bool _bPredictionActive;
 
 // console variables for volume
 extern FLOAT snd_fSoundVolume;
@@ -147,7 +147,7 @@ void CSoundObject::Set3DParameters( FLOAT fFalloff, FLOAT fHotSpot,
       //CPrintF("SET3D: ");
       CEntity *pen = so_penEntity->GetPredictionTail();
       if (pen!=so_penEntity) {
-        pso = (CSoundObject *)( ((UBYTE*)pen) + (int(this)-int(so_penEntity)) );
+        pso = (CSoundObject *)( ((uint8_t*)pen) + (int(this)-int(so_penEntity)) );
       }
     }
   }
@@ -164,7 +164,7 @@ void CSoundObject::Set3DParameters( FLOAT fFalloff, FLOAT fHotSpot,
  */
 
 // get proper sound object for predicted events - return NULL the event is already predicted
-CSoundObject *CSoundObject::GetPredictionTail(ULONG ulTypeID, ULONG ulEventID)
+CSoundObject *CSoundObject::GetPredictionTail(uint32_t ulTypeID, uint32_t ulEventID)
 {
   // if the sound has an entity
   if (so_penEntity!=NULL) {
@@ -177,7 +177,7 @@ CSoundObject *CSoundObject::GetPredictionTail(ULONG ulTypeID, ULONG ulEventID)
     }
     SLONG slOffset = int(this)-int(so_penEntity);
 
-    ULONG ulCRC;
+    uint32_t ulCRC;
     CRC_Start(ulCRC);
     CRC_AddLONG(ulCRC, slOffset);
     CRC_AddLONG(ulCRC, ulTypeID);
@@ -195,7 +195,7 @@ CSoundObject *CSoundObject::GetPredictionTail(ULONG ulTypeID, ULONG ulEventID)
       pen = pen->GetPredictionTail();
       if (pen!=so_penEntity) {
         //CPrintF(" ROUTED\n");
-        return (CSoundObject *)( ((UBYTE*)pen) + slOffset );
+        return (CSoundObject *)( ((uint8_t*)pen) + slOffset );
       }
     }
   }
@@ -213,7 +213,7 @@ void CSoundObject::Play(CSoundData *pCsdLink, SLONG slFlags)
 
   //CPrintF("PLAY: '%s'", (const char*)pCsdLink->GetName().FileName());
   // get prediction tail
-  CSoundObject *psoTail = GetPredictionTail(EVENT_SOUNDPLAY, (ULONG)pCsdLink);
+  CSoundObject *psoTail = GetPredictionTail(EVENT_SOUNDPLAY, (uint32_t)pCsdLink);
   // if the event is predicted
   if (psoTail==NULL) {
     // do nothing;
@@ -230,7 +230,7 @@ void CSoundObject::Play_internal( CSoundData *pCsdLink, SLONG slFlags)
   ASSERT(so_penEntity==NULL || !so_penEntity->IsPredictor());
 
   // check if should continue with new sound
-  BOOL bContinue = 
+  bool bContinue = 
     ((slFlags&SOF_SMOOTHCHANGE) &&
      (so_slFlags&SOF_PREPARE) &&
      (so_slFlags&SOF_PLAY));
@@ -349,7 +349,7 @@ void CSoundObject::Stop(void)
 
   CSoundObject *psoTail = this;
   // get prediction tail
-  psoTail = GetPredictionTail(EVENT_SOUNDSTOP, (ULONG)so_pCsdLink);
+  psoTail = GetPredictionTail(EVENT_SOUNDSTOP, (uint32_t)so_pCsdLink);
   // if the event is predicted
   if (psoTail==NULL) {
     // do nothing;

@@ -23,7 +23,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 /*
  * CSG operation table action.
  */
-enum CSGAction {
+enum CSGAction
+{
   CSGA_WallA1,           // wall of sector A1
   CSGA_WallA1_2,         // wall of sector A1 second part
   CSGA_PortalA1A2,       // portal between A1 and A2
@@ -32,7 +33,7 @@ enum CSGAction {
   CSGA_WallB1,           // wall of sector B1
   CSGA_PortalB1B2,       // portal between B1 and B2
   CSGA_Remove,           // this polygon is removed
-  CSGA_Proceed,          // this polygon proceeds with testing
+  CSGA_Proceed           // this polygon proceeds with testing
 };
 
 /*
@@ -125,7 +126,7 @@ static struct CSGOperationTable csgotSplitPolygonsB = {
 static inline CObjectPolygon *CreatePieceOfPolygon(
       CObjectSector *poscSector,
       const CObjectPolygon &opoOriginal,
-      BOOL bReversePlane)
+      bool bReversePlane)
 {
   // create new polygon
   CObjectPolygon *popoPiece = poscSector->osc_aopoPolygons.New(1);
@@ -189,8 +190,8 @@ public:
   inline CObjectPolygon *GetPortalB1A1(void);
   inline CObjectPolygon *GetPortalB1B2(void);
 
-  BOOL oc_bCSGIngoringEnabled;
-  BOOL oc_bSkipObjectB;
+  bool oc_bCSGIngoringEnabled;
+  bool oc_bSkipObjectB;
 
   // array for holding edges that proceed with testing
   CDynamicArray<DOUBLEbspedge3D> oc_abedProceeding;

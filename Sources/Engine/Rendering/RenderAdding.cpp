@@ -95,7 +95,7 @@ void CRenderer::AddModelEntity(CEntity *penModel)
 
   // test object sphere to frustum
   FLOATobbox3D boxEntity;
-  BOOL  bModelHasBox = FALSE;
+  bool  bModelHasBox = FALSE;
   INDEX iFrustumTest = pprProjection->TestSphereToFrustum( vHandle, fR);
   // if test is indeterminate
   if( iFrustumTest==0) {
@@ -232,7 +232,7 @@ void CRenderer::AddSkaModelEntity(CEntity *penModel)
 
   // test object sphere to frustum
   FLOATobbox3D boxEntity;
-  BOOL  bModelHasBox = FALSE;
+  bool  bModelHasBox = FALSE;
   INDEX iFrustumTest = pprProjection->TestSphereToFrustum( vHandle, fR);
   // if test is indeterminate
   if( iFrustumTest==0) {
@@ -407,7 +407,7 @@ void CRenderer::AddNonZoningBrush( CEntity *penBrush, CBrushSector *pbscThatAdds
     return;
   }
 
-  const BOOL bDisableVisTweaks = _wrpWorldRenderPrefs.wrp_bDisableVisTweaks;
+  const bool bDisableVisTweaks = _wrpWorldRenderPrefs.wrp_bDisableVisTweaks;
   // if visibility tweaking is enabled
   if( !bDisableVisTweaks)
   {
@@ -424,7 +424,7 @@ void CRenderer::AddNonZoningBrush( CEntity *penBrush, CBrushSector *pbscThatAdds
 
 
   // skip whole non-zoning brush if invisible for rendering and not in wireframe mode
-  const BOOL bWireFrame = _wrpWorldRenderPrefs.wrp_ftEdges != CWorldRenderPrefs::FT_NONE
+  const bool bWireFrame = _wrpWorldRenderPrefs.wrp_ftEdges != CWorldRenderPrefs::FT_NONE
                        || _wrpWorldRenderPrefs.wrp_ftVertices != CWorldRenderPrefs::FT_NONE;
   if( !(penBrush->en_ulFlags&ENF_ZONING) && !bWireFrame)
   { // test every brush polygon for it's visibility flag
@@ -910,7 +910,7 @@ void CRenderer::AddMirror(CScreenPolygon &spo)
   mi.mi_vClosest = FLOAT3D(0,0,-100000);
   mi.mi_plPlane = 
     bpo.bpo_pbplPlane->bpl_plRelative*m + plLerped.pl_PositionVector;
-  BOOL bSuccess = en.GetMirror(iMirrorType, mi.mi_mp);
+  bool bSuccess = en.GetMirror(iMirrorType, mi.mi_mp);
   // if mirror is valid
   if (bSuccess) {
     // add the polygon to it

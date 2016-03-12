@@ -25,7 +25,7 @@ enum GfxBlend
   GFX_DST_COLOR     = 25,
   GFX_INV_DST_COLOR = 26,
   GFX_SRC_ALPHA     = 27,
-  GFX_INV_SRC_ALPHA = 28,
+  GFX_INV_SRC_ALPHA = 28
 };
 
 enum GfxComp
@@ -37,7 +37,7 @@ enum GfxComp
   GFX_NOT_EQUAL     = 45,
   GFX_GREATER_EQUAL = 46,
   GFX_GREATER       = 47,
-  GFX_ALWAYS        = 48,
+  GFX_ALWAYS        = 48
 };
   
 enum GfxFace
@@ -46,26 +46,26 @@ enum GfxFace
   GFX_FRONT = 62,
   GFX_BACK  = 63,
   GFX_CW    = 64,
-  GFX_CCW   = 65,
+  GFX_CCW   = 65
 };
 
 enum GfxMatrixType
 {
   GFX_VIEW       = 71,
-  GFX_PROJECTION = 72,
+  GFX_PROJECTION = 72
 };
 
 enum GfxWrap
 {
   GFX_REPEAT = 81,
-  GFX_CLAMP  = 82,
+  GFX_CLAMP  = 82
 };
 
 enum GfxPolyMode
 {
   GFX_FILL  = 91,
   GFX_LINE  = 92,
-  GFX_POINT = 93,
+  GFX_POINT = 93
 };
 
 
@@ -105,8 +105,8 @@ extern void (*gfxDepthFunc)( GfxComp eFunc);
 extern void (*gfxDepthRange)( FLOAT fMin, FLOAT fMax);
 
 // color mask control (use CT_RMASK, CT_GMASK, CT_BMASK, CT_AMASK to enable specific channels)
-extern void (*gfxSetColorMask)( ULONG ulColorMask);
-extern ULONG gfxGetColorMask(void);
+extern void (*gfxSetColorMask)( uint32_t ulColorMask);
+extern uint32_t gfxGetColorMask(void);
 
 
 
@@ -123,7 +123,7 @@ extern void (*gfxClipPlane)( const DOUBLE *pdPlane);
 // set orthographic matrix
 extern void (*gfxSetOrtho)( const FLOAT fLeft, const FLOAT fRight,
                             const FLOAT fTop,  const FLOAT fBottom,
-                            const FLOAT fNear, const FLOAT fFar, const BOOL bSubPixelAdjust);
+                            const FLOAT fNear, const FLOAT fFar, const bool bSubPixelAdjust);
 // set frustrum matrix
 extern void (*gfxSetFrustum)( const FLOAT fLeft, const FLOAT fRight,
                               const FLOAT fTop,  const FLOAT fBottom,
@@ -155,10 +155,10 @@ public:
   PIX ts_pixNormSize;
   PIX ts_pixAnimSize;
   // texture formats (set by OGL or D3D)
-  ULONG ts_tfRGB8, ts_tfRGBA8;               // true color
-  ULONG ts_tfRGB5, ts_tfRGBA4, ts_tfRGB5A1;  // high color
-  ULONG ts_tfLA8,  ts_tfL8;                  // grayscale
-  ULONG ts_tfCRGB, ts_tfCRGBA;               // compressed formats
+  uint32_t ts_tfRGB8, ts_tfRGBA8;               // true color
+  uint32_t ts_tfRGB5, ts_tfRGBA4, ts_tfRGB5A1;  // high color
+  uint32_t ts_tfLA8,  ts_tfL8;                  // grayscale
+  uint32_t ts_tfCRGB, ts_tfCRGBA;               // compressed formats
   // maximum texel-byte ratio for largest texture size
   INDEX ts_iMaxBytesPerTexel;
 };
@@ -173,11 +173,11 @@ class CTexParams {
 public:
   INDEX tp_iFilter;            // OpenGL texture mapping mode
   INDEX tp_iAnisotropy;        // texture degree of anisotropy (>=1.0f; 1.0=isotropic, default)
-  BOOL  tp_bSingleMipmap;      // texture has only one mipmap
+  bool  tp_bSingleMipmap;      // texture has only one mipmap
   GfxWrap tp_eWrapU, tp_eWrapV;  // wrapping states
   inline CTexParams(void) { Clear(); tp_bSingleMipmap = FALSE; };
   inline void Clear(void) { tp_iFilter = 00; tp_iAnisotropy = 0; tp_eWrapU = tp_eWrapV = (GfxWrap)NONE; };
-  inline BOOL IsEqual( CTexParams tp) { return tp_iFilter==tp.tp_iFilter && tp_iAnisotropy==tp_iAnisotropy && 
+  inline bool IsEqual( CTexParams tp) { return tp_iFilter==tp.tp_iFilter && tp_iAnisotropy==tp_iAnisotropy && 
                                                tp_eWrapU==tp.tp_eWrapU && tp_eWrapV==tp.tp_eWrapV; };
 };
 
@@ -198,28 +198,28 @@ extern void (*gfxSetTextureModulation)( INDEX iScale);
 extern void gfxSetTextureUnit( INDEX iUnit);
 
 // generate texture for API
-extern void (*gfxGenerateTexture)( ULONG &ulTexObject);
+extern void (*gfxGenerateTexture)( uint32_t &ulTexObject);
 // unbind texture from API
-extern void (*gfxDeleteTexture)( ULONG &ulTexObject);
+extern void (*gfxDeleteTexture)( uint32_t &ulTexObject);
 
 
 // set texture as current
 //  - ulTexture = bind number for OGL, or *LPDIRECT3DTEXTURE8 for D3D (pointer to pointer!)
-extern void gfxSetTexture( ULONG &ulTexObject, CTexParams &tpLocal);
+extern void gfxSetTexture( uint32_t &ulTexObject, CTexParams &tpLocal);
 
 // upload texture
 // - ulTexture  = bind number for OGL, or LPDIRECT3DTEXTURE8 for D3D
 // - pulTexture = pointer to texture in 32-bit R,G,B,A format (in that byte order)
 // - ulFormat   = format in which the texture will be stored in accelerator's (or driver's) memory
 // - bNoDiscard = no need to discard old texture (for OGL, this is like "use SubImage")
-extern void gfxUploadTexture( ULONG *pulTexture, PIX pixWidth, PIX pixHeight, ULONG ulFormat, BOOL bNoDiscard);
+extern void gfxUploadTexture( uint32_t *pulTexture, PIX pixWidth, PIX pixHeight, uint32_t ulFormat, bool bNoDiscard);
 
 // returns size of uploaded texture
-extern SLONG gfxGetTextureSize( ULONG ulTexObject, BOOL bHasMipmaps=TRUE);
+extern int32_t gfxGetTextureSize( uint32_t ulTexObject, bool bHasMipmaps=TRUE);
 
 // returns bytes/pixels ratio for uploaded texture or texture format
-extern INDEX gfxGetTexturePixRatio( ULONG ulTextureObject);
-extern INDEX gfxGetFormatPixRatio(  ULONG ulTextureFormat);
+extern INDEX gfxGetTexturePixRatio( uint32_t ulTextureObject);
+extern INDEX gfxGetFormatPixRatio(  uint32_t ulTextureFormat);
 
 
 
@@ -228,7 +228,7 @@ extern INDEX gfxGetFormatPixRatio(  ULONG ulTextureFormat);
 // prepare arrays for API
 extern void (*gfxSetVertexArray)( GFXVertex4 *pvtx, INDEX ctVtx);
 extern void (*gfxSetNormalArray)( GFXNormal *pnor);
-extern void (*gfxSetTexCoordArray)( GFXTexCoord *ptex, BOOL b4); // b4 = projective mapping (4 FLOATS)
+extern void (*gfxSetTexCoordArray)( GFXTexCoord *ptex, bool b4); // b4 = projective mapping (4 FLOATS)
 extern void (*gfxSetColorArray)( GFXColor *pcol);
 
 
@@ -286,7 +286,7 @@ extern void gfxFlushQuads(void);
 
 
 // set truform parameters
-extern void gfxSetTruform( const INDEX iLevel, BOOL bLinearNormals);
+extern void gfxSetTruform( const INDEX iLevel, bool bLinearNormals);
 extern void (*gfxEnableTruform)( void);
 extern void (*gfxDisableTruform)(void);
 

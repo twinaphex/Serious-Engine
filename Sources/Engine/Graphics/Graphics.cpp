@@ -65,7 +65,7 @@ PIX GetMipmapOffset( INDEX iMipLevel, PIX pixWidth, PIX pixHeight)
 
 
 // return offset, pointer and dimensions of mipmap of specified size inside texture or shadowmap mipmaps
-INDEX GetMipmapOfSize( PIX pixWantedSize, ULONG *&pulFrame, PIX &pixWidth, PIX &pixHeight)
+INDEX GetMipmapOfSize( PIX pixWantedSize, uint32_t *&pulFrame, PIX &pixWidth, PIX &pixHeight)
 {
   INDEX iMipOffset = 0;
   while( pixWidth>1 && pixHeight>1) {
@@ -81,9 +81,9 @@ INDEX GetMipmapOfSize( PIX pixWantedSize, ULONG *&pulFrame, PIX &pixWidth, PIX &
 
 
 // adds 8-bit opaque alpha channel to 24-bit bitmap (in place supported)
-void AddAlphaChannel( UBYTE *pubSrcBitmap, ULONG *pulDstBitmap, PIX pixSize, UBYTE *pubAlphaBitmap)
+void AddAlphaChannel( uint8_t *pubSrcBitmap, uint32_t *pulDstBitmap, PIX pixSize, uint8_t *pubAlphaBitmap)
 {
-  UBYTE ubR,ubG,ubB, ubA=255;
+  uint8_t ubR,ubG,ubB, ubA=255;
   // loop backwards thru all bitmap pixels
   for( INDEX iPix=(pixSize-1); iPix>=0; iPix--) {
     ubR = pubSrcBitmap[iPix*3 +0];
@@ -96,9 +96,9 @@ void AddAlphaChannel( UBYTE *pubSrcBitmap, ULONG *pulDstBitmap, PIX pixSize, UBY
 }
 
 // removes 8-bit alpha channel from 32-bit bitmap (in place supported)
-void RemoveAlphaChannel( ULONG *pulSrcBitmap, UBYTE *pubDstBitmap, PIX pixSize)
+void RemoveAlphaChannel( uint32_t *pulSrcBitmap, uint8_t *pubDstBitmap, PIX pixSize)
 {
-  UBYTE ubR,ubG,ubB;
+  uint8_t ubR,ubG,ubB;
   // loop thru all bitmap pixels
   for( INDEX iPix=0; iPix<pixSize; iPix++) {
     ColorToRGB( ByteSwap( pulSrcBitmap[iPix]), ubR,ubG,ubB);
@@ -111,7 +111,7 @@ void RemoveAlphaChannel( ULONG *pulSrcBitmap, UBYTE *pubDstBitmap, PIX pixSize)
 
 
 // flips 24 or 32-bit bitmap (iType: 1-horizontal, 2-vertical, 3-diagonal) - in place supported
-void FlipBitmap( UBYTE *pubSrc, UBYTE *pubDst, PIX pixWidth, PIX pixHeight, INDEX iFlipType, BOOL bAlphaChannel)
+void FlipBitmap( uint8_t *pubSrc, uint8_t *pubDst, PIX pixWidth, PIX pixHeight, INDEX iFlipType, BOOL bAlphaChannel)
 {
   // safety
   ASSERT( iFlipType>=0 && iFlipType<4);
@@ -125,11 +125,11 @@ void FlipBitmap( UBYTE *pubSrc, UBYTE *pubDst, PIX pixWidth, PIX pixHeight, INDE
   }
 
   // prepare images without alpha channels
-  ULONG *pulNew = NULL;
-  ULONG *pulNewSrc = (ULONG*)pubSrc;
-  ULONG *pulNewDst = (ULONG*)pubDst;
+  uint32_t *pulNew = NULL;
+  uint32_t *pulNewSrc = (uint32_t*)pubSrc;
+  uint32_t *pulNewDst = (uint32_t*)pubDst;
   if( !bAlphaChannel) {
-    pulNew = (ULONG*)AllocMemory( pixSize *BYTES_PER_TEXEL);
+    pulNew = (uint32_t*)AllocMemory( pixSize *BYTES_PER_TEXEL);
     AddAlphaChannel( pubSrc, pulNew, pixSize);
     pulNewSrc = pulNew;
     pulNewDst = pulNew;
@@ -188,7 +188,7 @@ void FlipBitmap( UBYTE *pubSrc, UBYTE *pubDst, PIX pixWidth, PIX pixHeight, INDE
 
 // makes one level lower mipmap (bilinear or nearest-neighbour with border preservance)
 static __int64 mmRounder = 0x0002000200020002;
-static void MakeOneMipmap( ULONG *pulSrcMipmap, ULONG *pulDstMipmap, PIX pixWidth, PIX pixHeight, BOOL bBilinear)
+static void MakeOneMipmap( uint32_t *pulSrcMipmap, uint32_t *pulDstMipmap, PIX pixWidth, PIX pixHeight, BOOL bBilinear)
 {
   // some safety checks
   ASSERT( pixWidth>1 && pixHeight>1);
@@ -237,7 +237,7 @@ pixLoopN:
   }
   else
   { // NEAREST-NEIGHBOUR but with border preserving
-    ULONG ulRowModulo = pixWidth*2 *BYTES_PER_TEXEL;
+    uint32_t ulRowModulo = pixWidth*2 *BYTES_PER_TEXEL;
     __asm {   
       xor     ebx,ebx
       mov     esi,D [pulSrcMipmap]
@@ -290,7 +290,7 @@ fullEnd:
 // and returns pointer to newely created and mipmaped image
 // (only first ctFineMips number of mip-maps will be filtered with bilinear subsampling, while
 //  all others will be downsampled with nearest-neighbour method)
-void MakeMipmaps( INDEX ctFineMips, ULONG *pulMipmaps, PIX pixWidth, PIX pixHeight, INDEX iFilter/*=NONE*/)
+void MakeMipmaps( INDEX ctFineMips, uint32_t *pulMipmaps, PIX pixWidth, PIX pixHeight, INDEX iFilter/*=NONE*/)
 {
   ASSERT( pixWidth>0 && pixHeight>0);
   _pfGfxProfile.StartTimer( CGfxProfile::PTI_MAKEMIPMAPS);
@@ -300,7 +300,7 @@ void MakeMipmaps( INDEX ctFineMips, ULONG *pulMipmaps, PIX pixWidth, PIX pixHeig
   PIX pixTexSize  = 0;
   PIX pixCurrWidth  = pixWidth;
   PIX pixCurrHeight = pixHeight;
-  ULONG *pulSrcMipmap, *pulDstMipmap;
+  uint32_t *pulSrcMipmap, *pulDstMipmap;
 
   // determine filtering mode (-1=prefiltering, 0=none, 1=postfiltering)
   INDEX iFilterMode = 0;
@@ -336,11 +336,11 @@ void MakeMipmaps( INDEX ctFineMips, ULONG *pulMipmaps, PIX pixWidth, PIX pixHeig
 static COLOR _acolMips[10] = { C_RED, C_GREEN, C_BLUE, C_CYAN, C_MAGENTA, C_YELLOW, C_RED, C_GREEN, C_BLUE, C_WHITE };
 
 // colorize mipmaps
-void ColorizeMipmaps( INDEX i1stMipmapToColorize, ULONG *pulMipmaps, PIX pixWidth, PIX pixHeight)
+void ColorizeMipmaps( INDEX i1stMipmapToColorize, uint32_t *pulMipmaps, PIX pixWidth, PIX pixHeight)
 {
   // prepare ...
-  ULONG *pulSrcMipmap = pulMipmaps + GetMipmapOffset( i1stMipmapToColorize, pixWidth, pixHeight);
-  ULONG *pulDstMipmap;
+  uint32_t *pulSrcMipmap = pulMipmaps + GetMipmapOffset( i1stMipmapToColorize, pixWidth, pixHeight);
+  uint32_t *pulDstMipmap;
   PIX pixCurrWidth  = pixWidth >>i1stMipmapToColorize;
   PIX pixCurrHeight = pixHeight>>i1stMipmapToColorize;
   PIX pixMipSize;
@@ -355,7 +355,7 @@ void ColorizeMipmaps( INDEX i1stMipmapToColorize, ULONG *pulMipmaps, PIX pixWidt
     pixMipSize   = pixCurrWidth*pixCurrHeight;
     pulDstMipmap = pulSrcMipmap + pixMipSize;
     // mask mipmap
-    const ULONG ulColorMask = ByteSwap( _acolMips[iTableOfs] | 0x3F3F3FFF);
+    const uint32_t ulColorMask = ByteSwap( _acolMips[iTableOfs] | 0x3F3F3FFF);
     for( INDEX iPix=0; iPix<pixMipSize; iPix++) pulSrcMipmap[iPix] &= ulColorMask;
     // advance to next mipmap
     pulSrcMipmap += pixMipSize;
@@ -368,10 +368,10 @@ void ColorizeMipmaps( INDEX i1stMipmapToColorize, ULONG *pulMipmaps, PIX pixWidt
 
 
 // calculates standard deviation of a bitmap
-DOUBLE CalcBitmapDeviation( ULONG *pulBitmap, PIX pixSize)
+DOUBLE CalcBitmapDeviation( uint32_t *pulBitmap, PIX pixSize)
 {
-  UBYTE ubR,ubG,ubB;
-  ULONG ulSumR =0, ulSumG =0, ulSumB =0;
+  uint8_t ubR,ubG,ubB;
+  uint32_t ulSumR =0, ulSumG =0, ulSumB =0;
 __int64 mmSumR2=0, mmSumG2=0, mmSumB2=0;
 
   // calculate sum and sum^2
@@ -402,19 +402,19 @@ __int64 mmSumR2=0, mmSumG2=0, mmSumB2=0;
 // DITHERING ROUTINES
 
 // dither tables
-static ULONG ulDither4[4][4] = {
+static uint32_t ulDither4[4][4] = {
   { 0x0F0F0F0F, 0x07070707, 0x0D0D0D0D, 0x05050505 }, 
   { 0x03030303, 0x0B0B0B0B, 0x01010101, 0x09090909 },
   { 0x0C0C0C0C, 0x04040404, 0x0E0E0E0E, 0x06060606 },
   { 0x00000000, 0x08080808, 0x02020202, 0x0A0A0A0A }
 };
-static ULONG ulDither3[4][4] = {
+static uint32_t ulDither3[4][4] = {
   { 0x06060606, 0x02020202, 0x06060606, 0x02020202 }, 
   { 0x00000000, 0x04040404, 0x00000000, 0x04040404 },
   { 0x06060606, 0x02020202, 0x06060606, 0x02020202 }, 
   { 0x00000000, 0x04040404, 0x00000000, 0x04040404 },
 };
-static ULONG ulDither2[4][4] = {
+static uint32_t ulDither2[4][4] = {
   { 0x02020202, 0x06060606, 0x02020202, 0x06060606 },
   { 0x06060606, 0x02020202, 0x06060606, 0x02020202 },
   { 0x02020202, 0x06060606, 0x02020202, 0x06060606 },
@@ -428,10 +428,10 @@ static __int64 mmW5 = 0x0005000500050005;
 static __int64 mmW7 = 0x0007000700070007;
 static __int64 mmShift = 0;
 static __int64 mmMask  = 0;
-static ULONG *pulDitherTable;
+static uint32_t *pulDitherTable;
 
 // performs dithering of a 32-bit bipmap (can be in-place)
-void DitherBitmap( INDEX iDitherType, ULONG *pulSrc, ULONG *pulDst, PIX pixWidth, PIX pixHeight,
+void DitherBitmap( INDEX iDitherType, uint32_t *pulSrc, uint32_t *pulDst, PIX pixWidth, PIX pixHeight,
                    PIX pixCanvasWidth, PIX pixCanvasHeight)
 {
   _pfGfxProfile.StartTimer( CGfxProfile::PTI_DITHERBITMAP);
@@ -666,7 +666,7 @@ theEnd:
 
 
 // performs dithering of a 32-bit mipmaps (can be in-place)
-void DitherMipmaps( INDEX iDitherType, ULONG *pulSrc, ULONG *pulDst, PIX pixWidth, PIX pixHeight)
+void DitherMipmaps( INDEX iDitherType, uint32_t *pulSrc, uint32_t *pulDst, PIX pixWidth, PIX pixHeight)
 {
   // safety check
   ASSERT( pixWidth>0 && pixHeight>0);
@@ -707,7 +707,7 @@ static __int64 mmInvDiv;
 static __int64 mmAdd = 0x0007000700070007;
 
 // temp rows for in-place filtering support
-static ULONG aulRows[2048];
+static uint32_t aulRows[2048];
 
 
 // FilterBitmap() INTERNAL: generates convolution filter matrix if needed
@@ -747,7 +747,7 @@ static void GenerateConvolutionMatrix( INDEX iFilter)
 
  
 // applies filter to bitmap
-void FilterBitmap( INDEX iFilter, ULONG *pulSrc, ULONG *pulDst, PIX pixWidth, PIX pixHeight,
+void FilterBitmap( INDEX iFilter, uint32_t *pulSrc, uint32_t *pulDst, PIX pixWidth, PIX pixHeight,
                    PIX pixCanvasWidth, PIX pixCanvasHeight)
 {
   _pfGfxProfile.StartTimer( CGfxProfile::PTI_FILTERBITMAP);
@@ -1092,7 +1092,7 @@ lowerLoop:
 
 
 // saturate color of bitmap
-void AdjustBitmapColor( ULONG *pulSrc, ULONG *pulDst, PIX pixWidth, PIX pixHeight, 
+void AdjustBitmapColor( uint32_t *pulSrc, uint32_t *pulDst, PIX pixWidth, PIX pixHeight, 
                         SLONG const slHueShift, SLONG const slSaturation)
 {
   for( INDEX i=0; i<(pixWidth*pixHeight); i++) {
@@ -1130,13 +1130,13 @@ void MakeMipmapTable( PIX pixU, PIX pixV, MipmapTable &mmt)
 
 // TRIANGLE MASK RENDERING (FOR MODEL CLUSTER SHADOWS) ROUTINES
 
-static ULONG *_pulTexture;
+static uint32_t *_pulTexture;
 static PIX    _pixTexWidth, _pixTexHeight;
 extern BOOL   _bSomeDarkExists = FALSE;
 
 
 // set texture that will be used for all subsequent triangles
-void SetTriangleTexture( ULONG *pulCurrentMipmap, PIX pixMipWidth, PIX pixMipHeight)
+void SetTriangleTexture( uint32_t *pulCurrentMipmap, PIX pixMipWidth, PIX pixMipHeight)
 {
   _pulTexture   = pulCurrentMipmap;
   _pixTexWidth  = pixMipWidth;
@@ -1144,7 +1144,7 @@ void SetTriangleTexture( ULONG *pulCurrentMipmap, PIX pixMipWidth, PIX pixMipHei
 }
 
 // render one triangle to mask plane for shadow casting purposes
-void DrawTriangle_Mask( UBYTE *pubMaskPlane, SLONG slMaskWidth, SLONG slMaskHeight,
+void DrawTriangle_Mask( uint8_t *pubMaskPlane, SLONG slMaskWidth, SLONG slMaskHeight,
                         struct PolyVertex2D *ppv2Vtx1, struct PolyVertex2D *ppv2Vtx2,
                         struct PolyVertex2D *ppv2Vtx3, BOOL bTransparency)
 {
@@ -1390,7 +1390,7 @@ void DrawTriangle_Mask( UBYTE *pubMaskPlane, SLONG slMaskWidth, SLONG slMaskHeig
   // bilinear filtering of lower mipmap
   
   // row loop
-  UBYTE r,g,b,a;
+  uint8_t r,g,b,a;
   for( PIX v=0; v<pixHeight; v++)
   { // column loop
     for( PIX u=0; u<pixWidth; u++)
@@ -1400,7 +1400,7 @@ void DrawTriangle_Mask( UBYTE *pubMaskPlane, SLONG slMaskWidth, SLONG slMaskHeig
       COLOR colDL = pulSrcMipmap[((v*2+1)*pixCurrWidth*2+u*2) +0];
       COLOR colDR = pulSrcMipmap[((v*2+1)*pixCurrWidth*2+u*2) +1];
       // separate and add channels
-      ULONG rRes=0, gRes=0, bRes=0, aRes=0;
+      uint32_t rRes=0, gRes=0, bRes=0, aRes=0;
       ColorToRGBA( colUL, r,g,b,a); rRes += r; gRes += g; bRes += b; aRes += a;
       ColorToRGBA( colUR, r,g,b,a); rRes += r; gRes += g; bRes += b; aRes += a;
       ColorToRGBA( colDL, r,g,b,a); rRes += r; gRes += g; bRes += b; aRes += a;
@@ -1612,7 +1612,7 @@ allDoneE:
       for( INDEX j=0; j<pixHeight; j++) {
         for( INDEX i=0; i<pixWidth; i++) {
           COLOR col;
-          UBYTE ubR, ubG, ubB, ubA;
+          uint8_t ubR, ubG, ubB, ubA;
           SLONG slR=0, slG=0, slB=0, slA=0;
           for( INDEX v=0; v<4; v++) {
             const INDEX iRowSrc = ((v-1)+j*2) & slMaskV;
