@@ -58,25 +58,25 @@ int *piAttribList = aiAttribList;
 
 
 // engine's internal opengl state variables
-extern BOOL GFX_bDepthTest;
-extern BOOL GFX_bDepthWrite;
-extern BOOL GFX_bAlphaTest;
-extern BOOL GFX_bBlending;
-extern BOOL GFX_bDithering;
-extern BOOL GFX_bClipping;
-extern BOOL GFX_bClipPlane;
-extern BOOL GFX_bColorArray;
-extern BOOL GFX_bFrontFace;
-extern BOOL GFX_bTruform;
+extern bool GFX_bDepthTest;
+extern bool GFX_bDepthWrite;
+extern bool GFX_bAlphaTest;
+extern bool GFX_bBlending;
+extern bool GFX_bDithering;
+extern bool GFX_bClipping;
+extern bool GFX_bClipPlane;
+extern bool GFX_bColorArray;
+extern bool GFX_bFrontFace;
+extern bool GFX_bTruform;
 extern INDEX GFX_iActiveTexUnit;
-extern FLOAT GFX_fMinDepthRange;
-extern FLOAT GFX_fMaxDepthRange;
+extern float GFX_fMinDepthRange;
+extern float GFX_fMaxDepthRange;
 extern GfxBlend GFX_eBlendSrc;
 extern GfxBlend GFX_eBlendDst;
 extern GfxComp  GFX_eDepthFunc;
 extern GfxFace  GFX_eCullFace;
 extern INDEX GFX_iTexModulation[GFX_MAXTEXUNITS];
-extern BOOL  glbUsingVARs = FALSE;   // vertex_array_range
+extern bool  glbUsingVARs = FALSE;   // vertex_array_range
 
 
 // define gl function pointers
@@ -97,8 +97,8 @@ void (__stdcall *pglClientActiveTextureARB)(GLenum texunit) = NULL;
 
 // t-buffer support
 char *(__stdcall *pwglGetExtensionsStringARB)(HDC hdc);
-BOOL  (__stdcall *pwglChoosePixelFormatARB)(HDC hdc, const int *piAttribIList, const FLOAT *pfAttribFList, UINT nMaxFormats, int *piFormats, UINT *nNumFormats);
-BOOL  (__stdcall *pwglGetPixelFormatAttribivARB)(HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, int *piAttributes, int *piValues);
+bool  (__stdcall *pwglChoosePixelFormatARB)(HDC hdc, const int *piAttribIList, const float *pfAttribFList, UINT nMaxFormats, int *piFormats, UINT *nNumFormats);
+bool  (__stdcall *pwglGetPixelFormatAttribivARB)(HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, int *piAttributes, int *piValues);
 void  (__stdcall *pglTBufferMask3DFX)(GLuint mask);
 
 // NV occlusion query
@@ -115,7 +115,7 @@ void (__stdcall *pglPNTrianglesiATI)( GLenum pname, GLint param);
 void (__stdcall *pglPNTrianglesfATI)( GLenum pname, GLfloat param);
 
 
-void WIN_CheckError(BOOL bRes, const char *strDescription)
+void WIN_CheckError(bool bRes, const char *strDescription)
 {
   if( bRes) return;
   DWORD dwWindowsErrorCode = GetLastError();
@@ -162,7 +162,7 @@ static void OGL_ClearFunctionPointers(void)
 
 
 // helper for choosing t-buffer's pixel format
-static BOOL _TBCapability = FALSE;
+static bool _TBCapability = FALSE;
 static INDEX ChoosePixelFormatTB( HDC hdc, const PIXELFORMATDESCRIPTOR *ppfd,
                                   PIX pixResWidth, PIX pixResHeight)
 {
@@ -249,8 +249,8 @@ static INDEX ChoosePixelFormatTB( HDC hdc, const PIXELFORMATDESCRIPTOR *ppfd,
       (strstr((const char*)extensions,    "GL_3DFX_multisample ")  != NULL)) {
     // 3dfx extensions present
     _TBCapability = TRUE;
-    pwglChoosePixelFormatARB      = (BOOL (__stdcall*)(HDC,const int*,const FLOAT*,UINT,int*,UINT*))pwglGetProcAddress( "wglChoosePixelFormatARB");
-    pwglGetPixelFormatAttribivARB = (BOOL (__stdcall*)(HDC,int,int,UINT,int*,int*)                 )pwglGetProcAddress( "wglGetPixelFormatAttribivARB");
+    pwglChoosePixelFormatARB      = (bool (__stdcall*)(HDC,const int*,const float*,UINT,int*,UINT*))pwglGetProcAddress( "wglChoosePixelFormatARB");
+    pwglGetPixelFormatAttribivARB = (bool (__stdcall*)(HDC,int,int,UINT,int*,int*)                 )pwglGetProcAddress( "wglGetPixelFormatAttribivARB");
 		pglTBufferMask3DFX = (void (__stdcall*)(GLuint))pwglGetProcAddress("glTBufferMask3DFX");
     if( pwglChoosePixelFormatARB==NULL && pglTBufferMask3DFX==NULL) {
       BACKOFF
@@ -292,7 +292,7 @@ static INDEX ChoosePixelFormatTB( HDC hdc, const PIXELFORMATDESCRIPTOR *ppfd,
 
 
 // prepares pixel format for OpenGL context
-BOOL CGfxLibrary::SetupPixelFormat_OGL( HDC hdc, BOOL bReport/*=FALSE*/)
+bool CGfxLibrary::SetupPixelFormat_OGL( HDC hdc, bool bReport/*=FALSE*/)
 {
   int iPixelFormat = 0;
   const PIX pixResWidth  = gl_dmCurrentDisplayMode.dm_pixSizeI;
@@ -333,7 +333,7 @@ BOOL CGfxLibrary::SetupPixelFormat_OGL( HDC hdc, BOOL bReport/*=FALSE*/)
     go_iCurrentWriteBuffer = 0;
     iPixelFormat = ChoosePixelFormatTB( hdc, &pfd, pixResWidth, pixResHeight);
 	  // need to reset the desktop resolution because CPFTB() resets it
-    BOOL bSuccess = CDS_SetMode( pixResWidth, pixResHeight, dd);
+    bool bSuccess = CDS_SetMode( pixResWidth, pixResHeight, dd);
     if( !bSuccess) iPixelFormat = 0;
     // check T-buffer support
     if( _TBCapability) pglGetIntegerv( GL_SAMPLES_3DFX, (GLint*)&go_ctSampleBuffers);
@@ -360,9 +360,9 @@ BOOL CGfxLibrary::SetupPixelFormat_OGL( HDC hdc, BOOL bReport/*=FALSE*/)
   // test acceleration
   memset( &pfd, 0, sizeof(pfd));
   if( !pwglDescribePixelFormat( hdc, iPixelFormat, sizeof(pfd), &pfd)) return FALSE;
-  BOOL bGenericFormat      = pfd.dwFlags & PFD_GENERIC_FORMAT;
-  BOOL bGenericAccelerated = pfd.dwFlags & PFD_GENERIC_ACCELERATED;
-  BOOL bHasAcceleration    = (bGenericFormat &&  bGenericAccelerated) ||  // MCD
+  bool bGenericFormat      = pfd.dwFlags & PFD_GENERIC_FORMAT;
+  bool bGenericAccelerated = pfd.dwFlags & PFD_GENERIC_ACCELERATED;
+  bool bHasAcceleration    = (bGenericFormat &&  bGenericAccelerated) ||  // MCD
                             (!bGenericFormat && !bGenericAccelerated);    // ICD
   if( bHasAcceleration) gl_ulFlags |=  GLF_HASACCELERATION;
   else                  gl_ulFlags &= ~GLF_HASACCELERATION;
@@ -411,7 +411,7 @@ BOOL CGfxLibrary::SetupPixelFormat_OGL( HDC hdc, BOOL bReport/*=FALSE*/)
 
 
 // test if an extension exists
-static BOOL HasExtension( const char *strAllExtensions, const char *strExtension)
+static bool HasExtension( const char *strAllExtensions, const char *strExtension)
 {
   // find substring
   const char *strFound = strstr( strAllExtensions, strExtension);
@@ -445,7 +445,7 @@ void CGfxLibrary::TestExtension_OGL( uint32_t ulFlag, const char *strName)
 
 
 // creates OpenGL drawing context
-BOOL CGfxLibrary::CreateContext_OGL(HDC hdc)
+bool CGfxLibrary::CreateContext_OGL(HDC hdc)
 {
   if( !SetupPixelFormat_OGL( hdc, TRUE)) return FALSE;
   go_hglRC = pwglCreateContext(hdc);
@@ -471,7 +471,7 @@ void CGfxLibrary::InitContext_OGL(void)
   ASSERT( gl_pvpActive!=NULL);
 
   // reset engine's internal OpenGL state variables
-  extern BOOL GFX_abTexture[GFX_MAXTEXUNITS];
+  extern bool GFX_abTexture[GFX_MAXTEXUNITS];
   for( INDEX iUnit=0; iUnit<GFX_MAXTEXUNITS; iUnit++) {
     GFX_abTexture[iUnit] = FALSE;
     GFX_iTexModulation[iUnit] = 1;
@@ -480,8 +480,8 @@ void CGfxLibrary::InitContext_OGL(void)
   GFX_iActiveTexUnit = 0;
   gl_ctMaxStreams = 16; // GL always has enough "streams" for multi-texturing
   // reset frustum/ortho stuff
-  extern BOOL  GFX_bViewMatrix;
-  extern FLOAT GFX_fLastL, GFX_fLastR, GFX_fLastT, GFX_fLastB, GFX_fLastN, GFX_fLastF;
+  extern bool  GFX_bViewMatrix;
+  extern float GFX_fLastL, GFX_fLastR, GFX_fLastT, GFX_fLastB, GFX_fLastN, GFX_fLastF;
   GFX_fLastL = GFX_fLastR = GFX_fLastT = GFX_fLastB = GFX_fLastN = GFX_fLastF = 0;
   GFX_bViewMatrix = TRUE;
 
@@ -627,7 +627,7 @@ void CGfxLibrary::InitContext_OGL(void)
 
   // determine support for ATI Truform technology
   extern INDEX truform_iLevel;
-  extern BOOL  truform_bLinear;
+  extern bool  truform_bLinear;
   truform_iLevel  = -1;
   truform_bLinear = FALSE;
   pglPNTrianglesiATI = NULL;
@@ -733,12 +733,12 @@ void CGfxLibrary::InitContext_OGL(void)
   // set default texture filtering/biasing
   extern INDEX gap_iTextureFiltering;
   extern INDEX gap_iTextureAnisotropy;
-  extern FLOAT gap_fTextureLODBias;
+  extern float gap_fTextureLODBias;
   gfxSetTextureFiltering( gap_iTextureFiltering, gap_iTextureAnisotropy);
   gfxSetTextureBiasing( gap_fTextureLODBias);
 
   // mark pretouching and probing
-  extern BOOL _bNeedPretouch;
+  extern bool _bNeedPretouch;
   _bNeedPretouch = TRUE;
   gl_bAllowProbing = FALSE;
 
@@ -756,7 +756,7 @@ void CGfxLibrary::InitContext_OGL(void)
 
 
 // initialize OpenGL driver
-BOOL CGfxLibrary::InitDriver_OGL( BOOL b3Dfx/*=FALSE*/)
+bool CGfxLibrary::InitDriver_OGL( bool b3Dfx/*=FALSE*/)
 {
   ASSERT( gl_hiDriver==NONE);
   UINT iOldErrorMode = SetErrorMode( SEM_NOOPENFILEERRORBOX|SEM_FAILCRITICALERRORS);
@@ -839,11 +839,11 @@ void CGfxLibrary::EndDriver_OGL(void)
   // shut the driver down
   if( go_hglRC!=NULL) {
     if( pwglMakeCurrent!=NULL) {
-      BOOL bRes = pwglMakeCurrent(NULL, NULL);
+      bool bRes = pwglMakeCurrent(NULL, NULL);
       WIN_CHECKERROR( bRes, "MakeCurrent(NULL, NULL)");
     }
     ASSERT( pwglDeleteContext!=NULL);
-    BOOL bRes = pwglDeleteContext(go_hglRC);
+    bool bRes = pwglDeleteContext(go_hglRC);
     WIN_CHECKERROR( bRes, "DeleteContext");
     go_hglRC = NULL;
   }
@@ -853,7 +853,7 @@ void CGfxLibrary::EndDriver_OGL(void)
 
 
 // prepare current viewport for rendering thru OpenGL
-BOOL CGfxLibrary::SetCurrentViewport_OGL(CViewPort *pvp)
+bool CGfxLibrary::SetCurrentViewport_OGL(CViewPort *pvp)
 {
   // if must init entire opengl
   if( gl_ulFlags & GLF_INITONNEXTWINDOW)
@@ -885,7 +885,7 @@ BOOL CGfxLibrary::SetCurrentViewport_OGL(CViewPort *pvp)
 
   if( gl_pvpActive!=NULL) {
     // fail, if only one window is allowed (3dfx driver), already initialized and trying to set non-primary viewport
-    const BOOL bOneWindow = (gl_gaAPI[GAT_OGL].ga_adaAdapter[gl_iCurrentAdapter].da_ulFlags & DAF_ONEWINDOW);
+    const bool bOneWindow = (gl_gaAPI[GAT_OGL].ga_adaAdapter[gl_iCurrentAdapter].da_ulFlags & DAF_ONEWINDOW);
     if( bOneWindow && gl_pvpActive->vp_hWnd!=NULL && gl_pvpActive->vp_hWnd!=pvp->vp_hWnd) return FALSE;
     // no need to set context if it is the same window as last time
     if( gl_pvpActive->vp_hWnd==pvp->vp_hWnd) return TRUE;
@@ -909,7 +909,7 @@ BOOL CGfxLibrary::SetCurrentViewport_OGL(CViewPort *pvp)
  */
 
 
-extern void SetTBufferEffect( BOOL bEnable)
+extern void SetTBufferEffect( bool bEnable)
 {
   // adjust console vars
   ogl_iTBufferEffect  = Clamp( ogl_iTBufferEffect, 0L, 2L);
